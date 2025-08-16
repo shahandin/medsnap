@@ -130,17 +130,6 @@ export default function BenefitsApplicationClient() {
       try {
         console.log("🔄 Loading saved progress...")
         const supabase = createClient()
-        const {
-          data: { user },
-        } = await supabase.auth.getUser()
-
-        if (!user) {
-          console.log("❌ No user found, redirecting to login")
-          router.push("/signin")
-          return
-        }
-
-        console.log("👤 User found:", user.email)
 
         if (startFresh) {
           console.log("🆕 Starting fresh application, clearing all saved progress")
@@ -257,7 +246,7 @@ export default function BenefitsApplicationClient() {
     }
 
     loadSavedProgress()
-  }, [router, startFresh])
+  }, [startFresh]) // Removed router dependency since we're not doing auth redirects here
 
   useEffect(() => {
     if (!isLoading && !isInitializing) {
