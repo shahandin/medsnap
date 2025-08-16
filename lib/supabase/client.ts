@@ -1,40 +1,83 @@
-let supabase: any
-let createClient: any
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ""
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
 
-try {
-  const { createClient: supabaseCreateClient } = require("@supabase/supabase-js")
+// Direct API implementation to bypass import issues
+const supabase = {
+  auth: {
+    signInWithPassword: async ({ email, password }: { email: string; password: string }) => {
+      try {
+        const response = await fetch(`${supabaseUrl}/auth/v1/token?grant_type=password`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            apikey: supabaseAnonKey,
+          },
+          body: JSON.stringify({ email, password }),
+        })
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ""
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
+        const data = await response.json()
 
-  if (supabaseUrl && supabaseAnonKey) {
-    supabase = supabaseCreateClient(supabaseUrl, supabaseAnonKey)
-  } else {
-    // Fallback client for when env vars aren't available
-    supabase = {
-      auth: {
-        signInWithPassword: () => Promise.resolve({ data: null, error: { message: "Supabase not configured" } }),
-        signUp: () => Promise.resolve({ data: null, error: { message: "Supabase not configured" } }),
-        signOut: () => Promise.resolve({ error: null }),
-        getUser: () => Promise.resolve({ data: { user: null }, error: null }),
-      },
-    }
-  }
-
-  createClient = supabaseCreateClient
-} catch (error) {
-  console.log("[v0] Supabase import failed, using fallback")
-  // Fallback client when import fails
-  supabase = {
-    auth: {
-      signInWithPassword: () => Promise.resolve({ data: null, error: { message: "Supabase not available" } }),
-      signUp: () => Promise.resolve({ data: null, error: { message: "Supabase not available" } }),
-      signOut: () => Promise.resolve({ error: null }),
-      getUser: () => Promise.resolve({ data: { user: null }, error: null }),
+        if (response.ok && data.access_token) {
+          // Store session in localStorage
+          localStorage.setItem(
+            "supabase_session",
+            JSON.stringify({
+              access_token: data.access_token,
+              user: data.user,
+              expires_at: Date.now() + data.expires_in * 1000,
+            }),
+          )
+          return { data: { user: data.user }, error: null }
+        } else {
+          return { data: null, error: data }
+        }
+      } catch (error) {
+        return { data: null, error: { message: "Authentication failed" } }
+      }
     },
-  }
 
-  createClient = () => supabase
+    signUp: async ({ email, password }: { email: string; password: string }) => {
+      try {
+        const response = await fetch(`${supabaseUrl}/auth/v1/signup`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            apikey: supabaseAnonKey,
+          },
+          body: JSON.stringify({ email, password }),
+        })
+
+        const data = await response.json()
+        return response.ok ? { data, error: null } : { data: null, error: data }
+      } catch (error) {
+        return { data: null, error: { message: "Sign up failed" } }
+      }
+    },
+
+    signOut: async () => {
+      localStorage.removeItem("supabase_session")
+      return { error: null }
+    },
+
+    getUser: async () => {
+      try {
+        const session = localStorage.getItem("supabase_session")
+        if (!session) return { data: { user: null }, error: null }
+
+        const parsed = JSON.parse(session)
+        if (Date.now() > parsed.expires_at) {
+          localStorage.removeItem("supabase_session")
+          return { data: { user: null }, error: null }
+        }
+
+        return { data: { user: parsed.user }, error: null }
+      } catch (error) {
+        return { data: { user: null }, error: null }
+      }
+    },
+  },
 }
+
+const createClient = () => supabase
 
 export { supabase, createClient }
