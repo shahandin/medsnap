@@ -1,9 +1,10 @@
 "use server"
 
-import { createClient } from "@supabase/supabase-js"
+import { createServerClient } from "@supabase/ssr"
+import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 
-function getSupabaseClient() {
+function getSupabaseServerClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
@@ -12,15 +13,24 @@ function getSupabaseClient() {
   }
 
   try {
-    return createClient(supabaseUrl, supabaseAnonKey)
+    const cookieStore = cookies()
+    return createServerClient(supabaseUrl, supabaseAnonKey, {
+      cookies: {
+        get(name: string) {
+          return cookieStore.get(name)?.value
+        },
+        set(name: string, value: string, options: any) {
+          cookieStore.set({ name, value, ...options })
+        },
+        remove(name: string, options: any) {
+          cookieStore.set({ name, value: "", ...options })
+        },
+      },
+    })
   } catch (error) {
-    console.error("Failed to create Supabase client:", error)
+    console.error("Failed to create Supabase server client:", error)
     return null
   }
-}
-
-function isSupabaseAvailable() {
-  return getSupabaseClient() !== null
 }
 
 export async function signIn(prevState: any, formData: FormData) {
@@ -35,7 +45,7 @@ export async function signIn(prevState: any, formData: FormData) {
     return { error: "Email and password are required" }
   }
 
-  const supabase = getSupabaseClient()
+  const supabase = getSupabaseServerClient()
   if (!supabase) {
     return { error: "Service temporarily unavailable" }
   }
@@ -50,7 +60,8 @@ export async function signIn(prevState: any, formData: FormData) {
       return { error: error.message }
     }
 
-    return { success: true }
+    // Redirect directly from server action
+    redirect("/application")
   } catch (error) {
     console.error("Login error:", error)
     return { error: "An unexpected error occurred. Please try again." }
@@ -69,7 +80,7 @@ export async function signUp(prevState: any, formData: FormData) {
     return { error: "Email and password are required" }
   }
 
-  const supabase = getSupabaseClient()
+  const supabase = getSupabaseServerClient()
   if (!supabase) {
     return { error: "Service temporarily unavailable" }
   }
@@ -97,7 +108,7 @@ export async function signUp(prevState: any, formData: FormData) {
 }
 
 export async function signOut() {
-  const supabase = getSupabaseClient()
+  const supabase = getSupabaseServerClient()
   if (supabase) {
     await supabase.auth.signOut()
   }
@@ -105,11 +116,10 @@ export async function signOut() {
 }
 
 export async function saveApplicationProgress(applicationData: any, currentStep: number) {
-  if (!isSupabaseAvailable()) {
+  const supabase = getSupabaseServerClient()
+  if (!supabase) {
     return { error: "Service temporarily unavailable" }
   }
-
-  const supabase = getSupabaseClient()!
 
   try {
     const {
@@ -139,11 +149,10 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
 }
 
 export async function loadApplicationProgress() {
-  if (!isSupabaseAvailable()) {
+  const supabase = getSupabaseServerClient()
+  if (!supabase) {
     return { data: null }
   }
-
-  const supabase = getSupabaseClient()!
 
   try {
     const {
@@ -172,11 +181,10 @@ export async function loadApplicationProgress() {
 }
 
 export async function submitApplication(applicationData: any, benefitType: string) {
-  if (!isSupabaseAvailable()) {
+  const supabase = getSupabaseServerClient()
+  if (!supabase) {
     return { error: "Service temporarily unavailable" }
   }
-
-  const supabase = getSupabaseClient()!
 
   const {
     data: { user },
@@ -206,11 +214,10 @@ export async function submitApplication(applicationData: any, benefitType: strin
 }
 
 export async function clearApplicationProgress() {
-  if (!isSupabaseAvailable()) {
+  const supabase = getSupabaseServerClient()
+  if (!supabase) {
     return { error: "Service temporarily unavailable" }
   }
-
-  const supabase = getSupabaseClient()!
 
   const {
     data: { user },
@@ -230,11 +237,10 @@ export async function clearApplicationProgress() {
 }
 
 export async function getSubmittedApplications() {
-  if (!isSupabaseAvailable()) {
+  const supabase = getSupabaseServerClient()
+  if (!supabase) {
     return { data: [] }
   }
-
-  const supabase = getSupabaseClient()!
 
   const {
     data: { user },
