@@ -14,23 +14,33 @@ export function ApplicationPageClient() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
+        console.log("[v0] 🔍 Checking authentication...")
         const response = await fetch("/api/auth/user", {
           credentials: "include", // Include cookies in the request
         })
 
+        console.log("[v0] 📡 Auth API response status:", response.status)
+        console.log("[v0] 📡 Auth API response ok:", response.ok)
+
         if (response.ok) {
           const userData = await response.json()
+          console.log("[v0] 👤 User data received:", userData)
           if (userData.user) {
+            console.log("[v0] ✅ User authenticated, setting user state")
             setUser(userData.user)
             setLoading(false)
             return
+          } else {
+            console.log("[v0] ❌ No user in response data")
           }
+        } else {
+          console.log("[v0] ❌ Auth API response not ok")
         }
       } catch (error) {
-        console.error("Auth check failed:", error)
+        console.error("[v0] ❌ Auth check failed with error:", error)
       }
 
-      // If no valid session found, redirect to signin
+      console.log("[v0] 🔄 No user found, redirecting to signin")
       router.push("/signin")
     }
 
