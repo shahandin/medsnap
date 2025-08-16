@@ -14,7 +14,7 @@ export default async function ApplicationPage() {
   } = await supabase.auth.getUser()
 
   if (!user) {
-    redirect("/auth/login")
+    redirect("/signin")
   }
 
   return (
