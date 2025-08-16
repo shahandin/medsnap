@@ -1,8 +1,24 @@
 "use server"
 
-import { createServerClient } from "@supabase/ssr"
+import { createClient } from "@supabase/supabase-js"
 import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
+
+function getSupabaseClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return null
+  }
+
+  try {
+    return createClient(supabaseUrl, supabaseAnonKey)
+  } catch (error) {
+    console.error("Failed to create Supabase client:", error)
+    return null
+  }
+}
 
 function getSupabaseServerClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -14,16 +30,28 @@ function getSupabaseServerClient() {
 
   try {
     const cookieStore = cookies()
-    return createServerClient(supabaseUrl, supabaseAnonKey, {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value
+    return createClient(supabaseUrl, supabaseAnonKey, {
+      global: {
+        headers: {
+          "x-client-info": "nextjs",
         },
-        set(name: string, value: string, options: any) {
-          cookieStore.set({ name, value, ...options })
-        },
-        remove(name: string, options: any) {
-          cookieStore.set({ name, value: "", ...options })
+      },
+      auth: {
+        storageKey: "sb",
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: false,
+        localStorage: false,
+        cookies: {
+          get(name: string) {
+            return cookieStore.get(name)?.value
+          },
+          set(name: string, value: string, options: any) {
+            cookieStore.set({ name, value, ...options })
+          },
+          remove(name: string, options: any) {
+            cookieStore.set({ name, value: "", ...options })
+          },
         },
       },
     })
@@ -45,7 +73,7 @@ export async function signIn(prevState: any, formData: FormData) {
     return { error: "Email and password are required" }
   }
 
-  const supabase = getSupabaseServerClient()
+  const supabase = getSupabaseClient()
   if (!supabase) {
     return { error: "Service temporarily unavailable" }
   }
@@ -60,8 +88,7 @@ export async function signIn(prevState: any, formData: FormData) {
       return { error: error.message }
     }
 
-    // Redirect directly from server action
-    redirect("/application")
+    return { success: true }
   } catch (error) {
     console.error("Login error:", error)
     return { error: "An unexpected error occurred. Please try again." }
@@ -80,7 +107,7 @@ export async function signUp(prevState: any, formData: FormData) {
     return { error: "Email and password are required" }
   }
 
-  const supabase = getSupabaseServerClient()
+  const supabase = getSupabaseClient()
   if (!supabase) {
     return { error: "Service temporarily unavailable" }
   }
