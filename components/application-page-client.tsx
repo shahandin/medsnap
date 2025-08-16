@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { supabase } from "@/lib/supabase/client"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import BenefitsApplicationClient from "@/components/benefits-application-client"
@@ -14,17 +13,25 @@ export function ApplicationPageClient() {
 
   useEffect(() => {
     const checkAuth = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
+      try {
+        const response = await fetch("/api/auth/user", {
+          credentials: "include", // Include cookies in the request
+        })
 
-      if (!user) {
-        router.push("/signin")
-        return
+        if (response.ok) {
+          const userData = await response.json()
+          if (userData.user) {
+            setUser(userData.user)
+            setLoading(false)
+            return
+          }
+        }
+      } catch (error) {
+        console.error("Auth check failed:", error)
       }
 
-      setUser(user)
-      setLoading(false)
+      // If no valid session found, redirect to signin
+      router.push("/signin")
     }
 
     checkAuth()
