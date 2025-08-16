@@ -4,74 +4,76 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
+  /* Restored original purple-themed color scheme with proper hue values */
   --background: oklch(1 0 0); /* Pure white background */
-  --foreground: oklch(0.145 0 0); /* Dark gray text (#374151) */
+  --foreground: oklch(0.25 0.01 240); /* Dark gray text (#374151) */
   --card: oklch(1 0 0); /* Pure white card background */
-  --card-foreground: oklch(0.145 0 0); /* Dark gray card text */
+  --card-foreground: oklch(0.25 0.01 240); /* Dark gray card text */
   --popover: oklch(1 0 0); /* White popover background */
-  --popover-foreground: oklch(0.145 0 0); /* Dark gray popover text */
-  --primary: oklch(0.205 0 0); /* Purple primary (#7c3aed) */
-  --primary-foreground: oklch(0.985 0 0); /* White text on primary */
-  --secondary: oklch(0.97 0 0); /* Lighter purple secondary (#a855f7) */
-  --secondary-foreground: oklch(0.205 0 0); /* White text on secondary */
-  --muted: oklch(0.97 0 0); /* Light gray muted background */
-  --muted-foreground: oklch(0.556 0 0); /* Dark gray muted text */
-  --accent: oklch(0.97 0 0); /* Light purple accent (#a855f7) */
-  --accent-foreground: oklch(0.205 0 0); /* White accent text */
-  --destructive: oklch(0.577 0.245 27.325); /* Orange destructive color (#ea580c) */
-  --destructive-foreground: oklch(0.577 0.245 27.325); /* White destructive text */
-  --border: oklch(0.922 0 0); /* Light gray border (#e5e7eb) */
-  --input: oklch(0.922 0 0); /* White input background */
-  --ring: oklch(0.708 0 0); /* Purple focus ring with transparency */
-  --chart-1: oklch(0.646 0.222 41.116); /* Purple chart */
-  --chart-2: oklch(0.6 0.118 184.704); /* Light purple chart */
-  --chart-3: oklch(0.398 0.07 227.392); /* Orange chart (#f97316) */
-  --chart-4: oklch(0.828 0.189 84.429); /* Dark orange chart (#ea580c) */
-  --chart-5: oklch(0.769 0.188 70.08); /* Yellow-orange chart (#d97706) */
-  --radius: 0.625rem; /* Medium border radius */
+  --popover-foreground: oklch(0.25 0.01 240); /* Dark gray popover text */
+  --primary: oklch(0.45 0.15 280); /* Purple primary (#7c3aed) */
+  --primary-foreground: oklch(1 0 0); /* White text on primary */
+  --secondary: oklch(0.65 0.12 280); /* Lighter purple secondary (#a855f7) */
+  --secondary-foreground: oklch(1 0 0); /* White text on secondary */
+  --muted: oklch(0.97 0.005 240); /* Light gray muted background */
+  --muted-foreground: oklch(0.25 0.01 240); /* Dark gray muted text */
+  --accent: oklch(0.65 0.12 280); /* Light purple accent (#a855f7) */
+  --accent-foreground: oklch(1 0 0); /* White accent text */
+  --destructive: oklch(0.55 0.22 25); /* Orange destructive color (#ea580c) */
+  --destructive-foreground: oklch(1 0 0); /* White destructive text */
+  --border: oklch(0.9 0.005 240); /* Light gray border (#e5e7eb) */
+  --input: oklch(1 0 0); /* White input background */
+  --ring: oklch(0.45 0.15 280 / 0.5); /* Purple focus ring with transparency */
+  --chart-1: oklch(0.45 0.15 280); /* Purple chart */
+  --chart-2: oklch(0.65 0.12 280); /* Light purple chart */
+  --chart-3: oklch(0.65 0.18 35); /* Orange chart (#f97316) */
+  --chart-4: oklch(0.55 0.22 25); /* Dark orange chart (#ea580c) */
+  --chart-5: oklch(0.6 0.18 40); /* Yellow-orange chart (#d97706) */
+  --radius: 0.5rem; /* Medium border radius */
   --sidebar: oklch(1 0 0); /* Pure white sidebar */
-  --sidebar-foreground: oklch(0.145 0 0); /* Dark gray sidebar text */
-  --sidebar-primary: oklch(0.205 0 0); /* Purple sidebar primary */
-  --sidebar-primary-foreground: oklch(0.985 0 0); /* White sidebar primary text */
-  --sidebar-accent: oklch(0.97 0 0); /* Light purple sidebar accent */
-  --sidebar-accent-foreground: oklch(0.205 0 0); /* White sidebar accent text */
-  --sidebar-border: oklch(0.922 0 0); /* Light gray sidebar border */
-  --sidebar-ring: oklch(0.708 0 0); /* Purple sidebar focus ring */
+  --sidebar-foreground: oklch(0.25 0.01 240); /* Dark gray sidebar text */
+  --sidebar-primary: oklch(0.45 0.15 280); /* Purple sidebar primary */
+  --sidebar-primary-foreground: oklch(1 0 0); /* White sidebar primary text */
+  --sidebar-accent: oklch(0.65 0.12 280); /* Light purple sidebar accent */
+  --sidebar-accent-foreground: oklch(1 0 0); /* White sidebar accent text */
+  --sidebar-border: oklch(0.9 0.005 240); /* Light gray sidebar border */
+  --sidebar-ring: oklch(0.45 0.15 280 / 0.5); /* Purple sidebar focus ring */
 }
 
 .dark {
-  --background: oklch(0.145 0 0); /* Very dark background */
-  --foreground: oklch(0.985 0 0); /* Light text */
-  --card: oklch(0.145 0 0); /* Bold purple card background in dark mode */
-  --card-foreground: oklch(0.985 0 0); /* White card text */
-  --popover: oklch(0.145 0 0); /* Dark popover */
-  --popover-foreground: oklch(0.985 0 0); /* Light popover text */
-  --primary: oklch(0.985 0 0); /* Brighter purple for dark mode */
-  --primary-foreground: oklch(0.205 0 0); /* Dark text on primary */
-  --secondary: oklch(0.269 0 0); /* Brighter light purple secondary */
-  --secondary-foreground: oklch(0.985 0 0); /* Dark text on secondary */
-  --muted: oklch(0.269 0 0); /* Dark muted background */
-  --muted-foreground: oklch(0.708 0 0); /* Medium gray muted text */
-  --accent: oklch(0.269 0 0); /* Bright light purple accent */
-  --accent-foreground: oklch(0.985 0 0); /* Dark accent text */
-  --destructive: oklch(0.396 0.141 25.723); /* Darker orange for dark mode */
-  --destructive-foreground: oklch(0.637 0.237 25.331); /* Light destructive text */
-  --border: oklch(0.269 0 0); /* Dark border */
-  --input: oklch(0.269 0 0); /* Dark input background */
-  --ring: oklch(0.439 0 0); /* Brighter purple focus ring */
-  --chart-1: oklch(0.488 0.243 264.376); /* Bright purple for dark mode */
-  --chart-2: oklch(0.696 0.17 162.48); /* Bright light purple chart */
-  --chart-3: oklch(0.769 0.188 70.08); /* Bright orange */
-  --chart-4: oklch(0.627 0.265 303.9); /* Bright dark orange */
-  --chart-5: oklch(0.645 0.246 16.439); /* Bright yellow-orange */
-  --sidebar: oklch(0.205 0 0); /* Bold purple sidebar in dark mode */
-  --sidebar-foreground: oklch(0.985 0 0); /* White sidebar text */
-  --sidebar-primary: oklch(0.488 0.243 264.376); /* Bright purple sidebar primary */
-  --sidebar-primary-foreground: oklch(0.985 0 0); /* Dark sidebar primary text */
-  --sidebar-accent: oklch(0.269 0 0); /* Bright light purple sidebar accent */
-  --sidebar-accent-foreground: oklch(0.985 0 0); /* Dark sidebar accent text */
-  --sidebar-border: oklch(0.269 0 0); /* Dark sidebar border */
-  --sidebar-ring: oklch(0.439 0 0); /* Bright purple sidebar focus ring */
+  /* Restored original dark mode with bold purple backgrounds */
+  --background: oklch(0.08 0 0); /* Very dark background */
+  --foreground: oklch(0.95 0 0); /* Light text */
+  --card: oklch(0.45 0.15 280); /* Bold purple card background in dark mode */
+  --card-foreground: oklch(1 0 0); /* White card text */
+  --popover: oklch(0.08 0 0); /* Dark popover */
+  --popover-foreground: oklch(0.95 0 0); /* Light popover text */
+  --primary: oklch(0.65 0.12 280); /* Brighter purple for dark mode */
+  --primary-foreground: oklch(0.08 0 0); /* Dark text on primary */
+  --secondary: oklch(0.75 0.1 280); /* Brighter light purple secondary */
+  --secondary-foreground: oklch(0.08 0 0); /* Dark text on secondary */
+  --muted: oklch(0.15 0.01 240); /* Dark muted background */
+  --muted-foreground: oklch(0.65 0 0); /* Medium gray muted text */
+  --accent: oklch(0.75 0.1 280); /* Bright light purple accent */
+  --accent-foreground: oklch(0.08 0 0); /* Dark accent text */
+  --destructive: oklch(0.45 0.18 25); /* Darker orange for dark mode */
+  --destructive-foreground: oklch(0.95 0 0); /* Light destructive text */
+  --border: oklch(0.15 0.01 240); /* Dark border */
+  --input: oklch(0.15 0.01 240); /* Dark input background */
+  --ring: oklch(0.65 0.12 280 / 0.5); /* Brighter purple focus ring */
+  --chart-1: oklch(0.65 0.12 280); /* Bright purple for dark mode */
+  --chart-2: oklch(0.75 0.1 280); /* Bright light purple chart */
+  --chart-3: oklch(0.75 0.18 35); /* Bright orange */
+  --chart-4: oklch(0.65 0.22 25); /* Bright dark orange */
+  --chart-5: oklch(0.7 0.18 40); /* Bright yellow-orange */
+  --sidebar: oklch(0.45 0.15 280); /* Bold purple sidebar in dark mode */
+  --sidebar-foreground: oklch(1 0 0); /* White sidebar text */
+  --sidebar-primary: oklch(0.65 0.12 280); /* Bright purple sidebar primary */
+  --sidebar-primary-foreground: oklch(0.08 0 0); /* Dark sidebar primary text */
+  --sidebar-accent: oklch(0.75 0.1 280); /* Bright light purple sidebar accent */
+  --sidebar-accent-foreground: oklch(0.08 0 0); /* Dark sidebar accent text */
+  --sidebar-border: oklch(0.15 0.01 240); /* Dark sidebar border */
+  --sidebar-ring: oklch(0.65 0.12 280 / 0.5); /* Bright purple sidebar focus ring */
 }
 
 @theme inline {
@@ -103,6 +105,9 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+  /* Added font variables for Inter and Manrope fonts */
+  --font-sans: var(--font-inter);
+  --font-heading: var(--font-manrope);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -118,6 +123,49 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    /* Enhanced body styling with better line height and modern typography */
+    @apply bg-background text-foreground font-sans leading-relaxed;
+  }
+  /* Added heading styles using Manrope font with better spacing */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-heading);
+    @apply font-semibold tracking-tight;
+  }
+
+  /* Added modern styling for better visual hierarchy */
+  h1 {
+    @apply text-4xl lg:text-5xl leading-tight;
+  }
+
+  h2 {
+    @apply text-3xl lg:text-4xl leading-tight;
+  }
+
+  h3 {
+    @apply text-2xl lg:text-3xl leading-snug;
+  }
+
+  /* Enhanced button and form styling for modern look */
+  .btn-primary {
+    @apply bg-primary text-primary-foreground hover:bg-primary/90 transition-colors duration-200;
+  }
+
+  .btn-secondary {
+    @apply bg-secondary text-secondary-foreground hover:bg-secondary/90 transition-colors duration-200;
+  }
+
+  /* Added modern card styling with subtle shadows */
+  .card-modern {
+    @apply bg-card text-card-foreground rounded-xl shadow-sm border border-border/50 transition-shadow duration-200 hover:shadow-md;
+  }
+
+  /* Enhanced input styling for better UX */
+  .input-modern {
+    @apply bg-input border border-border rounded-lg px-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all duration-200;
   }
 }
