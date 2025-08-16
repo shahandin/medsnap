@@ -15,7 +15,7 @@ export default async function AccountPage() {
 
   // If not authenticated, redirect to login
   if (!user) {
-    redirect("/auth/login")
+    redirect("/signin")
   }
 
   return (

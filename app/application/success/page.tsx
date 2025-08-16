@@ -16,7 +16,7 @@ export default async function ApplicationSuccessPage() {
   } = await supabase.auth.getUser()
 
   if (!user) {
-    redirect("/auth/login")
+    redirect("/signin")
   }
 
   // Generate a reference number (in real app, this would come from the database)

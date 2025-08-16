@@ -136,7 +136,7 @@ export default function BenefitsApplicationClient() {
 
         if (!user) {
           console.log("❌ No user found, redirecting to login")
-          router.push("/auth/login")
+          router.push("/signin")
           return
         }
 
