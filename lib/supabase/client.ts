@@ -24,12 +24,20 @@ try {
   })
 }
 
-// Check if Supabase environment variables are available
-export const isSupabaseConfigured =
-  typeof process.env.NEXT_PUBLIC_SUPABASE_URL === "string" &&
-  process.env.NEXT_PUBLIC_SUPABASE_URL.length > 0 &&
-  typeof process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY === "string" &&
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY.length > 0
+export const isSupabaseConfigured = (() => {
+  try {
+    return (
+      typeof process !== "undefined" &&
+      process.env &&
+      typeof process.env.NEXT_PUBLIC_SUPABASE_URL === "string" &&
+      process.env.NEXT_PUBLIC_SUPABASE_URL.length > 0 &&
+      typeof process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY === "string" &&
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY.length > 0
+    )
+  } catch {
+    return false
+  }
+})()
 
 try {
   supabase = isSupabaseConfigured
