@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js"
+import { cookies } from "next/headers"
 import { cache } from "react"
 
 // Check if Supabase environment variables are available
@@ -20,7 +21,25 @@ export const createServerClient = cache(() => {
   }
 
   try {
-    return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
+    const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
+      auth: {
+        storage: {
+          getItem: (key: string) => {
+            const cookieStore = cookies()
+            return cookieStore.get(key)?.value || null
+          },
+          setItem: (key: string, value: string) => {
+            const cookieStore = cookies()
+            cookieStore.set(key, value)
+          },
+          removeItem: (key: string) => {
+            const cookieStore = cookies()
+            cookieStore.delete(key)
+          },
+        },
+      },
+    })
+    return supabase
   } catch (error) {
     console.error("Failed to create Supabase client:", error)
     return {
