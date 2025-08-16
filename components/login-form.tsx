@@ -59,10 +59,10 @@ export function LoginForm() {
   }
 
   return (
-    <div className="w-full max-w-md space-y-8 bg-white/95 backdrop-blur-sm p-8 rounded-2xl shadow-xl border border-border/50">
+    <div className="w-full max-w-md space-y-6 sm:space-y-8 bg-white/95 backdrop-blur-sm p-6 sm:p-8 rounded-2xl shadow-xl border border-border/50">
       <div className="space-y-2 text-center">
-        <h1 className="text-3xl md:text-4xl font-heading font-bold text-foreground">Welcome back</h1>
-        <p className="text-lg text-muted-foreground">Sign in to your account</p>
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-heading font-bold text-foreground">Welcome back</h1>
+        <p className="text-base sm:text-lg text-muted-foreground">Sign in to your account</p>
       </div>
 
       <form
@@ -71,10 +71,10 @@ export function LoginForm() {
           const formData = new FormData(e.currentTarget)
           await handleSubmit(formData)
         }}
-        className="space-y-6"
+        className="space-y-5 sm:space-y-6"
       >
         {state?.error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl">{state.error}</div>
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">{state.error}</div>
         )}
 
         <div className="space-y-4">
@@ -88,7 +88,7 @@ export function LoginForm() {
               type="email"
               placeholder="you@example.com"
               required
-              className="bg-white border-border text-foreground placeholder:text-muted-foreground rounded-xl h-12 px-4 focus:border-primary/50 focus:ring-primary/20"
+              className="bg-white border-border text-foreground placeholder:text-muted-foreground rounded-xl h-12 sm:h-12 px-4 focus:border-primary/50 focus:ring-primary/20 text-base"
             />
           </div>
           <div className="space-y-2">
@@ -101,12 +101,12 @@ export function LoginForm() {
                 name="password"
                 type={showPassword ? "text" : "password"}
                 required
-                className="bg-white border-border text-foreground pr-12 rounded-xl h-12 px-4 focus:border-primary/50 focus:ring-primary/20"
+                className="bg-white border-border text-foreground pr-12 rounded-xl h-12 sm:h-12 px-4 focus:border-primary/50 focus:ring-primary/20 text-base"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 pr-4 flex items-center text-muted-foreground hover:text-foreground transition-colors duration-200"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-muted-foreground hover:text-foreground transition-colors duration-200 min-w-[44px] justify-center"
               >
                 {showPassword ? "🙈" : "👁️"}
               </button>
@@ -116,7 +116,7 @@ export function LoginForm() {
 
         <SubmitButton isLoading={isLoading} />
 
-        <div className="text-center text-muted-foreground">
+        <div className="text-center text-muted-foreground text-sm sm:text-base">
           Don't have an account?{" "}
           <Link
             href="/signup"
