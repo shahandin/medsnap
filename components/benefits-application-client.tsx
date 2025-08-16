@@ -654,17 +654,17 @@ export default function BenefitsApplicationClient() {
 
   return (
     <div className="min-h-screen bg-white">
-      <div className="container mx-auto px-4 py-12 max-w-5xl">
-        <div className="mb-12">
-          <div className="flex justify-between items-start mb-6">
+      <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12 max-w-5xl">
+        <div className="mb-8 sm:mb-12">
+          <div className="flex justify-between items-start mb-4 sm:mb-6">
             <div className="flex-1">
-              <h1 className="text-5xl font-heading font-bold text-gray-900 mb-4">
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-heading font-bold text-gray-900 mb-2 sm:mb-4 leading-tight">
                 {allApplicationsSubmitted ? "Application Status" : "Benefits Application"}
               </h1>
               {allApplicationsSubmitted ? (
-                <p className="text-xl text-gray-600">Review your submitted applications</p>
+                <p className="text-lg sm:text-xl text-gray-600">Review your submitted applications</p>
               ) : (
-                <p className="text-xl text-gray-600">Complete your Medicaid and SNAP application</p>
+                <p className="text-lg sm:text-xl text-gray-600">Complete your Medicaid and SNAP application</p>
               )}
             </div>
           </div>
@@ -672,77 +672,88 @@ export default function BenefitsApplicationClient() {
 
         {!allApplicationsSubmitted && (
           <>
-            <div className="mb-12">
-              <div className="flex justify-between items-center mb-4">
-                <div className="flex items-center gap-6">
+            <div className="mb-8 sm:mb-12">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3 sm:gap-6">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-6">
                   <span className="text-lg font-semibold text-gray-900">
                     Step {currentStep + 1} of {STEPS.length}
                   </span>
-                  <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-full px-4 py-2 shadow-sm">
+                  <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-full px-3 sm:px-4 py-2 shadow-sm">
                     <span className="text-green-600">💾</span>
-                    <span className="text-sm font-medium text-gray-600">Progress saved automatically</span>
+                    <span className="text-xs sm:text-sm font-medium text-gray-600">Progress saved automatically</span>
                   </div>
                 </div>
-                <span className="text-lg font-medium text-gray-600">{Math.round(progressPercentage)}% Complete</span>
+                <span className="text-base sm:text-lg font-medium text-gray-600 self-start sm:self-auto">
+                  {Math.round(progressPercentage)}% Complete
+                </span>
               </div>
-              <Progress value={progressPercentage} className="h-3 bg-gray-100 rounded-full" />
+              <Progress value={progressPercentage} className="h-2 sm:h-3 bg-gray-100 rounded-full" />
             </div>
 
-            <div className="mb-12">
+            <div className="mb-8 sm:mb-12">
               <div className="flex justify-center">
-                <div className="flex items-center space-x-3 overflow-x-auto pb-4 px-4">
-                  {STEPS.map((step, index) => (
-                    <div key={step.id} className={`flex items-center ${index < STEPS.length - 1 ? "mr-6" : ""}`}>
+                <div className="w-full overflow-x-auto">
+                  <div className="flex items-center space-x-2 sm:space-x-3 pb-4 px-2 min-w-max sm:justify-center">
+                    {STEPS.map((step, index) => (
                       <div
-                        className={`w-12 h-12 rounded-xl flex items-center justify-center text-sm font-semibold cursor-pointer transition-all duration-300 hover:scale-110 shadow-md ${
-                          index < currentStep
-                            ? "bg-gradient-to-br from-primary to-primary/80 text-white hover:shadow-lg"
-                            : index === currentStep
-                              ? "bg-gradient-to-br from-secondary to-secondary/80 text-white hover:shadow-lg ring-2 ring-primary/20"
-                              : "bg-white text-gray-600 hover:bg-gray-50 border border-gray-200"
-                        }`}
-                        onClick={() => goToStep(index)}
+                        key={step.id}
+                        className={`flex items-center ${index < STEPS.length - 1 ? "mr-3 sm:mr-6" : ""}`}
                       >
-                        {index < currentStep ? "✓" : index + 1}
-                      </div>
-                      <div className="ml-3 hidden lg:block">
                         <div
-                          className={`text-sm font-semibold cursor-pointer hover:text-primary transition-colors duration-200 ${
-                            index <= currentStep ? "text-gray-900" : "text-gray-500"
+                          className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center text-xs sm:text-sm font-semibold cursor-pointer transition-all duration-300 hover:scale-110 shadow-md touch-manipulation ${
+                            index < currentStep
+                              ? "bg-gradient-to-br from-primary to-primary/80 text-white hover:shadow-lg"
+                              : index === currentStep
+                                ? "bg-gradient-to-br from-secondary to-secondary/80 text-white hover:shadow-lg ring-2 ring-primary/20"
+                                : "bg-white text-gray-600 hover:bg-gray-50 border border-gray-200"
                           }`}
                           onClick={() => goToStep(index)}
                         >
-                          {step.title}
+                          {index < currentStep ? "✓" : index + 1}
                         </div>
+                        <div className="ml-2 sm:ml-3 hidden md:block">
+                          <div
+                            className={`text-sm font-semibold cursor-pointer hover:text-primary transition-colors duration-200 ${
+                              index <= currentStep ? "text-gray-900" : "text-gray-500"
+                            }`}
+                            onClick={() => goToStep(index)}
+                          >
+                            {step.title}
+                          </div>
+                        </div>
+                        {index < STEPS.length - 1 && (
+                          <div className="w-8 sm:w-16 h-0.5 bg-gray-200 ml-3 sm:ml-6 hidden md:block"></div>
+                        )}
                       </div>
-                      {index < STEPS.length - 1 && <div className="w-16 h-0.5 bg-gray-200 ml-6 hidden lg:block"></div>}
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
           </>
         )}
 
-        <Card className="shadow-xl border-gray-200 bg-white rounded-2xl overflow-hidden">
+        <Card className="shadow-xl border-gray-200 bg-white rounded-xl sm:rounded-2xl overflow-hidden">
           {!allApplicationsSubmitted && (
-            <CardHeader className="bg-white border-b border-gray-200 px-8 py-8">
-              <CardTitle className="text-2xl font-heading font-bold text-gray-900">
+            <CardHeader className="bg-white border-b border-gray-200 px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+              <CardTitle className="text-xl sm:text-2xl font-heading font-bold text-gray-900 leading-tight">
                 {STEPS[currentStep].title}
               </CardTitle>
-              <CardDescription className="text-lg text-gray-600 mt-2">{STEPS[currentStep].description}</CardDescription>
+              <CardDescription className="text-base sm:text-lg text-gray-600 mt-2 leading-relaxed">
+                {STEPS[currentStep].description}
+              </CardDescription>
             </CardHeader>
           )}
-          <CardContent className="px-8 py-8">{renderCurrentStep()}</CardContent>
+          <CardContent className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8">{renderCurrentStep()}</CardContent>
         </Card>
 
         {currentStep < 8 && !allApplicationsSubmitted && (
-          <div className="flex justify-between mt-12">
+          <div className="flex flex-col sm:flex-row justify-between gap-4 sm:gap-0 mt-8 sm:mt-12">
             <Button
               variant="outline"
               onClick={prevStep}
               disabled={currentStep === 0}
-              className="flex items-center gap-2 px-6 py-3 text-base font-medium border-2 border-gray-300 hover:border-primary/50 rounded-xl bg-white hover:bg-gray-50 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center justify-center gap-2 px-6 py-4 sm:py-3 text-base font-medium border-2 border-gray-300 hover:border-primary/50 rounded-xl bg-white hover:bg-gray-50 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation min-h-[48px]"
             >
               <span>←</span>
               Previous
@@ -750,7 +761,7 @@ export default function BenefitsApplicationClient() {
             <Button
               onClick={nextStep}
               disabled={currentStep === STEPS.length - 1 || !canProceed()}
-              className="flex items-center gap-2 px-8 py-3 text-base font-semibold bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center justify-center gap-2 px-8 py-4 sm:py-3 text-base font-semibold bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation min-h-[48px]"
             >
               Next
               <span>→</span>

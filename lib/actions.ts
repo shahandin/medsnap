@@ -1,20 +1,26 @@
 "use server"
 
-import { createServerActionClient } from "@supabase/auth-helpers-nextjs"
-import { cookies } from "next/headers"
+import { createClient } from "@supabase/supabase-js"
 import { redirect } from "next/navigation"
 
-// Create a safe Supabase client that won't crash if env vars are missing
-// const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-// const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+function getSupabaseClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-// const supabase = supabaseUrl && supabaseAnonKey ? createClient(supabaseUrl, supabaseAnonKey) : null
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return null
+  }
+
+  try {
+    return createClient(supabaseUrl, supabaseAnonKey)
+  } catch (error) {
+    console.error("Failed to create Supabase client:", error)
+    return null
+  }
+}
 
 function isSupabaseAvailable() {
-  // Check if supabase client is available using auth helpers
-  const cookieStore = cookies()
-  const supabase = createServerActionClient({ cookies: () => cookieStore })
-  return supabase !== null
+  return getSupabaseClient() !== null
 }
 
 export async function signIn(prevState: any, formData: FormData) {
@@ -29,8 +35,10 @@ export async function signIn(prevState: any, formData: FormData) {
     return { error: "Email and password are required" }
   }
 
-  const cookieStore = cookies()
-  const supabase = createServerActionClient({ cookies: () => cookieStore })
+  const supabase = getSupabaseClient()
+  if (!supabase) {
+    return { error: "Service temporarily unavailable" }
+  }
 
   try {
     const { error } = await supabase.auth.signInWithPassword({
@@ -42,7 +50,6 @@ export async function signIn(prevState: any, formData: FormData) {
       return { error: error.message }
     }
 
-    // Return success instead of redirecting directly
     return { success: true }
   } catch (error) {
     console.error("Login error:", error)
@@ -62,8 +69,10 @@ export async function signUp(prevState: any, formData: FormData) {
     return { error: "Email and password are required" }
   }
 
-  const cookieStore = cookies()
-  const supabase = createServerActionClient({ cookies: () => cookieStore })
+  const supabase = getSupabaseClient()
+  if (!supabase) {
+    return { error: "Service temporarily unavailable" }
+  }
 
   try {
     const { error } = await supabase.auth.signUp({
@@ -88,10 +97,10 @@ export async function signUp(prevState: any, formData: FormData) {
 }
 
 export async function signOut() {
-  const cookieStore = cookies()
-  const supabase = createServerActionClient({ cookies: () => cookieStore })
-
-  await supabase.auth.signOut()
+  const supabase = getSupabaseClient()
+  if (supabase) {
+    await supabase.auth.signOut()
+  }
   redirect("/signin")
 }
 
@@ -100,8 +109,7 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
     return { error: "Service temporarily unavailable" }
   }
 
-  const cookieStore = cookies()
-  const supabase = createServerActionClient({ cookies: () => cookieStore })
+  const supabase = getSupabaseClient()!
 
   try {
     const {
@@ -135,8 +143,7 @@ export async function loadApplicationProgress() {
     return { data: null }
   }
 
-  const cookieStore = cookies()
-  const supabase = createServerActionClient({ cookies: () => cookieStore })
+  const supabase = getSupabaseClient()!
 
   try {
     const {
@@ -169,8 +176,7 @@ export async function submitApplication(applicationData: any, benefitType: strin
     return { error: "Service temporarily unavailable" }
   }
 
-  const cookieStore = cookies()
-  const supabase = createServerActionClient({ cookies: () => cookieStore })
+  const supabase = getSupabaseClient()!
 
   const {
     data: { user },
@@ -204,8 +210,7 @@ export async function clearApplicationProgress() {
     return { error: "Service temporarily unavailable" }
   }
 
-  const cookieStore = cookies()
-  const supabase = createServerActionClient({ cookies: () => cookieStore })
+  const supabase = getSupabaseClient()!
 
   const {
     data: { user },
@@ -229,8 +234,7 @@ export async function getSubmittedApplications() {
     return { data: [] }
   }
 
-  const cookieStore = cookies()
-  const supabase = createServerActionClient({ cookies: () => cookieStore })
+  const supabase = getSupabaseClient()!
 
   const {
     data: { user },
