@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { v4 as uuidv4 } from "uuid"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -8,7 +9,6 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Users, Plus, Trash2, User } from "lucide-react"
-import { v4 as uuidv4 } from "uuid"
 
 interface HouseholdMember {
   id: string
@@ -34,6 +34,8 @@ const RELATIONSHIP_OPTIONS = [
   { value: "other_relative", label: "Other Relative" },
   { value: "unrelated", label: "Unrelated Person" },
 ]
+
+const generateId = () => uuidv4()
 
 export function HouseholdManagement({ householdMembers, onUpdate }: HouseholdManagementProps) {
   const [isAddingMember, setIsAddingMember] = useState(false)
@@ -69,7 +71,7 @@ export function HouseholdManagement({ householdMembers, onUpdate }: HouseholdMan
       newMember.socialSecurityNumber.trim() &&
       newMember.relationship
     ) {
-      const memberWithId = { ...newMember, id: uuidv4() }
+      const memberWithId = { ...newMember, id: generateId() }
       onUpdate([...householdMembers, memberWithId])
       setNewMember({
         firstName: "",

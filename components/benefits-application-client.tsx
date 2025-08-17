@@ -742,7 +742,7 @@ export default function BenefitsApplicationClient() {
               variant="outline"
               onClick={prevStep}
               disabled={currentStep === 0}
-              className="flex items-center justify-center gap-2 px-6 py-4 sm:py-3 text-base font-medium border-2 border-gray-300 hover:border-primary/50 rounded-xl bg-white hover:bg-gray-50 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation min-h-[48px]"
+              className="flex items-center justify-center gap-2 px-6 py-3 text-base font-medium border-2 border-gray-300 hover:border-primary/50 rounded-xl bg-white hover:bg-gray-50 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed min-h-[52px] sm:min-h-[48px] touch-manipulation"
             >
               <span>←</span>
               Previous
@@ -750,7 +750,7 @@ export default function BenefitsApplicationClient() {
             <Button
               onClick={nextStep}
               disabled={currentStep === STEPS.length - 1 || !canProceed()}
-              className="flex items-center justify-center gap-2 px-8 py-4 sm:py-3 text-base font-semibold bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation min-h-[48px]"
+              className="flex items-center justify-center gap-2 px-8 py-3 text-base font-semibold bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed min-h-[52px] sm:min-h-[48px] touch-manipulation"
             >
               Next
               <span>→</span>
