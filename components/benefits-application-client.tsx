@@ -1,5 +1,7 @@
 "use client"
 
+import type React from "react"
+
 import { useState, useRef, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -39,13 +41,14 @@ export default function BenefitsApplicationClient() {
   const [isSaving, setIsSaving] = useState(false)
   const [submittedApplications, setSubmittedApplications] = useState<string[]>([])
   const [isInitializing, setIsInitializing] = useState(false)
+  const [isTransitioning, setIsTransitioning] = useState(false)
+  const [swipeDirection, setSwipeDirection] = useState<"left" | "right" | null>(null)
   const router = useRouter()
   const searchParams = useSearchParams()
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null)
-
-  const startFresh = searchParams.get("fresh") === "true"
-  const stepParam = searchParams.get("step")
-
+  const touchStartX = useRef<number | null>(null)
+  const touchStartY = useRef<number | null>(null)
+  const personalInfoRef = useRef(null)
   const [applicationData, setApplicationData] = useState({
     benefitType: "",
     state: "",
@@ -111,7 +114,8 @@ export default function BenefitsApplicationClient() {
       needsNursingServices: "",
     },
   })
-  const personalInfoRef = useRef(null)
+  const stepParam = searchParams.get("step")
+  const startFresh = searchParams.get("startFresh") === "true"
 
   useEffect(() => {
     if (stepParam && !isLoading) {
@@ -362,6 +366,9 @@ export default function BenefitsApplicationClient() {
 
   const nextStep = async () => {
     if (currentStep < STEPS.length - 1) {
+      setIsTransitioning(true)
+      setSwipeDirection("left")
+
       try {
         console.log("➡️ Moving to next step, saving progress...")
         const result = await saveApplicationProgress(applicationData, currentStep + 1)
@@ -369,12 +376,22 @@ export default function BenefitsApplicationClient() {
       } catch (error) {
         console.error("❌ Auto-save error:", error)
       }
-      setCurrentStep(currentStep + 1)
+
+      setTimeout(() => {
+        setCurrentStep(currentStep + 1)
+        setTimeout(() => {
+          setIsTransitioning(false)
+          setSwipeDirection(null)
+        }, 150)
+      }, 150)
     }
   }
 
   const prevStep = async () => {
     if (currentStep > 0) {
+      setIsTransitioning(true)
+      setSwipeDirection("right")
+
       try {
         console.log("⬅️ Moving to previous step, saving progress...")
         const result = await saveApplicationProgress(applicationData, currentStep - 1)
@@ -382,12 +399,28 @@ export default function BenefitsApplicationClient() {
       } catch (error) {
         console.error("❌ Auto-save error:", error)
       }
-      setCurrentStep(currentStep - 1)
+
+      setTimeout(() => {
+        setCurrentStep(currentStep - 1)
+        setTimeout(() => {
+          setIsTransitioning(false)
+          setSwipeDirection(null)
+        }, 150)
+      }, 150)
     }
   }
 
   const goToStep = (step: number) => {
-    setCurrentStep(step)
+    setIsTransitioning(true)
+    setSwipeDirection(step > currentStep ? "left" : "right")
+
+    setTimeout(() => {
+      setCurrentStep(step)
+      setTimeout(() => {
+        setIsTransitioning(false)
+        setSwipeDirection(null)
+      }, 150)
+    }, 150)
   }
 
   const handleSubmit = async () => {
@@ -641,6 +674,34 @@ export default function BenefitsApplicationClient() {
   console.log("🔍 Submitted applications:", submittedApplications)
   console.log("🔍 All applications submitted?", allApplicationsSubmitted)
 
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX
+    touchStartY.current = e.touches[0].clientY
+  }
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (!touchStartX.current || !touchStartY.current) return
+
+    const touchEndX = e.changedTouches[0].clientX
+    const touchEndY = e.changedTouches[0].clientY
+    const deltaX = touchStartX.current - touchEndX
+    const deltaY = touchStartY.current - touchEndY
+
+    // Only trigger swipe if horizontal movement is greater than vertical
+    if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
+      if (deltaX > 0 && currentStep < STEPS.length - 1 && canProceed()) {
+        // Swipe left - next step
+        nextStep()
+      } else if (deltaX < 0 && currentStep > 0) {
+        // Swipe right - previous step
+        prevStep()
+      }
+    }
+
+    touchStartX.current = null
+    touchStartY.current = null
+  }
+
   return (
     <div className="min-h-screen bg-white">
       <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12 max-w-5xl">
@@ -667,42 +728,48 @@ export default function BenefitsApplicationClient() {
                   <span className="text-lg font-semibold text-gray-900">
                     Step {currentStep + 1} of {STEPS.length}
                   </span>
-                  <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-full px-3 sm:px-4 py-2 shadow-sm">
-                    <span className="text-green-600">💾</span>
-                    <span className="text-xs sm:text-sm font-medium text-gray-600">Progress saved automatically</span>
+                  <div className="flex items-center gap-2 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-full px-3 sm:px-4 py-2 shadow-sm">
+                    <span className="text-green-600 animate-pulse">💾</span>
+                    <span className="text-xs sm:text-sm font-medium text-green-700">Progress saved automatically</span>
                   </div>
                 </div>
                 <span className="text-base sm:text-lg font-medium text-gray-600 self-start sm:self-auto">
                   {Math.round(progressPercentage)}% Complete
                 </span>
               </div>
-              <Progress value={progressPercentage} className="h-2 sm:h-3 bg-gray-100 rounded-full" />
+              <div className="relative">
+                <Progress value={progressPercentage} className="h-3 sm:h-4 bg-gray-100 rounded-full overflow-hidden" />
+                <div
+                  className="absolute top-0 left-0 h-full bg-gradient-to-r from-primary/20 to-transparent rounded-full transition-all duration-500 ease-out"
+                  style={{ width: `${Math.min(progressPercentage + 10, 100)}%` }}
+                />
+              </div>
             </div>
 
             <div className="mb-8 sm:mb-12">
               <div className="flex justify-center">
-                <div className="w-full overflow-x-auto">
-                  <div className="flex items-center space-x-2 sm:space-x-3 pb-4 px-2 min-w-max sm:justify-center">
+                <div className="w-full overflow-x-auto scrollbar-hide">
+                  <div className="flex items-center space-x-3 sm:space-x-4 pb-4 px-2 min-w-max sm:justify-center">
                     {STEPS.map((step, index) => (
                       <div
                         key={step.id}
-                        className={`flex items-center ${index < STEPS.length - 1 ? "mr-3 sm:mr-6" : ""}`}
+                        className={`flex items-center ${index < STEPS.length - 1 ? "mr-4 sm:mr-6" : ""}`}
                       >
                         <div
-                          className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center text-xs sm:text-sm font-semibold cursor-pointer transition-all duration-300 hover:scale-110 shadow-md touch-manipulation ${
+                          className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center text-sm sm:text-base font-bold cursor-pointer transition-all duration-300 hover:scale-110 shadow-lg hover:shadow-xl touch-manipulation active:scale-95 ${
                             index < currentStep
-                              ? "bg-gradient-to-br from-primary to-primary/80 text-white hover:shadow-lg"
+                              ? "bg-gradient-to-br from-primary via-primary to-primary/80 text-white hover:shadow-primary/25 ring-2 ring-primary/10"
                               : index === currentStep
-                                ? "bg-gradient-to-br from-secondary to-secondary/80 text-white hover:shadow-lg ring-2 ring-primary/20"
-                                : "bg-white text-gray-600 hover:bg-gray-50 border border-gray-200"
+                                ? "bg-gradient-to-br from-secondary via-secondary to-secondary/80 text-white hover:shadow-secondary/25 ring-4 ring-primary/20 animate-pulse"
+                                : "bg-white text-gray-600 hover:bg-gray-50 border-2 border-gray-200 hover:border-gray-300"
                           }`}
                           onClick={() => goToStep(index)}
                         >
                           {index < currentStep ? "✓" : index + 1}
                         </div>
-                        <div className="ml-2 sm:ml-3 hidden md:block">
+                        <div className="ml-3 sm:ml-4 hidden md:block">
                           <div
-                            className={`text-sm font-semibold cursor-pointer hover:text-primary transition-colors duration-200 ${
+                            className={`text-sm font-semibold cursor-pointer hover:text-primary transition-all duration-200 ${
                               index <= currentStep ? "text-gray-900" : "text-gray-500"
                             }`}
                             onClick={() => goToStep(index)}
@@ -711,7 +778,11 @@ export default function BenefitsApplicationClient() {
                           </div>
                         </div>
                         {index < STEPS.length - 1 && (
-                          <div className="w-8 sm:w-16 h-0.5 bg-gray-200 ml-3 sm:ml-6 hidden md:block"></div>
+                          <div
+                            className={`w-8 sm:w-16 h-1 rounded-full ml-4 sm:ml-6 hidden md:block transition-all duration-500 ${
+                              index < currentStep ? "bg-gradient-to-r from-primary to-primary/60" : "bg-gray-200"
+                            }`}
+                          ></div>
                         )}
                       </div>
                     ))}
@@ -722,18 +793,40 @@ export default function BenefitsApplicationClient() {
           </>
         )}
 
-        <Card className="shadow-xl border-gray-200 bg-white rounded-xl sm:rounded-2xl overflow-hidden">
+        <Card
+          className={`shadow-2xl border-gray-200 bg-white rounded-2xl sm:rounded-3xl overflow-hidden transition-all duration-300 ${
+            isTransitioning ? "transform scale-[0.98] opacity-90" : "transform scale-100 opacity-100"
+          }`}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+        >
           {!allApplicationsSubmitted && (
-            <CardHeader className="bg-white border-b border-gray-200 px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+            <CardHeader className="bg-gradient-to-r from-gray-50 to-white border-b border-gray-200 px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
               <CardTitle className="text-xl sm:text-2xl font-heading font-bold text-gray-900 leading-tight">
                 {STEPS[currentStep].title}
               </CardTitle>
               <CardDescription className="text-base sm:text-lg text-gray-600 mt-2 leading-relaxed">
                 {STEPS[currentStep].description}
               </CardDescription>
+              <div className="mt-4 sm:hidden">
+                <p className="text-xs text-gray-500 flex items-center gap-2">
+                  <span>👆</span>
+                  Swipe left/right to navigate between steps
+                </p>
+              </div>
             </CardHeader>
           )}
-          <CardContent className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8">{renderCurrentStep()}</CardContent>
+          <CardContent
+            className={`px-4 sm:px-6 lg:px-8 py-6 sm:py-8 transition-all duration-300 ${
+              isTransitioning
+                ? swipeDirection === "left"
+                  ? "transform translate-x-2 opacity-80"
+                  : "transform -translate-x-2 opacity-80"
+                : "transform translate-x-0 opacity-100"
+            }`}
+          >
+            {renderCurrentStep()}
+          </CardContent>
         </Card>
 
         {currentStep < 8 && !allApplicationsSubmitted && (
@@ -742,18 +835,18 @@ export default function BenefitsApplicationClient() {
               variant="outline"
               onClick={prevStep}
               disabled={currentStep === 0}
-              className="flex items-center justify-center gap-2 px-6 py-3 text-base font-medium border-2 border-gray-300 hover:border-primary/50 rounded-xl bg-white hover:bg-gray-50 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed min-h-[52px] sm:min-h-[48px] touch-manipulation"
+              className="flex items-center justify-center gap-3 px-6 py-4 text-base font-semibold border-2 border-gray-300 hover:border-primary/50 rounded-2xl bg-white hover:bg-gray-50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed min-h-[56px] sm:min-h-[52px] touch-manipulation active:scale-95 shadow-md hover:shadow-lg"
             >
-              <span>←</span>
+              <span className="text-lg">←</span>
               Previous
             </Button>
             <Button
               onClick={nextStep}
               disabled={currentStep === STEPS.length - 1 || !canProceed()}
-              className="flex items-center justify-center gap-2 px-8 py-3 text-base font-semibold bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed min-h-[52px] sm:min-h-[48px] touch-manipulation"
+              className="flex items-center justify-center gap-3 px-8 py-4 text-base font-bold bg-gradient-to-r from-primary via-primary to-primary/90 hover:from-primary/90 hover:via-primary/85 hover:to-primary/80 text-white rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed min-h-[56px] sm:min-h-[52px] touch-manipulation active:scale-95 hover:scale-[1.02]"
             >
               Next
-              <span>→</span>
+              <span className="text-lg">→</span>
             </Button>
           </div>
         )}
