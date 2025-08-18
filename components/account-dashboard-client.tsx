@@ -34,6 +34,7 @@ import {
   TrendingUp,
   ArrowLeft,
   Send,
+  Menu,
 } from "lucide-react"
 import { loadApplicationProgress, signOut } from "@/lib/actions"
 import { useSearchParams } from "next/navigation"
@@ -462,98 +463,171 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <div className="sticky top-0 z-10 bg-gray-50 pb-2 -mx-4 px-4">
-            <TabsList className="w-full h-auto p-1 bg-white shadow-sm border rounded-lg overflow-x-auto scrollbar-hide">
-              <div className="flex min-w-max gap-1">
+            {/* Desktop Tab Navigation */}
+            <div className="hidden md:block">
+              <TabsList className="w-full h-auto p-1 bg-white shadow-sm border rounded-lg grid grid-cols-6">
                 <TabsTrigger
                   value="overview"
-                  className="flex-shrink-0 min-w-[120px] px-4 py-3 text-sm font-medium whitespace-nowrap data-[state=active]:bg-primary data-[state=active]:text-white"
+                  className="flex items-center gap-2 px-4 py-3 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-white rounded-md"
                 >
+                  <TrendingUp className="w-4 h-4" />
                   Overview
                 </TabsTrigger>
                 <TabsTrigger
                   value="applications"
-                  className="flex-shrink-0 min-w-[120px] px-4 py-3 text-sm font-medium whitespace-nowrap data-[state=active]:bg-primary data-[state=active]:text-white"
+                  className="flex items-center gap-2 px-4 py-3 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-white rounded-md"
                 >
+                  <FileText className="w-4 h-4" />
                   Applications
                 </TabsTrigger>
                 <TabsTrigger
                   value="notifications"
-                  className="flex-shrink-0 min-w-[120px] px-4 py-3 text-sm font-medium whitespace-nowrap data-[state=active]:bg-primary data-[state=active]:text-white"
+                  className="flex items-center gap-2 px-4 py-3 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-white rounded-md"
                 >
+                  <Bell className="w-4 h-4" />
                   Notifications
                 </TabsTrigger>
                 <TabsTrigger
                   value="report-changes"
-                  className="flex-shrink-0 min-w-[120px] px-4 py-3 text-sm font-medium whitespace-nowrap data-[state=active]:bg-primary data-[state=active]:text-white"
+                  className="flex items-center gap-2 px-4 py-3 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-white rounded-md"
                 >
+                  <AlertTriangle className="w-4 h-4" />
                   Report Changes
                 </TabsTrigger>
                 <TabsTrigger
                   value="documents"
-                  className="flex-shrink-0 min-w-[120px] px-4 py-3 text-sm font-medium whitespace-nowrap data-[state=active]:bg-primary data-[state=active]:text-white"
+                  className="flex items-center gap-2 px-4 py-3 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-white rounded-md"
                 >
+                  <Upload className="w-4 h-4" />
                   Documents
                 </TabsTrigger>
                 <TabsTrigger
                   value="profile"
-                  className="flex-shrink-0 min-w-[120px] px-4 py-3 text-sm font-medium whitespace-nowrap data-[state=active]:bg-primary data-[state=active]:text-white"
+                  className="flex items-center gap-2 px-4 py-3 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-white rounded-md"
                 >
+                  <Users className="w-4 h-4" />
                   Profile
                 </TabsTrigger>
-              </div>
-            </TabsList>
+              </TabsList>
+            </div>
+
+            {/* Mobile Tab Navigation - Dropdown Style */}
+            <div className="md:hidden">
+              <Select value={activeTab} onValueChange={setActiveTab}>
+                <SelectTrigger className="w-full h-14 bg-white shadow-sm border rounded-xl px-4 text-base font-medium">
+                  <div className="flex items-center gap-3">
+                    <Menu className="w-5 h-5 text-gray-500" />
+                    <SelectValue />
+                  </div>
+                </SelectTrigger>
+                <SelectContent className="w-full">
+                  <SelectItem value="overview" className="h-12 px-4">
+                    <div className="flex items-center gap-3">
+                      <TrendingUp className="w-5 h-5" />
+                      <span className="text-base">Overview</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="applications" className="h-12 px-4">
+                    <div className="flex items-center gap-3">
+                      <FileText className="w-5 h-5" />
+                      <span className="text-base">Applications</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="notifications" className="h-12 px-4">
+                    <div className="flex items-center gap-3">
+                      <Bell className="w-5 h-5" />
+                      <span className="text-base">Notifications</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="report-changes" className="h-12 px-4">
+                    <div className="flex items-center gap-3">
+                      <AlertTriangle className="w-5 h-5" />
+                      <span className="text-base">Report Changes</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="documents" className="h-12 px-4">
+                    <div className="flex items-center gap-3">
+                      <Upload className="w-5 h-5" />
+                      <span className="text-base">Documents</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="profile" className="h-12 px-4">
+                    <div className="flex items-center gap-3">
+                      <Users className="w-5 h-5" />
+                      <span className="text-base">Profile</span>
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           <TabsContent value="overview" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="w-5 h-5" />
+            <Card className="rounded-2xl md:rounded-xl shadow-lg md:shadow-sm border-0 md:border">
+              <CardHeader className="pb-6 md:pb-4 px-6 md:px-6">
+                <CardTitle className="flex items-center gap-3 text-2xl md:text-xl font-bold">
+                  <TrendingUp className="w-7 h-7 md:w-6 md:h-6 text-primary" />
                   Your Benefits Journey
                 </CardTitle>
-                <CardDescription>Track your progress and manage your benefits applications with ease.</CardDescription>
+                <CardDescription className="text-base md:text-sm text-gray-600 leading-relaxed">
+                  Track your progress and manage your benefits applications with ease.
+                </CardDescription>
               </CardHeader>
             </Card>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
-                    <span className="flex items-center gap-2">
-                      <FileText className="w-5 h-5" />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-4">
+              <Card className="rounded-2xl md:rounded-xl shadow-lg md:shadow-sm border-0 md:border">
+                <CardHeader className="pb-6 md:pb-4 px-6 md:px-6">
+                  <CardTitle className="flex items-center justify-between text-xl md:text-lg">
+                    <span className="flex items-center gap-3">
+                      <FileText className="w-6 h-6 md:w-5 md:h-5 text-primary" />
                       Application Status
                     </span>
-                    <Badge className={getStatusColor(status)}>{status}</Badge>
+                    <Badge
+                      className={`${getStatusColor(status)} text-sm md:text-xs px-3 py-1.5 md:px-2 md:py-1 rounded-full`}
+                    >
+                      {status}
+                    </Badge>
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-6 md:space-y-4 pt-0 px-6 md:px-6">
                   {applicationProgress ? (
                     <>
                       <div>
-                        <div className="flex justify-between text-sm font-medium mb-2">
+                        <div className="flex justify-between text-base md:text-sm font-semibold mb-3 md:mb-2">
                           <span>Progress</span>
                           <span>{Math.round(progressPercentage)}% Complete</span>
                         </div>
-                        <Progress value={progressPercentage} className="h-2" />
+                        <Progress value={progressPercentage} className="h-3 md:h-2 rounded-full" />
                       </div>
-                      <div className="space-y-2 text-sm text-gray-600">
-                        <p className="flex items-center gap-2">
-                          <Clock className="w-4 h-4" />
-                          Current Step: {getStepTitle(applicationProgress.current_step)}
+                      <div className="space-y-4 md:space-y-3 text-base md:text-sm text-gray-600">
+                        <p className="flex items-center gap-3 md:gap-2">
+                          <Clock className="w-5 h-5 md:w-4 md:h-4 flex-shrink-0 text-primary" />
+                          <span className="break-words leading-relaxed">
+                            Current Step: {getStepTitle(applicationProgress.current_step)}
+                          </span>
                         </p>
-                        <p className="flex items-center gap-2">
-                          <Calendar className="w-4 h-4" />
-                          Last Updated: {new Date(applicationProgress.updated_at).toLocaleDateString()}
+                        <p className="flex items-center gap-3 md:gap-2">
+                          <Calendar className="w-5 h-5 md:w-4 md:h-4 flex-shrink-0 text-primary" />
+                          <span>Last Updated: {new Date(applicationProgress.updated_at).toLocaleDateString()}</span>
                         </p>
                       </div>
-                      <Button asChild className="w-full">
+                      <Button
+                        asChild
+                        className="w-full h-14 md:h-10 text-lg md:text-sm font-semibold rounded-2xl md:rounded-lg shadow-lg md:shadow-none"
+                      >
                         <Link href="/application">Continue Application</Link>
                       </Button>
                     </>
                   ) : (
                     <>
-                      <p className="text-gray-600">You haven't started your benefits application yet.</p>
-                      <Button asChild className="w-full">
+                      <p className="text-gray-600 text-base md:text-sm leading-relaxed">
+                        You haven't started your benefits application yet.
+                      </p>
+                      <Button
+                        asChild
+                        className="w-full h-14 md:h-10 text-lg md:text-sm font-semibold rounded-2xl md:rounded-lg shadow-lg md:shadow-none"
+                      >
                         <Link href="/application">Start Application</Link>
                       </Button>
                     </>
@@ -561,44 +635,60 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Sparkles className="w-5 h-5" />
+              <Card className="rounded-2xl md:rounded-xl shadow-lg md:shadow-sm border-0 md:border">
+                <CardHeader className="pb-6 md:pb-4 px-6 md:px-6">
+                  <CardTitle className="flex items-center gap-3 text-xl md:text-lg">
+                    <Sparkles className="w-6 h-6 md:w-5 md:h-5 text-primary" />
                     Quick Actions
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-3">
-                  <Button variant="outline" className="w-full justify-start h-auto p-4 bg-transparent" asChild>
-                    <Link href="/application" className="flex items-center gap-3">
-                      <FileText className="w-5 h-5" />
-                      <div className="text-left">
-                        <div className="font-semibold">
+                <CardContent className="space-y-4 md:space-y-3 pt-0 px-6 md:px-6">
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start h-auto p-5 md:p-4 bg-white hover:bg-gray-50 rounded-2xl md:rounded-lg border-2 md:border shadow-sm md:shadow-none"
+                    asChild
+                  >
+                    <Link href="/application" className="flex items-center gap-4 md:gap-3">
+                      <FileText className="w-6 h-6 md:w-5 md:h-5 flex-shrink-0 text-primary" />
+                      <div className="text-left flex-1 min-w-0">
+                        <div className="font-semibold text-base md:text-sm truncate">
                           {applicationProgress ? "Continue Application" : "Start New Application"}
                         </div>
-                        <div className="text-sm text-gray-500">
+                        <div className="text-sm md:text-xs text-gray-500 truncate mt-1">
                           {applicationProgress ? "Pick up where you left off" : "Begin your benefits journey"}
                         </div>
                       </div>
                     </Link>
                   </Button>
-                  <Button variant="outline" className="w-full justify-start h-auto p-4 bg-transparent" asChild>
-                    <Link href="/about" className="flex items-center gap-3">
-                      <ExternalLink className="w-5 h-5" />
-                      <div className="text-left">
-                        <div className="font-semibold">Learn About Benefits</div>
-                        <div className="text-sm text-gray-500">Understand your eligibility</div>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start h-auto p-5 md:p-4 bg-white hover:bg-gray-50 rounded-2xl md:rounded-lg border-2 md:border shadow-sm md:shadow-none"
+                    asChild
+                  >
+                    <Link href="/about" className="flex items-center gap-4 md:gap-3">
+                      <ExternalLink className="w-6 h-6 md:w-5 md:h-5 flex-shrink-0 text-primary" />
+                      <div className="text-left flex-1 min-w-0">
+                        <div className="font-semibold text-base md:text-sm truncate">Learn About Benefits</div>
+                        <div className="text-sm md:text-xs text-gray-500 truncate mt-1">
+                          Understand your eligibility
+                        </div>
                       </div>
                     </Link>
                   </Button>
-                  <Button variant="outline" disabled className="w-full justify-start h-auto p-4 bg-transparent">
-                    <div className="flex items-center gap-3 w-full">
-                      <Upload className="w-5 h-5 text-gray-500" />
-                      <div className="text-left flex-1">
-                        <div className="font-semibold text-gray-500">Upload Documents</div>
-                        <div className="text-sm text-gray-500">Submit supporting files</div>
+                  <Button
+                    variant="outline"
+                    disabled
+                    className="w-full justify-start h-auto p-5 md:p-4 bg-white rounded-2xl md:rounded-lg border-2 md:border shadow-sm md:shadow-none opacity-60"
+                  >
+                    <div className="flex items-center gap-4 md:gap-3 w-full">
+                      <Upload className="w-6 h-6 md:w-5 md:h-5 text-gray-500 flex-shrink-0" />
+                      <div className="text-left flex-1 min-w-0">
+                        <div className="font-semibold text-gray-500 text-base md:text-sm truncate">
+                          Upload Documents
+                        </div>
+                        <div className="text-sm md:text-xs text-gray-500 truncate mt-1">Submit supporting files</div>
                       </div>
-                      <Badge variant="secondary" className="ml-auto">
+                      <Badge variant="secondary" className="ml-auto text-xs px-2 py-1 flex-shrink-0 rounded-full">
                         Coming Soon
                       </Badge>
                     </div>
@@ -609,27 +699,51 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
           </TabsContent>
 
           <TabsContent value="applications" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Your Applications</CardTitle>
-                <CardDescription>View and manage your benefits applications</CardDescription>
+            <Card className="rounded-2xl md:rounded-xl shadow-lg md:shadow-sm border-0 md:border">
+              <CardHeader className="pb-6 md:pb-4 px-6 md:px-6">
+                <CardTitle className="text-2xl md:text-xl font-bold">Your Applications</CardTitle>
+                <CardDescription className="text-base md:text-sm text-gray-600 leading-relaxed">
+                  View and manage your benefits applications
+                </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-0 px-6 md:px-6">
                 {applicationProgress ? (
-                  <div>
-                    <h3>In Progress</h3>
-                    <p>Application Type: {applicationProgress.application_data?.benefitType || "Not specified"}</p>
-                    <p>State: {applicationProgress.application_data?.state || "Not specified"}</p>
-                    <p>Last Updated: {new Date(applicationProgress.updated_at).toLocaleDateString()}</p>
-                    <Button asChild>
+                  <div className="space-y-6 md:space-y-4">
+                    <div className="bg-blue-50 border border-blue-200 rounded-2xl md:rounded-xl p-6 md:p-4">
+                      <h3 className="font-bold text-blue-900 mb-3 md:mb-2 text-lg md:text-base">In Progress</h3>
+                      <div className="space-y-3 md:space-y-2 text-base md:text-sm text-blue-800">
+                        <p>
+                          <span className="font-semibold">Application Type:</span>{" "}
+                          {applicationProgress.application_data?.benefitType || "Not specified"}
+                        </p>
+                        <p>
+                          <span className="font-semibold">State:</span>{" "}
+                          {applicationProgress.application_data?.state || "Not specified"}
+                        </p>
+                        <p>
+                          <span className="font-semibold">Last Updated:</span>{" "}
+                          {new Date(applicationProgress.updated_at).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                    <Button
+                      asChild
+                      className="w-full h-14 md:h-10 text-lg md:text-sm font-semibold rounded-2xl md:rounded-lg shadow-lg md:shadow-none"
+                    >
                       <Link href="/application">Continue Application</Link>
                     </Button>
                   </div>
                 ) : (
-                  <div>
-                    <h3>No Applications Yet</h3>
-                    <p>Start your first benefits application to see it here and track your progress.</p>
-                    <Button asChild>
+                  <div className="text-center py-12 md:py-8">
+                    <FileText className="w-16 h-16 md:w-12 md:h-12 text-gray-400 mx-auto mb-6 md:mb-4" />
+                    <h3 className="font-bold text-gray-900 mb-3 md:mb-2 text-xl md:text-lg">No Applications Yet</h3>
+                    <p className="text-gray-600 mb-8 md:mb-6 text-base md:text-sm px-4 leading-relaxed">
+                      Start your first benefits application to see it here and track your progress.
+                    </p>
+                    <Button
+                      asChild
+                      className="h-14 md:h-10 px-8 text-lg md:text-sm font-semibold rounded-2xl md:rounded-lg shadow-lg md:shadow-none"
+                    >
                       <Link href="/application">Start Application</Link>
                     </Button>
                   </div>
@@ -639,20 +753,43 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
           </TabsContent>
 
           <TabsContent value="notifications" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Notifications</CardTitle>
-                <CardDescription>View all your account and application notifications</CardDescription>
+            <Card className="rounded-2xl md:rounded-xl shadow-lg md:shadow-sm border-0 md:border">
+              <CardHeader className="pb-6 md:pb-4 px-6 md:px-6">
+                <CardTitle className="text-2xl md:text-xl font-bold">Notifications</CardTitle>
+                <CardDescription className="text-base md:text-sm text-gray-600 leading-relaxed">
+                  View all your account and application notifications
+                </CardDescription>
               </CardHeader>
-              <CardContent>
-                <ScrollArea className="h-80">
-                  {mockNotifications.map((notification) => (
-                    <div key={notification.id}>
-                      <h3>{notification.title}</h3>
-                      <p>{notification.description}</p>
-                      <p>{new Date(notification.timestamp).toLocaleString()}</p>
-                    </div>
-                  ))}
+              <CardContent className="pt-0 px-6 md:px-6">
+                <ScrollArea className="h-96 md:h-80">
+                  <div className="space-y-4 md:space-y-3 pr-4">
+                    {mockNotifications.map((notification) => (
+                      <div
+                        key={notification.id}
+                        className="border rounded-2xl md:rounded-xl p-5 md:p-4 bg-white hover:bg-gray-50 transition-colors shadow-sm md:shadow-none"
+                      >
+                        <div className="flex items-start gap-4 md:gap-3">
+                          <div className="flex-shrink-0 mt-1">{getNotificationIcon(notification.type)}</div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between gap-2 mb-3 md:mb-2">
+                              <h3 className="font-bold text-gray-900 text-base md:text-sm leading-tight">
+                                {notification.title}
+                              </h3>
+                              {!notification.read && (
+                                <div className="w-3 h-3 md:w-2 md:h-2 bg-blue-500 rounded-full flex-shrink-0 mt-2"></div>
+                              )}
+                            </div>
+                            <p className="text-gray-600 text-base md:text-sm leading-relaxed mb-3 md:mb-2">
+                              {notification.description}
+                            </p>
+                            <p className="text-sm md:text-xs text-gray-500">
+                              {new Date(notification.timestamp).toLocaleString()}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </ScrollArea>
               </CardContent>
             </Card>
@@ -662,44 +799,97 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
             {selectedChangeCategory ? (
               renderChangeForm()
             ) : (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Report Life Changes</CardTitle>
-                  <CardDescription>
+              <Card className="rounded-2xl md:rounded-xl shadow-lg md:shadow-sm border-0 md:border">
+                <CardHeader className="pb-6 md:pb-4 px-6 md:px-6">
+                  <CardTitle className="text-2xl md:text-xl font-bold">Report Life Changes</CardTitle>
+                  <CardDescription className="text-base md:text-sm text-gray-600 leading-relaxed">
                     Report changes in your circumstances to maintain your Medicaid eligibility and ensure correct
                     benefits
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <Alert>
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertDescription>
+                <CardContent className="space-y-6 md:space-y-4 pt-0 px-6 md:px-6">
+                  <Alert className="rounded-2xl md:rounded-xl border-amber-200 bg-amber-50 p-4 md:p-3">
+                    <AlertCircle className="h-5 w-5 md:h-4 md:w-4 text-amber-600" />
+                    <AlertDescription className="text-base md:text-sm text-amber-800 leading-relaxed">
                       <strong>Important:</strong> You must report changes within 10 days to avoid potential issues with
                       your benefits.
                     </AlertDescription>
                   </Alert>
 
-                  <Button onClick={() => setSelectedChangeCategory("income-assets")}>
-                    Report Income & Asset Changes
-                  </Button>
-                  <Button onClick={() => setSelectedChangeCategory("household")}>Report Household Changes</Button>
-                  <Button onClick={() => setSelectedChangeCategory("address")}>Report Address Changes</Button>
-                  <Button onClick={() => setSelectedChangeCategory("insurance")}>Report Insurance Changes</Button>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-3">
+                    <Button
+                      onClick={() => setSelectedChangeCategory("income-assets")}
+                      variant="outline"
+                      className="h-auto p-6 md:p-4 justify-start bg-white hover:bg-gray-50 rounded-2xl md:rounded-xl border-2 md:border shadow-sm md:shadow-none"
+                    >
+                      <div className="flex items-center gap-4 md:gap-3 w-full">
+                        <DollarSign className="w-7 h-7 md:w-6 md:h-6 text-primary flex-shrink-0" />
+                        <div className="text-left flex-1">
+                          <div className="font-bold text-base md:text-sm">Income & Asset Changes</div>
+                          <div className="text-sm md:text-xs text-gray-500 mt-1">Job changes, income, assets</div>
+                        </div>
+                      </div>
+                    </Button>
+
+                    <Button
+                      onClick={() => setSelectedChangeCategory("household")}
+                      variant="outline"
+                      className="h-auto p-6 md:p-4 justify-start bg-white hover:bg-gray-50 rounded-2xl md:rounded-xl border-2 md:border shadow-sm md:shadow-none"
+                    >
+                      <div className="flex items-center gap-4 md:gap-3 w-full">
+                        <Users className="w-7 h-7 md:w-6 md:h-6 text-secondary flex-shrink-0" />
+                        <div className="text-left flex-1">
+                          <div className="font-bold text-base md:text-sm">Household Changes</div>
+                          <div className="text-sm md:text-xs text-gray-500 mt-1">Marriage, family members</div>
+                        </div>
+                      </div>
+                    </Button>
+
+                    <Button
+                      onClick={() => setSelectedChangeCategory("address")}
+                      variant="outline"
+                      className="h-auto p-6 md:p-4 justify-start bg-white hover:bg-gray-50 rounded-2xl md:rounded-xl border-2 md:border shadow-sm md:shadow-none"
+                    >
+                      <div className="flex items-center gap-4 md:gap-3 w-full">
+                        <Home className="w-7 h-7 md:w-6 md:h-6 text-primary flex-shrink-0" />
+                        <div className="text-left flex-1">
+                          <div className="font-bold text-base md:text-sm">Address Changes</div>
+                          <div className="text-sm md:text-xs text-gray-500 mt-1">Moving, residency</div>
+                        </div>
+                      </div>
+                    </Button>
+
+                    <Button
+                      onClick={() => setSelectedChangeCategory("insurance")}
+                      variant="outline"
+                      className="h-auto p-6 md:p-4 justify-start bg-white hover:bg-gray-50 rounded-2xl md:rounded-xl border-2 md:border shadow-sm md:shadow-none"
+                    >
+                      <div className="flex items-center gap-4 md:gap-3 w-full">
+                        <Shield className="w-7 h-7 md:w-6 md:h-6 text-secondary flex-shrink-0" />
+                        <div className="text-left flex-1">
+                          <div className="font-bold text-base md:text-sm">Insurance Changes</div>
+                          <div className="text-sm md:text-xs text-gray-500 mt-1">Health coverage updates</div>
+                        </div>
+                      </div>
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             )}
           </TabsContent>
 
           <TabsContent value="documents" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Documents</CardTitle>
-                <CardDescription>Upload and manage your application documents</CardDescription>
+            <Card className="rounded-2xl md:rounded-xl shadow-lg md:shadow-sm border-0 md:border">
+              <CardHeader className="pb-6 md:pb-4 px-6 md:px-6">
+                <CardTitle className="text-2xl md:text-xl font-bold">Documents</CardTitle>
+                <CardDescription className="text-base md:text-sm text-gray-600 leading-relaxed">
+                  Upload and manage your application documents
+                </CardDescription>
               </CardHeader>
-              <CardContent>
-                <Alert>
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>
+              <CardContent className="pt-0 px-6 md:px-6">
+                <Alert className="rounded-2xl md:rounded-xl border-blue-200 bg-blue-50 p-4 md:p-3">
+                  <AlertCircle className="h-5 w-5 md:h-4 md:w-4 text-blue-600" />
+                  <AlertDescription className="text-base md:text-sm text-blue-800 leading-relaxed">
                     Document upload functionality is coming soon. You'll be able to upload supporting documents for your
                     benefits application here.
                   </AlertDescription>
@@ -709,23 +899,44 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
           </TabsContent>
 
           <TabsContent value="profile" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Profile Information</CardTitle>
-                <CardDescription>View and manage your account details</CardDescription>
+            <Card className="rounded-2xl md:rounded-xl shadow-lg md:shadow-sm border-0 md:border">
+              <CardHeader className="pb-6 md:pb-4 px-6 md:px-6">
+                <CardTitle className="text-2xl md:text-xl font-bold">Profile Information</CardTitle>
+                <CardDescription className="text-base md:text-sm text-gray-600 leading-relaxed">
+                  View and manage your account details
+                </CardDescription>
               </CardHeader>
-              <CardContent>
-                <p>Email: {user.email}</p>
-                <p>Full Name: {user.user_metadata?.full_name || "Not provided"}</p>
-                <p>Account Created: {new Date(user.created_at || Date.now()).toLocaleDateString()}</p>
+              <CardContent className="pt-0 px-6 md:px-6">
+                <div className="space-y-6 md:space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-4">
+                    <div className="space-y-3 md:space-y-2">
+                      <label className="text-base md:text-sm font-semibold text-gray-700">Email</label>
+                      <div className="p-4 md:p-3 bg-gray-50 rounded-2xl md:rounded-xl text-base md:text-sm break-all">
+                        {user.email}
+                      </div>
+                    </div>
+                    <div className="space-y-3 md:space-y-2">
+                      <label className="text-base md:text-sm font-semibold text-gray-700">Full Name</label>
+                      <div className="p-4 md:p-3 bg-gray-50 rounded-2xl md:rounded-xl text-base md:text-sm">
+                        {user.user_metadata?.full_name || "Not provided"}
+                      </div>
+                    </div>
+                    <div className="space-y-3 md:space-y-2 md:col-span-2">
+                      <label className="text-base md:text-sm font-semibold text-gray-700">Account Created</label>
+                      <div className="p-4 md:p-3 bg-gray-50 rounded-2xl md:rounded-xl text-base md:text-sm">
+                        {new Date(user.created_at || Date.now()).toLocaleDateString()}
+                      </div>
+                    </div>
+                  </div>
 
-                <Alert>
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>
-                    Profile editing functionality is coming soon. Contact support if you need to update your
-                    information.
-                  </AlertDescription>
-                </Alert>
+                  <Alert className="rounded-2xl md:rounded-xl border-blue-200 bg-blue-50 p-4 md:p-3">
+                    <AlertCircle className="h-5 w-5 md:h-4 md:w-4 text-blue-600" />
+                    <AlertDescription className="text-base md:text-sm text-blue-800 leading-relaxed">
+                      Profile editing functionality is coming soon. Contact support if you need to update your
+                      information.
+                    </AlertDescription>
+                  </Alert>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
