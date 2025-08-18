@@ -108,7 +108,8 @@ export function StateSelection({ selectedState, onStateSelect }: StateSelectionP
               variant="outline"
               role="combobox"
               aria-expanded={open}
-              className="w-full justify-between h-12 text-left font-normal bg-transparent"
+              type="button"
+              className="w-full justify-between h-12 text-left font-normal bg-white hover:bg-gray-50 border-gray-300 hover:border-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
             >
               {selectedState ? (
                 <span className="flex items-center">
@@ -118,10 +119,12 @@ export function StateSelection({ selectedState, onStateSelect }: StateSelectionP
               ) : (
                 <span className="text-gray-500">Select a state...</span>
               )}
-              <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              <ChevronDown
+                className={cn("ml-2 h-4 w-4 shrink-0 opacity-50 transition-transform", open && "rotate-180")}
+              />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-(--radix-popover-trigger-width) p-0" align="start">
+          <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0 z-50" align="start" sideOffset={4}>
             <div className="flex items-center border-b px-3">
               <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
               <Input
@@ -137,11 +140,12 @@ export function StateSelection({ selectedState, onStateSelect }: StateSelectionP
               ) : (
                 <div className="p-1">
                   {filteredStates.map((state) => (
-                    <div
+                    <button
                       key={state.code}
+                      type="button"
                       onClick={() => handleStateSelect(state.code)}
                       className={cn(
-                        "relative flex cursor-pointer select-none items-center justify-between rounded-sm px-2 py-2 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground",
+                        "relative flex w-full cursor-pointer select-none items-center justify-between rounded-sm px-2 py-2 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
                         selectedState === state.code && "bg-accent text-accent-foreground",
                       )}
                     >
@@ -150,7 +154,7 @@ export function StateSelection({ selectedState, onStateSelect }: StateSelectionP
                         <span className="ml-2 text-sm text-muted-foreground">({state.code})</span>
                       </div>
                       <Check className={cn("h-4 w-4", selectedState === state.code ? "opacity-100" : "opacity-0")} />
-                    </div>
+                    </button>
                   ))}
                 </div>
               )}
