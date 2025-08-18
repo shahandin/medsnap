@@ -820,13 +820,15 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
                     <Button
                       onClick={() => setSelectedChangeCategory("income-assets")}
                       variant="outline"
-                      className="h-auto p-6 md:p-4 justify-start bg-white hover:bg-gray-50 rounded-2xl md:rounded-xl border-2 md:border shadow-sm md:shadow-none"
+                      className="h-auto p-6 md:p-8 justify-start bg-white hover:bg-gray-50 rounded-2xl md:rounded-xl border-2 md:border shadow-sm md:shadow-none"
                     >
-                      <div className="flex items-center gap-4 md:gap-3 w-full">
-                        <DollarSign className="w-7 h-7 md:w-6 md:h-6 text-primary flex-shrink-0" />
+                      <div className="flex items-center gap-4 md:gap-6 w-full">
+                        <DollarSign className="w-7 h-7 md:w-8 md:h-8 text-primary flex-shrink-0" />
                         <div className="text-left flex-1">
-                          <div className="font-bold text-base md:text-sm">Income & Asset Changes</div>
-                          <div className="text-sm md:text-xs text-gray-500 mt-1">Job changes, income, assets</div>
+                          <div className="font-bold text-base md:text-lg">Income & Asset Changes</div>
+                          <div className="text-sm md:text-base text-gray-500 mt-1 md:mt-2 leading-relaxed">
+                            Job changes, income, assets
+                          </div>
                         </div>
                       </div>
                     </Button>
@@ -834,13 +836,15 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
                     <Button
                       onClick={() => setSelectedChangeCategory("household")}
                       variant="outline"
-                      className="h-auto p-6 md:p-4 justify-start bg-white hover:bg-gray-50 rounded-2xl md:rounded-xl border-2 md:border shadow-sm md:shadow-none"
+                      className="h-auto p-6 md:p-8 justify-start bg-white hover:bg-gray-50 rounded-2xl md:rounded-xl border-2 md:border shadow-sm md:shadow-none"
                     >
-                      <div className="flex items-center gap-4 md:gap-3 w-full">
-                        <Users className="w-7 h-7 md:w-6 md:h-6 text-secondary flex-shrink-0" />
+                      <div className="flex items-center gap-4 md:gap-6 w-full">
+                        <Users className="w-7 h-7 md:w-8 md:h-8 text-secondary flex-shrink-0" />
                         <div className="text-left flex-1">
-                          <div className="font-bold text-base md:text-sm">Household Changes</div>
-                          <div className="text-sm md:text-xs text-gray-500 mt-1">Marriage, family members</div>
+                          <div className="font-bold text-base md:text-lg">Household Changes</div>
+                          <div className="text-sm md:text-base text-gray-500 mt-1 md:mt-2 leading-relaxed">
+                            Marriage, family members
+                          </div>
                         </div>
                       </div>
                     </Button>
@@ -848,13 +852,15 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
                     <Button
                       onClick={() => setSelectedChangeCategory("address")}
                       variant="outline"
-                      className="h-auto p-6 md:p-4 justify-start bg-white hover:bg-gray-50 rounded-2xl md:rounded-xl border-2 md:border shadow-sm md:shadow-none"
+                      className="h-auto p-6 md:p-8 justify-start bg-white hover:bg-gray-50 rounded-2xl md:rounded-xl border-2 md:border shadow-sm md:shadow-none"
                     >
-                      <div className="flex items-center gap-4 md:gap-3 w-full">
-                        <Home className="w-7 h-7 md:w-6 md:h-6 text-primary flex-shrink-0" />
+                      <div className="flex items-center gap-4 md:gap-6 w-full">
+                        <Home className="w-7 h-7 md:w-8 md:h-8 text-primary flex-shrink-0" />
                         <div className="text-left flex-1">
-                          <div className="font-bold text-base md:text-sm">Address Changes</div>
-                          <div className="text-sm md:text-xs text-gray-500 mt-1">Moving, residency</div>
+                          <div className="font-bold text-base md:text-lg">Address Changes</div>
+                          <div className="text-sm md:text-base text-gray-500 mt-1 md:mt-2 leading-relaxed">
+                            Moving, residency
+                          </div>
                         </div>
                       </div>
                     </Button>
@@ -862,13 +868,15 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
                     <Button
                       onClick={() => setSelectedChangeCategory("insurance")}
                       variant="outline"
-                      className="h-auto p-6 md:p-4 justify-start bg-white hover:bg-gray-50 rounded-2xl md:rounded-xl border-2 md:border shadow-sm md:shadow-none"
+                      className="h-auto p-6 md:p-8 justify-start bg-white hover:bg-gray-50 rounded-2xl md:rounded-xl border-2 md:border shadow-sm md:shadow-none"
                     >
-                      <div className="flex items-center gap-4 md:gap-3 w-full">
-                        <Shield className="w-7 h-7 md:w-6 md:h-6 text-secondary flex-shrink-0" />
+                      <div className="flex items-center gap-4 md:gap-6 w-full">
+                        <Shield className="w-7 h-7 md:w-8 md:h-8 text-secondary flex-shrink-0" />
                         <div className="text-left flex-1">
-                          <div className="font-bold text-base md:text-sm">Insurance Changes</div>
-                          <div className="text-sm md:text-xs text-gray-500 mt-1">Health coverage updates</div>
+                          <div className="font-bold text-base md:text-lg">Insurance Changes</div>
+                          <div className="text-sm md:text-base text-gray-500 mt-1 md:mt-2 leading-relaxed">
+                            Health coverage updates
+                          </div>
                         </div>
                       </div>
                     </Button>
