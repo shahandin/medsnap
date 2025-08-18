@@ -108,6 +108,7 @@ export function StateSelection({ selectedState, onStateSelect }: StateSelectionP
   }
 
   const handleButtonClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation()
     console.log("[v0] Button clicked, current open state:", open)
     const rect = e.currentTarget.getBoundingClientRect()
     console.log("[v0] Button rect calculated:", rect)
@@ -116,6 +117,24 @@ export function StateSelection({ selectedState, onStateSelect }: StateSelectionP
     console.log("[v0] Setting open to:", !open)
   }
 
+  useEffect(() => {
+    if (open) {
+      const timer = setTimeout(() => {
+        const handleDocumentClick = (e: MouseEvent) => {
+          console.log("[v0] Document click detected")
+          handleClickOutside()
+        }
+        document.addEventListener("click", handleDocumentClick)
+
+        return () => {
+          document.removeEventListener("click", handleDocumentClick)
+        }
+      }, 100)
+
+      return () => clearTimeout(timer)
+    }
+  }, [open])
+
   const handleClickOutside = () => {
     console.log("[v0] Click outside detected, closing dropdown")
     setOpen(false)
@@ -123,7 +142,6 @@ export function StateSelection({ selectedState, onStateSelect }: StateSelectionP
 
   const dropdownContent = open && buttonRect && (
     <>
-      <div className="fixed inset-0 z-40" onClick={handleClickOutside} />
       <div
         className="fixed bg-white border border-gray-200 rounded-md shadow-xl z-50 max-h-[300px] overflow-hidden"
         style={{
@@ -131,6 +149,7 @@ export function StateSelection({ selectedState, onStateSelect }: StateSelectionP
           left: buttonRect.left + window.scrollX,
           width: buttonRect.width,
         }}
+        onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center border-b px-3 py-2">
           <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
