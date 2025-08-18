@@ -441,114 +441,125 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
 
   return (
     <div className="min-h-screen bg-white">
-      <div className="container mx-auto px-6 py-12 max-w-7xl">
-        <div className="mb-12 relative">
-          <div className="relative bg-white border border-gray-200 rounded-3xl p-8 shadow-lg">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-2xl flex items-center justify-center shadow-lg">
-                    <Sparkles className="w-6 h-6 text-white" />
+      <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-12 max-w-7xl">
+        <div className="mb-8 sm:mb-12 relative">
+          <div className="relative bg-white border border-gray-200 rounded-2xl sm:rounded-3xl p-4 sm:p-8 shadow-lg">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
+              <div className="flex-1">
+                <div className="flex items-center gap-3 mb-3 sm:mb-4">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-primary to-primary/80 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg">
+                    <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                   </div>
                   <div>
-                    <h1 className="text-4xl font-heading font-bold text-gray-900">Account Dashboard</h1>
-                    <p className="text-xl text-gray-600">
+                    <h1 className="text-2xl sm:text-4xl font-heading font-bold text-gray-900 leading-tight">
+                      Account Dashboard
+                    </h1>
+                    <p className="text-base sm:text-xl text-gray-600 mt-1">
                       Welcome back, {user.user_metadata?.full_name || user.email?.split("@")[0] || "User"}
                     </p>
                   </div>
                 </div>
-                <p className="text-lg text-gray-600">Manage your benefits applications and account information</p>
+                <p className="text-sm sm:text-lg text-gray-600">
+                  Manage your benefits applications and account information
+                </p>
               </div>
               <form action={signOut}>
                 <Button
                   variant="outline"
                   size="lg"
                   type="submit"
-                  className="flex items-center gap-2 border-2 border-gray-300 hover:border-primary hover:bg-primary hover:text-white rounded-xl px-6 py-3 bg-white transition-all duration-200"
+                  className="flex items-center gap-2 border-2 border-gray-300 hover:border-primary hover:bg-primary hover:text-white rounded-xl px-4 sm:px-6 py-3 bg-white transition-all duration-200 min-h-[48px] touch-manipulation"
                 >
-                  <LogOut className="w-5 h-5" />
-                  Sign Out
+                  <LogOut className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <span className="hidden sm:inline">Sign Out</span>
+                  <span className="sm:hidden">Sign Out</span>
                 </Button>
               </form>
             </div>
           </div>
         </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-          <TabsList className="grid w-full grid-cols-6 bg-white border border-gray-200 rounded-2xl p-2 shadow-sm">
-            <TabsTrigger
-              value="overview"
-              className="rounded-xl font-medium hover:bg-primary/10 hover:text-primary transition-all duration-200 data-[state=active]:bg-primary data-[state=active]:text-white"
-            >
-              Overview
-            </TabsTrigger>
-            <TabsTrigger
-              value="applications"
-              className="rounded-xl font-medium hover:bg-primary/10 hover:text-primary transition-all duration-200 data-[state=active]:bg-primary data-[state=active]:text-white"
-            >
-              Applications
-            </TabsTrigger>
-            <TabsTrigger
-              value="notifications"
-              className="rounded-xl font-medium hover:bg-primary/10 hover:text-primary transition-all duration-200 data-[state=active]:bg-primary data-[state=active]:text-white"
-            >
-              Notifications
-            </TabsTrigger>
-            <TabsTrigger
-              value="report-changes"
-              className="rounded-xl font-medium hover:bg-primary/10 hover:text-primary transition-all duration-200 data-[state=active]:bg-primary data-[state=active]:text-white"
-            >
-              Report Changes
-            </TabsTrigger>
-            <TabsTrigger
-              value="documents"
-              className="rounded-xl font-medium hover:bg-primary/10 hover:text-primary transition-all duration-200 data-[state=active]:bg-primary data-[state=active]:text-white"
-            >
-              Documents
-            </TabsTrigger>
-            <TabsTrigger
-              value="profile"
-              className="rounded-xl font-medium hover:bg-primary/10 hover:text-primary transition-all duration-200 data-[state=active]:bg-primary data-[state=active]:text-white"
-            >
-              Profile
-            </TabsTrigger>
-          </TabsList>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6 sm:space-y-8">
+          <div className="w-full overflow-x-auto scrollbar-hide">
+            <TabsList className="grid grid-cols-6 bg-white border border-gray-200 rounded-xl sm:rounded-2xl p-1 sm:p-2 shadow-sm min-w-max sm:min-w-0 w-full sm:w-auto">
+              <TabsTrigger
+                value="overview"
+                className="rounded-lg sm:rounded-xl font-medium hover:bg-primary/10 hover:text-primary transition-all duration-200 data-[state=active]:bg-primary data-[state=active]:text-white px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm min-h-[44px] sm:min-h-0 touch-manipulation whitespace-nowrap"
+              >
+                Overview
+              </TabsTrigger>
+              <TabsTrigger
+                value="applications"
+                className="rounded-lg sm:rounded-xl font-medium hover:bg-primary/10 hover:text-primary transition-all duration-200 data-[state=active]:bg-primary data-[state=active]:text-white px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm min-h-[44px] sm:min-h-0 touch-manipulation whitespace-nowrap"
+              >
+                Applications
+              </TabsTrigger>
+              <TabsTrigger
+                value="notifications"
+                className="rounded-lg sm:rounded-xl font-medium hover:bg-primary/10 hover:text-primary transition-all duration-200 data-[state=active]:bg-primary data-[state=active]:text-white px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm min-h-[44px] sm:min-h-0 touch-manipulation whitespace-nowrap"
+              >
+                Notifications
+              </TabsTrigger>
+              <TabsTrigger
+                value="report-changes"
+                className="rounded-lg sm:rounded-xl font-medium hover:bg-primary/10 hover:text-primary transition-all duration-200 data-[state=active]:bg-primary data-[state=active]:text-white px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm min-h-[44px] sm:min-h-0 touch-manipulation whitespace-nowrap"
+              >
+                Report Changes
+              </TabsTrigger>
+              <TabsTrigger
+                value="documents"
+                className="rounded-lg sm:rounded-xl font-medium hover:bg-primary/10 hover:text-primary transition-all duration-200 data-[state=active]:bg-primary data-[state=active]:text-white px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm min-h-[44px] sm:min-h-0 touch-manipulation whitespace-nowrap"
+              >
+                Documents
+              </TabsTrigger>
+              <TabsTrigger
+                value="profile"
+                className="rounded-lg sm:rounded-xl font-medium hover:bg-primary/10 hover:text-primary transition-all duration-200 data-[state=active]:bg-primary data-[state=active]:text-white px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm min-h-[44px] sm:min-h-0 touch-manipulation whitespace-nowrap"
+              >
+                Profile
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
-          <TabsContent value="overview" className="space-y-8">
-            <Card className="bg-white border-gray-200 rounded-2xl shadow-lg overflow-hidden">
-              <CardHeader className="bg-white border-b border-gray-200">
-                <CardTitle className="flex items-center gap-3 text-2xl font-heading text-gray-900">
-                  <TrendingUp className="w-6 h-6 text-primary" />
+          <TabsContent value="overview" className="space-y-6 sm:space-y-8">
+            <Card className="bg-white border-gray-200 rounded-xl sm:rounded-2xl shadow-lg overflow-hidden">
+              <CardHeader className="bg-white border-b border-gray-200 px-4 sm:px-6 py-4 sm:py-6">
+                <CardTitle className="flex items-center gap-3 text-xl sm:text-2xl font-heading text-gray-900">
+                  <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
                   Your Benefits Journey
                 </CardTitle>
-                <CardDescription className="text-lg text-gray-600">
+                <CardDescription className="text-base sm:text-lg text-gray-600 mt-2">
                   Track your progress and manage your benefits applications with ease.
                 </CardDescription>
               </CardHeader>
             </Card>
 
-            <div className="grid lg:grid-cols-2 gap-8">
-              <Card className="bg-white border-gray-200 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300">
-                <CardHeader>
-                  <CardTitle className="flex items-center justify-between text-xl font-heading text-gray-900">
-                    <span className="flex items-center gap-3">
-                      <FileText className="w-6 h-6 text-primary" />
-                      Application Status
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
+              <Card className="bg-white border-gray-200 rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300">
+                <CardHeader className="px-4 sm:px-6 py-4 sm:py-6">
+                  <CardTitle className="flex items-center justify-between text-lg sm:text-xl font-heading text-gray-900">
+                    <span className="flex items-center gap-2 sm:gap-3">
+                      <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+                      <span className="text-base sm:text-xl">Application Status</span>
                     </span>
-                    <Badge className={`${getStatusColor(status)} px-3 py-1 rounded-full font-medium`}>{status}</Badge>
+                    <Badge
+                      className={`${getStatusColor(status)} px-2 sm:px-3 py-1 rounded-full font-medium text-xs sm:text-sm`}
+                    >
+                      {status}
+                    </Badge>
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-6">
+                <CardContent className="space-y-4 sm:space-y-6 px-4 sm:px-6 pb-4 sm:pb-6">
                   {applicationProgress ? (
                     <>
                       <div>
-                        <div className="flex justify-between text-base font-medium mb-3 text-gray-900">
+                        <div className="flex justify-between text-sm sm:text-base font-medium mb-2 sm:mb-3 text-gray-900">
                           <span>Progress</span>
                           <span className="text-primary">{Math.round(progressPercentage)}% Complete</span>
                         </div>
-                        <Progress value={progressPercentage} className="h-3 bg-gray-100 rounded-full" />
+                        <Progress value={progressPercentage} className="h-2 sm:h-3 bg-gray-100 rounded-full" />
                       </div>
-                      <div className="space-y-2 text-gray-600">
+                      <div className="space-y-2 text-sm sm:text-base text-gray-600">
                         <p className="flex items-center gap-2">
                           <Clock className="w-4 h-4" />
                           Current Step: {getStepTitle(applicationProgress.current_step)}
@@ -560,17 +571,19 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
                       </div>
                       <Button
                         asChild
-                        className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80 text-white rounded-xl py-3 font-semibold shadow-md hover:shadow-lg transition-all duration-300"
+                        className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80 text-white rounded-xl py-3 sm:py-3 font-semibold shadow-md hover:shadow-lg transition-all duration-300 min-h-[48px] touch-manipulation"
                       >
                         <Link href="/application">Continue Application</Link>
                       </Button>
                     </>
                   ) : (
                     <>
-                      <p className="text-gray-600 text-lg">You haven't started your benefits application yet.</p>
+                      <p className="text-gray-600 text-base sm:text-lg">
+                        You haven't started your benefits application yet.
+                      </p>
                       <Button
                         asChild
-                        className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80 text-white rounded-xl py-3 font-semibold shadow-md hover:shadow-lg transition-all duration-300"
+                        className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80 text-white rounded-xl py-3 sm:py-3 font-semibold shadow-md hover:shadow-lg transition-all duration-300 min-h-[48px] touch-manipulation"
                       >
                         <Link href="/application">Start Application</Link>
                       </Button>
@@ -579,26 +592,26 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
                 </CardContent>
               </Card>
 
-              <Card className="bg-card/80 backdrop-blur-sm border-border/50 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-3 text-xl font-heading">
-                    <Sparkles className="w-6 h-6 text-secondary" />
+              <Card className="bg-card/80 backdrop-blur-sm border-border/50 rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300">
+                <CardHeader className="px-4 sm:px-6 py-4 sm:py-6">
+                  <CardTitle className="flex items-center gap-2 sm:gap-3 text-lg sm:text-xl font-heading">
+                    <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-secondary" />
                     Quick Actions
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-3 sm:space-y-4 px-4 sm:px-6 pb-4 sm:pb-6">
                   <Button
                     variant="outline"
-                    className="w-full justify-start h-auto p-4 border-2 border-border hover:border-primary/50 rounded-xl bg-transparent hover:bg-muted/50 transition-all duration-200"
+                    className="w-full justify-start h-auto p-3 sm:p-4 border-2 border-border hover:border-primary/50 rounded-xl bg-transparent hover:bg-muted/50 transition-all duration-200 min-h-[56px] touch-manipulation"
                     asChild
                   >
                     <Link href="/application" className="flex items-center gap-3">
                       <FileText className="w-5 h-5 text-primary" />
                       <div className="text-left">
-                        <div className="font-semibold">
+                        <div className="font-semibold text-sm sm:text-base">
                           {applicationProgress ? "Continue Application" : "Start New Application"}
                         </div>
-                        <div className="text-sm text-muted-foreground">
+                        <div className="text-xs sm:text-sm text-muted-foreground">
                           {applicationProgress ? "Pick up where you left off" : "Begin your benefits journey"}
                         </div>
                       </div>
@@ -606,29 +619,29 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
                   </Button>
                   <Button
                     variant="outline"
-                    className="w-full justify-start h-auto p-4 border-2 border-border hover:border-secondary/50 rounded-xl bg-transparent hover:bg-muted/50 transition-all duration-200"
+                    className="w-full justify-start h-auto p-3 sm:p-4 border-2 border-border hover:border-secondary/50 rounded-xl bg-transparent hover:bg-muted/50 transition-all duration-200 min-h-[56px] touch-manipulation"
                     asChild
                   >
                     <Link href="/about" className="flex items-center gap-3">
                       <ExternalLink className="w-5 h-5 text-secondary" />
                       <div className="text-left">
-                        <div className="font-semibold">Learn About Benefits</div>
-                        <div className="text-sm text-muted-foreground">Understand your eligibility</div>
+                        <div className="font-semibold text-sm sm:text-base">Learn About Benefits</div>
+                        <div className="text-xs sm:text-sm text-muted-foreground">Understand your eligibility</div>
                       </div>
                     </Link>
                   </Button>
                   <Button
                     variant="outline"
                     disabled
-                    className="w-full justify-start h-auto p-4 border-2 border-border rounded-xl bg-muted/20 opacity-60"
+                    className="w-full justify-start h-auto p-3 sm:p-4 border-2 border-border rounded-xl bg-muted/20 opacity-60 min-h-[56px]"
                   >
                     <div className="flex items-center gap-3 w-full">
                       <Upload className="w-5 h-5 text-muted-foreground" />
                       <div className="text-left flex-1">
-                        <div className="font-semibold text-muted-foreground">Upload Documents</div>
-                        <div className="text-sm text-muted-foreground">Submit supporting files</div>
+                        <div className="font-semibold text-muted-foreground text-sm sm:text-base">Upload Documents</div>
+                        <div className="text-xs sm:text-sm text-muted-foreground">Submit supporting files</div>
                       </div>
-                      <Badge variant="secondary" className="ml-auto">
+                      <Badge variant="secondary" className="ml-auto text-xs">
                         Coming Soon
                       </Badge>
                     </div>
@@ -669,49 +682,55 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
             </Card>
           </TabsContent>
 
-          <TabsContent value="applications" className="space-y-8">
-            <Card className="bg-card/80 backdrop-blur-sm border-border/50 rounded-2xl shadow-lg">
-              <CardHeader className="bg-gradient-to-r from-muted/30 to-card/50 border-b border-border/50 rounded-t-2xl">
-                <CardTitle className="text-2xl font-heading">Your Applications</CardTitle>
-                <CardDescription className="text-lg">View and manage your benefits applications</CardDescription>
+          <TabsContent value="applications" className="space-y-6 sm:space-y-8">
+            <Card className="bg-card/80 backdrop-blur-sm border-border/50 rounded-xl sm:rounded-2xl shadow-lg">
+              <CardHeader className="bg-gradient-to-r from-muted/30 to-card/50 border-b border-border/50 rounded-t-xl sm:rounded-t-2xl px-4 sm:px-6 py-4 sm:py-6">
+                <CardTitle className="text-xl sm:text-2xl font-heading">Your Applications</CardTitle>
+                <CardDescription className="text-base sm:text-lg">
+                  View and manage your benefits applications
+                </CardDescription>
               </CardHeader>
-              <CardContent className="p-8">
-                <div className="space-y-8">
+              <CardContent className="p-4 sm:p-8">
+                <div className="space-y-6 sm:space-y-8">
                   {/* In-Progress Application */}
                   {applicationProgress && (
                     <div>
-                      <h3 className="text-xl font-heading font-semibold mb-6 flex items-center gap-2">
-                        <FileText className="w-5 h-5 text-primary" />
+                      <h3 className="text-lg sm:text-xl font-heading font-semibold mb-4 sm:mb-6 flex items-center gap-2">
+                        <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
                         In Progress
                       </h3>
-                      <div className="bg-gradient-to-r from-card to-muted/20 border border-border/50 rounded-2xl p-6 shadow-sm">
-                        <div className="flex items-center justify-between mb-4">
-                          <h4 className="text-lg font-semibold">Benefits Application</h4>
-                          <Badge className={`${getStatusColor(status)} px-3 py-1 rounded-full`}>In Progress</Badge>
+                      <div className="bg-gradient-to-r from-card to-muted/20 border border-border/50 rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-sm">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-3 sm:gap-0">
+                          <h4 className="text-base sm:text-lg font-semibold">Benefits Application</h4>
+                          <Badge
+                            className={`${getStatusColor(status)} px-2 sm:px-3 py-1 rounded-full self-start sm:self-auto text-xs sm:text-sm`}
+                          >
+                            In Progress
+                          </Badge>
                         </div>
-                        <div className="space-y-3 text-muted-foreground mb-6">
-                          <p className="flex items-center gap-2">
+                        <div className="space-y-2 sm:space-y-3 text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6">
+                          <p className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
                             <span className="font-medium">Application Type:</span>
-                            {applicationProgress.application_data?.benefitType || "Not specified"}
+                            <span>{applicationProgress.application_data?.benefitType || "Not specified"}</span>
                           </p>
-                          <p className="flex items-center gap-2">
+                          <p className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
                             <span className="font-medium">State:</span>
-                            {applicationProgress.application_data?.state || "Not specified"}
+                            <span>{applicationProgress.application_data?.state || "Not specified"}</span>
                           </p>
-                          <p className="flex items-center gap-2">
+                          <p className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
                             <span className="font-medium">Last Updated:</span>
-                            {new Date(applicationProgress.updated_at).toLocaleDateString()}
+                            <span>{new Date(applicationProgress.updated_at).toLocaleDateString()}</span>
                           </p>
                         </div>
                         <div>
-                          <div className="flex justify-between text-sm font-medium mb-3">
+                          <div className="flex justify-between text-xs sm:text-sm font-medium mb-2 sm:mb-3">
                             <span>Progress</span>
                             <span className="text-primary">{Math.round(progressPercentage)}% Complete</span>
                           </div>
-                          <Progress value={progressPercentage} className="h-3 bg-muted/50 rounded-full mb-4" />
+                          <Progress value={progressPercentage} className="h-2 sm:h-3 bg-muted/50 rounded-full mb-4" />
                           <Button
                             asChild
-                            className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80 text-primary-foreground rounded-xl px-6 py-2 font-semibold shadow-md hover:shadow-lg transition-all duration-300"
+                            className="w-full sm:w-auto bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80 text-primary-foreground rounded-xl px-4 sm:px-6 py-2 sm:py-2 font-semibold shadow-md hover:shadow-lg transition-all duration-300 min-h-[48px] touch-manipulation"
                           >
                             <Link href="/application">Continue Application</Link>
                           </Button>
@@ -723,24 +742,24 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
                   {/* Submitted Applications */}
                   {submittedApplications.length > 0 && (
                     <div>
-                      <h3 className="text-xl font-heading font-semibold mb-6 flex items-center gap-2">
-                        <CheckCircle className="w-5 h-5 text-primary" />
+                      <h3 className="text-lg sm:text-xl font-heading font-semibold mb-4 sm:mb-6 flex items-center gap-2">
+                        <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
                         Submitted Applications
                       </h3>
                       <div className="space-y-4">
                         {submittedApplications.map((app) => (
                           <div
                             key={app.id}
-                            className="bg-gradient-to-r from-card to-muted/20 border border-border/50 rounded-2xl p-6 shadow-sm"
+                            className="bg-gradient-to-r from-card to-muted/20 border border-border/50 rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-sm"
                           >
-                            <div className="flex items-center justify-between mb-4">
-                              <h4 className="text-lg font-semibold">Benefits Application</h4>
-                              <Badge className="bg-primary text-white border-primary px-3 py-1 rounded-full">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-3 sm:gap-0">
+                              <h4 className="text-base sm:text-lg font-semibold">Benefits Application</h4>
+                              <Badge className="bg-primary text-white border-primary px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm">
                                 Submitted
                               </Badge>
                             </div>
-                            <div className="space-y-3 text-muted-foreground">
-                              <p className="flex items-center gap-2">
+                            <div className="space-y-2 sm:space-y-3 text-sm sm:text-base text-muted-foreground">
+                              <p className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
                                 <span className="font-medium">Benefits Applied For:</span>
                                 {app.benefit_type === "both"
                                   ? "Medicaid & SNAP"
@@ -750,15 +769,15 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
                                       ? "SNAP"
                                       : app.benefit_type || "Not specified"}
                               </p>
-                              <p className="flex items-center gap-2">
+                              <p className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
                                 <span className="font-medium">Reference Number:</span>
                                 {app.reference_number}
                               </p>
-                              <p className="flex items-center gap-2">
+                              <p className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
                                 <span className="font-medium">Submitted:</span>
                                 {new Date(app.submitted_at).toLocaleDateString()}
                               </p>
-                              <p className="flex items-center gap-2">
+                              <p className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
                                 <span className="font-medium">Status:</span>
                                 {app.status}
                               </p>
@@ -771,17 +790,19 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
 
                   {/* No Applications */}
                   {!applicationProgress && submittedApplications.length === 0 && (
-                    <div className="text-center py-16">
-                      <div className="w-20 h-20 bg-muted/50 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                        <FileText className="w-10 h-10 text-muted-foreground" />
+                    <div className="text-center py-12 sm:py-16">
+                      <div className="w-16 h-16 sm:w-20 sm:h-20 bg-muted/50 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6">
+                        <FileText className="w-8 h-8 sm:w-10 sm:h-10 text-muted-foreground" />
                       </div>
-                      <h3 className="text-2xl font-heading font-semibold text-foreground mb-3">No Applications Yet</h3>
-                      <p className="text-lg text-muted-foreground mb-8 max-w-md mx-auto">
+                      <h3 className="text-xl sm:text-2xl font-heading font-semibold text-foreground mb-2 sm:mb-3">
+                        No Applications Yet
+                      </h3>
+                      <p className="text-sm sm:text-lg text-muted-foreground mb-6 sm:mb-8 max-w-md mx-auto">
                         Start your first benefits application to see it here and track your progress.
                       </p>
                       <Button
                         asChild
-                        className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80 text-primary-foreground rounded-xl px-8 py-3 font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+                        className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80 text-primary-foreground rounded-xl px-6 sm:px-8 py-2 sm:py-3 font-semibold shadow-lg hover:shadow-xl transition-all duration-300 min-h-[48px] touch-manipulation"
                       >
                         <Link href="/application">Start Application</Link>
                       </Button>
@@ -792,45 +813,49 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
             </Card>
           </TabsContent>
 
-          <TabsContent value="notifications" className="space-y-8">
-            <Card className="bg-card/80 backdrop-blur-sm border-border/50 rounded-2xl shadow-lg">
-              <CardHeader className="bg-gradient-to-r from-muted/30 to-card/50 border-b border-border/50 rounded-t-2xl">
-                <CardTitle className="flex items-center gap-3 text-2xl font-heading">
-                  <Bell className="w-6 h-6 text-primary" />
+          <TabsContent value="notifications" className="space-y-6 sm:space-y-8">
+            <Card className="bg-card/80 backdrop-blur-sm border-border/50 rounded-xl sm:rounded-2xl shadow-lg">
+              <CardHeader className="bg-gradient-to-r from-muted/30 to-card/50 border-b border-border/50 rounded-t-xl sm:rounded-t-2xl px-4 sm:px-6 py-4 sm:py-6">
+                <CardTitle className="flex items-center gap-2 sm:gap-3 text-xl sm:text-2xl font-heading">
+                  <Bell className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
                   All Notifications
                 </CardTitle>
-                <CardDescription className="text-lg">
+                <CardDescription className="text-base sm:text-lg">
                   View all your account and application notifications
                 </CardDescription>
               </CardHeader>
-              <CardContent className="p-8">
-                <ScrollArea className="h-96">
-                  <div className="space-y-4">
+              <CardContent className="p-4 sm:p-8">
+                <ScrollArea className="h-80 sm:h-96">
+                  <div className="space-y-3 sm:space-y-4">
                     {mockNotifications.map((notification) => (
                       <div
                         key={notification.id}
-                        className={`p-6 rounded-2xl border transition-all duration-200 hover:shadow-md ${
+                        className={`p-4 sm:p-6 rounded-xl sm:rounded-2xl border transition-all duration-200 hover:shadow-md ${
                           !notification.read
                             ? "bg-gradient-to-r from-primary/5 to-secondary/5 border-primary/20"
                             : "bg-card/50 border-border/50"
                         }`}
                       >
-                        <div className="flex items-start gap-4">
-                          <div className="w-10 h-10 rounded-xl bg-muted/50 flex items-center justify-center mt-1">
+                        <div className="flex items-start gap-3 sm:gap-4">
+                          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-muted/50 flex items-center justify-center mt-1 flex-shrink-0">
                             {getNotificationIcon(notification.type)}
                           </div>
-                          <div className="flex-1">
-                            <div className="flex items-center gap-3 mb-3">
-                              <h3 className="font-semibold text-foreground text-lg">{notification.title}</h3>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+                              <h3 className="font-semibold text-foreground text-base sm:text-lg leading-tight">
+                                {notification.title}
+                              </h3>
                               {!notification.read && (
-                                <Badge className="bg-primary/20 text-primary border-primary/20 text-xs px-2 py-1 rounded-full">
+                                <Badge className="bg-primary/20 text-primary border-primary/20 text-xs px-2 py-1 rounded-full self-start sm:self-auto">
                                   New
                                 </Badge>
                               )}
                             </div>
-                            <p className="text-muted-foreground mb-3 leading-relaxed">{notification.description}</p>
-                            <p className="text-sm text-muted-foreground flex items-center gap-2">
-                              <Calendar className="w-4 h-4" />
+                            <p className="text-muted-foreground mb-2 sm:mb-3 leading-relaxed text-sm sm:text-base">
+                              {notification.description}
+                            </p>
+                            <p className="text-xs sm:text-sm text-muted-foreground flex items-center gap-2">
+                              <Calendar className="w-3 h-3 sm:w-4 sm:h-4" />
                               {new Date(notification.timestamp).toLocaleString()}
                             </p>
                           </div>
@@ -843,42 +868,42 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
             </Card>
           </TabsContent>
 
-          <TabsContent value="report-changes" className="space-y-8">
+          <TabsContent value="report-changes" className="space-y-6 sm:space-y-8">
             {selectedChangeCategory ? (
               renderChangeForm()
             ) : (
-              <Card className="bg-card/80 backdrop-blur-sm border-border/50 rounded-2xl shadow-lg">
-                <CardHeader className="bg-gradient-to-r from-muted/30 to-card/50 border-b border-border/50 rounded-t-2xl">
-                  <CardTitle className="flex items-center gap-3 text-2xl font-heading">
-                    <AlertTriangle className="w-6 h-6 text-primary" />
+              <Card className="bg-card/80 backdrop-blur-sm border-border/50 rounded-xl sm:rounded-2xl shadow-lg">
+                <CardHeader className="bg-gradient-to-r from-muted/30 to-card/50 border-b border-border/50 rounded-t-xl sm:rounded-t-2xl px-4 sm:px-6 py-4 sm:py-6">
+                  <CardTitle className="flex items-center gap-2 sm:gap-3 text-xl sm:text-2xl font-heading">
+                    <AlertTriangle className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
                     Report Life Changes
                   </CardTitle>
-                  <CardDescription className="text-lg">
+                  <CardDescription className="text-base sm:text-lg">
                     Report changes in your circumstances to maintain your Medicaid eligibility and ensure correct
                     benefits
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="p-8">
-                  <Alert className="mb-8 border-yellow-500/20 bg-gradient-to-r from-yellow-500/10 to-yellow-500/5 rounded-xl">
-                    <AlertCircle className="h-5 w-5 text-yellow-600" />
-                    <AlertDescription className="text-base">
+                <CardContent className="p-4 sm:p-8">
+                  <Alert className="mb-6 sm:mb-8 border-yellow-500/20 bg-gradient-to-r from-yellow-500/10 to-yellow-500/5 rounded-xl">
+                    <AlertCircle className="h-4 w-4 sm:h-5 sm:w-5 text-yellow-600" />
+                    <AlertDescription className="text-sm sm:text-base">
                       <strong>Important:</strong> You must report changes within 10 days to avoid potential issues with
                       your benefits. Failure to report changes may result in overpayments that you'll need to repay.
                     </AlertDescription>
                   </Alert>
 
-                  <div className="grid gap-6 md:grid-cols-2">
+                  <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2">
                     {/* Income and Asset Changes */}
                     <Card
-                      className="bg-gradient-to-r from-card to-muted/20 border-border/50 rounded-2xl shadow-sm cursor-pointer hover:shadow-md transition-all duration-200 hover:border-primary/50"
+                      className="bg-gradient-to-r from-card to-muted/20 border-border/50 rounded-xl sm:rounded-2xl shadow-sm cursor-pointer hover:shadow-md transition-all duration-200 hover:border-primary/50 min-h-[120px] sm:min-h-auto touch-manipulation"
                       onClick={() => setSelectedChangeCategory("income-assets")}
                     >
-                      <CardHeader>
-                        <CardTitle className="flex items-center gap-3 text-xl font-heading">
-                          <DollarSign className="w-6 h-6 text-primary" />
+                      <CardHeader className="p-4 sm:p-6">
+                        <CardTitle className="flex items-center gap-2 sm:gap-3 text-lg sm:text-xl font-heading">
+                          <DollarSign className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
                           Income & Asset Changes
                         </CardTitle>
-                        <CardDescription className="text-base">
+                        <CardDescription className="text-sm sm:text-base">
                           Report changes in your household income, employment, or assets
                         </CardDescription>
                       </CardHeader>
@@ -886,15 +911,15 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
 
                     {/* Household Changes */}
                     <Card
-                      className="bg-gradient-to-r from-card to-muted/20 border-border/50 rounded-2xl shadow-sm cursor-pointer hover:shadow-md transition-all duration-200 hover:border-secondary/50"
+                      className="bg-gradient-to-r from-card to-muted/20 border-border/50 rounded-xl sm:rounded-2xl shadow-sm cursor-pointer hover:shadow-md transition-all duration-200 hover:border-secondary/50 min-h-[120px] sm:min-h-auto touch-manipulation"
                       onClick={() => setSelectedChangeCategory("household")}
                     >
-                      <CardHeader>
-                        <CardTitle className="flex items-center gap-3 text-xl font-heading">
-                          <Users className="w-6 h-6 text-secondary" />
+                      <CardHeader className="p-4 sm:p-6">
+                        <CardTitle className="flex items-center gap-2 sm:gap-3 text-lg sm:text-xl font-heading">
+                          <Users className="w-5 h-5 sm:w-6 sm:h-6 text-secondary" />
                           Household Changes
                         </CardTitle>
-                        <CardDescription className="text-base">
+                        <CardDescription className="text-sm sm:text-base">
                           Report changes in your household composition
                         </CardDescription>
                       </CardHeader>
@@ -902,29 +927,31 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
 
                     {/* Address Changes */}
                     <Card
-                      className="bg-gradient-to-r from-card to-muted/20 border-border/50 rounded-2xl shadow-sm cursor-pointer hover:shadow-md transition-all duration-200 hover:border-primary/50"
+                      className="bg-gradient-to-r from-card to-muted/20 border-border/50 rounded-xl sm:rounded-2xl shadow-sm cursor-pointer hover:shadow-md transition-all duration-200 hover:border-primary/50 min-h-[120px] sm:min-h-auto touch-manipulation"
                       onClick={() => setSelectedChangeCategory("address")}
                     >
-                      <CardHeader>
-                        <CardTitle className="flex items-center gap-3 text-xl font-heading">
-                          <Home className="w-6 h-6 text-primary" />
+                      <CardHeader className="p-4 sm:p-6">
+                        <CardTitle className="flex items-center gap-2 sm:gap-3 text-lg sm:text-xl font-heading">
+                          <Home className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
                           Address & Residency Changes
                         </CardTitle>
-                        <CardDescription className="text-base">Report changes in where you live</CardDescription>
+                        <CardDescription className="text-sm sm:text-base">
+                          Report changes in where you live
+                        </CardDescription>
                       </CardHeader>
                     </Card>
 
                     {/* Insurance Changes */}
                     <Card
-                      className="bg-gradient-to-r from-card to-muted/20 border-border/50 rounded-2xl shadow-sm cursor-pointer hover:shadow-md transition-all duration-200 hover:border-secondary/50"
+                      className="bg-gradient-to-r from-card to-muted/20 border-border/50 rounded-xl sm:rounded-2xl shadow-sm cursor-pointer hover:shadow-md transition-all duration-200 hover:border-secondary/50 min-h-[120px] sm:min-h-auto touch-manipulation"
                       onClick={() => setSelectedChangeCategory("insurance")}
                     >
-                      <CardHeader>
-                        <CardTitle className="flex items-center gap-3 text-xl font-heading">
-                          <Shield className="w-6 h-6 text-secondary" />
+                      <CardHeader className="p-4 sm:p-6">
+                        <CardTitle className="flex items-center gap-2 sm:gap-3 text-lg sm:text-xl font-heading">
+                          <Shield className="w-5 h-5 sm:w-6 sm:h-6 text-secondary" />
                           Health Insurance Changes
                         </CardTitle>
-                        <CardDescription className="text-base">
+                        <CardDescription className="text-sm sm:text-base">
                           Report changes in your health insurance coverage
                         </CardDescription>
                       </CardHeader>
@@ -932,14 +959,14 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
                   </div>
 
                   {/* Contact Information */}
-                  <Card className="bg-gradient-to-r from-primary/5 to-secondary/5 border-primary/20 rounded-2xl shadow-sm">
-                    <CardHeader>
-                      <CardTitle className="text-xl font-heading">Need Help?</CardTitle>
+                  <Card className="bg-gradient-to-r from-primary/5 to-secondary/5 border-primary/20 rounded-xl sm:rounded-2xl shadow-sm">
+                    <CardHeader className="p-4 sm:p-6">
+                      <CardTitle className="text-lg sm:text-xl font-heading">Need Help?</CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-6">
-                      <div className="bg-card/80 backdrop-blur-sm p-6 rounded-xl border border-border/50">
-                        <h4 className="font-semibold text-lg mb-4">Reporting Methods</h4>
-                        <ul className="text-muted-foreground space-y-2 leading-relaxed">
+                    <CardContent className="space-y-4 sm:space-y-6">
+                      <div className="bg-card/80 backdrop-blur-sm p-4 sm:p-6 rounded-xl sm:rounded-2xl border border-border/50">
+                        <h4 className="font-semibold text-base sm:text-lg mb-3 sm:mb-4">Reporting Methods</h4>
+                        <ul className="text-muted-foreground space-y-1 sm:space-y-2 leading-relaxed">
                           <li className="flex items-center gap-2">
                             <div className="w-2 h-2 bg-primary rounded-full"></div>
                             Online: Use the forms above to report changes
@@ -958,9 +985,9 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
                           </li>
                         </ul>
                       </div>
-                      <Alert className="border-primary/20 bg-gradient-to-r from-primary/10 to-primary/5 rounded-xl">
-                        <AlertCircle className="h-5 w-5 text-primary" />
-                        <AlertDescription className="text-base">
+                      <Alert className="border-primary/20 bg-gradient-to-r from-primary/10 to-primary/5 rounded-xl sm:rounded-2xl">
+                        <AlertCircle className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+                        <AlertDescription className="text-sm sm:text-base">
                           <strong>Remember:</strong> Changes must be reported within 10 days of when they happen, not
                           when you receive documentation.
                         </AlertDescription>
@@ -972,16 +999,18 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
             )}
           </TabsContent>
 
-          <TabsContent value="documents" className="space-y-8">
-            <Card className="bg-card/80 backdrop-blur-sm border-border/50 rounded-2xl shadow-lg">
-              <CardHeader className="bg-gradient-to-r from-muted/30 to-card/50 border-b border-border/50 rounded-t-2xl">
-                <CardTitle className="text-2xl font-heading">Documents</CardTitle>
-                <CardDescription className="text-lg">Upload and manage your application documents</CardDescription>
+          <TabsContent value="documents" className="space-y-6 sm:space-y-8">
+            <Card className="bg-card/80 backdrop-blur-sm border-border/50 rounded-xl sm:rounded-2xl shadow-lg">
+              <CardHeader className="bg-gradient-to-r from-muted/30 to-card/50 border-b border-border/50 rounded-t-xl sm:rounded-t-2xl px-4 sm:px-6 py-4 sm:py-6">
+                <CardTitle className="text-xl sm:text-2xl font-heading">Documents</CardTitle>
+                <CardDescription className="text-base sm:text-lg">
+                  Upload and manage your application documents
+                </CardDescription>
               </CardHeader>
-              <CardContent className="p-8">
-                <Alert className="border-secondary/20 bg-gradient-to-r from-secondary/10 to-secondary/5 rounded-xl">
-                  <AlertCircle className="h-5 w-5 text-secondary" />
-                  <AlertDescription className="text-base">
+              <CardContent className="p-4 sm:p-8">
+                <Alert className="border-secondary/20 bg-gradient-to-r from-secondary/10 to-secondary/5 rounded-xl sm:rounded-2xl">
+                  <AlertCircle className="h-4 w-4 sm:h-5 sm:w-5 text-secondary" />
+                  <AlertDescription className="text-sm sm:text-base">
                     Document upload functionality is coming soon. You'll be able to upload supporting documents for your
                     benefits application here.
                   </AlertDescription>
@@ -990,48 +1019,50 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
             </Card>
           </TabsContent>
 
-          <TabsContent value="profile" className="space-y-8">
-            <Card className="bg-card/80 backdrop-blur-sm border-border/50 rounded-2xl shadow-lg">
-              <CardHeader className="bg-gradient-to-r from-muted/30 to-card/50 border-b border-border/50 rounded-t-2xl">
-                <CardTitle className="text-2xl font-heading">Profile Information</CardTitle>
-                <CardDescription className="text-lg">View and manage your account details</CardDescription>
+          <TabsContent value="profile" className="space-y-6 sm:space-y-8">
+            <Card className="bg-card/80 backdrop-blur-sm border-border/50 rounded-xl sm:rounded-2xl shadow-lg">
+              <CardHeader className="bg-gradient-to-r from-muted/30 to-card/50 border-b border-border/50 rounded-t-xl sm:rounded-t-2xl px-4 sm:px-6 py-4 sm:py-6">
+                <CardTitle className="text-xl sm:text-2xl font-heading">Profile Information</CardTitle>
+                <CardDescription className="text-base sm:text-lg">View and manage your account details</CardDescription>
               </CardHeader>
-              <CardContent className="p-8 space-y-6">
-                <div className="grid gap-6">
-                  <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-card to-muted/20 rounded-xl border border-border/50">
-                    <div className="w-12 h-12 bg-primary/20 rounded-xl flex items-center justify-center">
-                      <Mail className="w-6 h-6 text-primary" />
+              <CardContent className="p-4 sm:p-8 space-y-4 sm:space-y-6">
+                <div className="grid gap-4 sm:gap-6">
+                  <div className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-gradient-to-r from-card to-muted/20 rounded-xl sm:rounded-2xl border border-border/50">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/20 rounded-xl sm:rounded-2xl flex items-center justify-center">
+                      <Mail className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
                     </div>
                     <div>
-                      <p className="font-semibold text-lg">Email Address</p>
-                      <p className="text-muted-foreground">{user.email}</p>
+                      <p className="font-semibold text-base sm:text-lg">Email Address</p>
+                      <p className="text-muted-foreground text-sm sm:text-base">{user.email}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-card to-muted/20 rounded-xl border border-border/50">
-                    <div className="w-12 h-12 bg-secondary/20 rounded-xl flex items-center justify-center">
-                      <ExternalLink className="w-6 h-6 text-secondary" />
+                  <div className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-gradient-to-r from-card to-muted/20 rounded-xl sm:rounded-2xl border border-border/50">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-secondary/20 rounded-xl sm:rounded-2xl flex items-center justify-center">
+                      <ExternalLink className="w-5 h-5 sm:w-6 sm:h-6 text-secondary" />
                     </div>
                     <div>
-                      <p className="font-semibold text-lg">Full Name</p>
-                      <p className="text-muted-foreground">{user.user_metadata?.full_name || "Not provided"}</p>
+                      <p className="font-semibold text-base sm:text-lg">Full Name</p>
+                      <p className="text-muted-foreground text-sm sm:text-base">
+                        {user.user_metadata?.full_name || "Not provided"}
+                      </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-card to-muted/20 rounded-xl border border-border/50">
-                    <div className="w-12 h-12 bg-primary/20 rounded-xl flex items-center justify-center">
-                      <Calendar className="w-6 h-6 text-primary" />
+                  <div className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-gradient-to-r from-card to-muted/20 rounded-xl sm:rounded-2xl border border-border/50">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/20 rounded-xl sm:rounded-2xl flex items-center justify-center">
+                      <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
                     </div>
                     <div>
-                      <p className="font-semibold text-lg">Account Created</p>
-                      <p className="text-muted-foreground">
+                      <p className="font-semibold text-base sm:text-lg">Account Created</p>
+                      <p className="text-muted-foreground text-sm sm:text-base">
                         {new Date(user.created_at || Date.now()).toLocaleDateString()}
                       </p>
                     </div>
                   </div>
                 </div>
 
-                <Alert className="border-secondary/20 bg-gradient-to-r from-secondary/10 to-secondary/5 rounded-xl">
-                  <AlertCircle className="h-5 w-5 text-secondary" />
-                  <AlertDescription className="text-base">
+                <Alert className="border-secondary/20 bg-gradient-to-r from-secondary/10 to-secondary/5 rounded-xl sm:rounded-2xl">
+                  <AlertCircle className="h-4 w-4 sm:h-5 sm:w-5 text-secondary" />
+                  <AlertDescription className="text-sm sm:text-base">
                     Profile editing functionality is coming soon. Contact support if you need to update your
                     information.
                   </AlertDescription>
