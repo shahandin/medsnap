@@ -165,32 +165,37 @@ export function StateSelection({ selectedState, onStateSelect }: StateSelectionP
     <>
       {console.log("[v0] Rendering dropdown content, open:", open, "buttonRect exists:", !!buttonRect)}
       <div
-        className="fixed bg-white border border-gray-200 rounded-md shadow-xl z-50 max-h-[300px] overflow-hidden"
+        className="fixed bg-white border-2 border-gray-300 rounded-lg shadow-2xl z-[9999] max-h-[300px] overflow-hidden backdrop-blur-sm"
         style={{
-          top: buttonRect.bottom + window.scrollY + 4,
+          top: buttonRect.bottom + window.scrollY + 8,
           left: buttonRect.left + window.scrollX,
           width: buttonRect.width,
+          position: "fixed",
+          display: "block",
+          visibility: "visible",
+          opacity: 1,
+          minHeight: "100px",
         }}
         onClick={(e) => {
           console.log("[v0] Dropdown content clicked")
           e.stopPropagation()
         }}
       >
-        <div className="flex items-center border-b px-3 py-2">
-          <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
+        <div className="flex items-center border-b-2 border-gray-200 px-3 py-3 bg-gray-50">
+          <Search className="mr-2 h-4 w-4 shrink-0 text-gray-600" />
           <Input
             placeholder="Search states..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0 h-8 text-sm"
+            className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0 h-8 text-sm bg-transparent"
             onClick={(e) => e.stopPropagation()}
           />
         </div>
-        <div className="max-h-[280px] overflow-y-auto overscroll-contain">
+        <div className="max-h-[240px] overflow-y-auto overscroll-contain bg-white">
           {filteredStates.length === 0 ? (
             <div className="py-6 text-center text-sm text-gray-500">No state found.</div>
           ) : (
-            <div className="p-1">
+            <div className="p-2">
               {filteredStates.map((state) => (
                 <button
                   key={state.code}
@@ -200,8 +205,8 @@ export function StateSelection({ selectedState, onStateSelect }: StateSelectionP
                     handleStateSelect(state.code)
                   }}
                   className={cn(
-                    "relative flex w-full cursor-pointer select-none items-center justify-between rounded-sm px-3 py-2 text-sm outline-none transition-colors hover:bg-gray-100 focus:bg-gray-100",
-                    selectedState === state.code && "bg-blue-50 text-blue-900",
+                    "relative flex w-full cursor-pointer select-none items-center justify-between rounded-md px-3 py-3 text-sm outline-none transition-all duration-200 hover:bg-blue-50 hover:text-blue-900 focus:bg-blue-50 focus:text-blue-900 border border-transparent hover:border-blue-200",
+                    selectedState === state.code && "bg-blue-100 text-blue-900 border-blue-300 font-medium",
                   )}
                 >
                   <div className="flex items-center">
