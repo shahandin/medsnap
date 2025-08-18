@@ -1,10 +1,11 @@
 "use client"
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
+import type React from "react"
+
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
-import { MapPin, Search } from "lucide-react"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { MapPin, Search, Check } from "lucide-react"
 
 const US_STATES = [
   { code: "AL", name: "Alabama" },
@@ -67,6 +68,9 @@ interface StateSelectionProps {
 
 export function StateSelection({ selectedState, onStateSelect }: StateSelectionProps) {
   const [searchTerm, setSearchTerm] = useState("")
+  const [showDropdown, setShowDropdown] = useState(false)
+  const inputRef = useRef<HTMLInputElement>(null)
+  const dropdownRef = useRef<HTMLDivElement>(null)
 
   const filteredStates = US_STATES.filter(
     (state) =>
@@ -75,6 +79,34 @@ export function StateSelection({ selectedState, onStateSelect }: StateSelectionP
   )
 
   const selectedStateName = US_STATES.find((state) => state.code === selectedState)?.name
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node) &&
+        inputRef.current &&
+        !inputRef.current.contains(event.target as Node)
+      ) {
+        setShowDropdown(false)
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
+
+  const handleStateSelect = (state: { code: string; name: string }) => {
+    onStateSelect(state.code)
+    setSearchTerm("")
+    setShowDropdown(false)
+  }
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setSearchTerm(value)
+    setShowDropdown(value.length > 0)
+  }
 
   return (
     <div className="space-y-6">
@@ -92,29 +124,40 @@ export function StateSelection({ selectedState, onStateSelect }: StateSelectionP
           State of Residence
         </Label>
 
-        <div className="relative mb-3">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-          <Input
-            type="text"
-            placeholder="Search states..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 h-10"
-          />
-        </div>
+        <div className="relative">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Input
+              ref={inputRef}
+              type="text"
+              placeholder="Type to search states..."
+              value={searchTerm}
+              onChange={handleInputChange}
+              onFocus={() => searchTerm.length > 0 && setShowDropdown(true)}
+              className="pl-10 h-12 text-base"
+            />
+          </div>
 
-        <Select value={selectedState} onValueChange={onStateSelect}>
-          <SelectTrigger className="w-full h-12 text-base">
-            <SelectValue placeholder="Select a state..." />
-          </SelectTrigger>
-          <SelectContent>
-            {filteredStates.map((state) => (
-              <SelectItem key={state.code} value={state.code} className="text-base">
-                {state.name} ({state.code})
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          {showDropdown && filteredStates.length > 0 && (
+            <div
+              ref={dropdownRef}
+              className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-md shadow-lg z-50 max-h-60 overflow-y-auto mt-1"
+            >
+              {filteredStates.map((state) => (
+                <button
+                  key={state.code}
+                  onClick={() => handleStateSelect(state)}
+                  className="w-full text-left px-4 py-3 hover:bg-gray-50 focus:bg-gray-50 focus:outline-none border-b border-gray-100 last:border-b-0 flex items-center justify-between"
+                >
+                  <span className="text-base">
+                    {state.name} ({state.code})
+                  </span>
+                  {selectedState === state.code && <Check className="w-4 h-4 text-blue-600" />}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {selectedState && (
