@@ -3,10 +3,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Button } from "@/components/ui/button"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { useState, useImperativeHandle, forwardRef } from "react"
+import { useImperativeHandle, forwardRef } from "react"
 
 interface PersonalInfo {
   applyingFor: string
@@ -155,15 +153,6 @@ export const PersonalInformationForm = forwardRef<
     return digits
   }
 
-  const [languageOpen, setLanguageOpen] = useState(false)
-  const [languageSearch, setLanguageSearch] = useState("")
-
-  const filteredLanguages = LANGUAGE_OPTIONS.filter((language) =>
-    language.label.toLowerCase().includes(languageSearch.toLowerCase()),
-  )
-
-  const selectedLanguage = LANGUAGE_OPTIONS.find((lang) => lang.value === personalInfo.languagePreference)
-
   const validateAddress = async () => {
     return { isValid: true, suggestion: null }
   }
@@ -293,58 +282,25 @@ export const PersonalInformationForm = forwardRef<
               <Label htmlFor="languagePreference" className="text-base sm:text-sm font-medium">
                 Preferred Language *
               </Label>
-              <Popover open={languageOpen} onOpenChange={setLanguageOpen}>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    role="combobox"
-                    aria-expanded={languageOpen}
-                    className="w-full justify-between bg-transparent h-14 sm:h-10 text-lg sm:text-base touch-manipulation px-4 sm:px-3"
-                  >
-                    {selectedLanguage ? selectedLanguage.label : "Select your preferred language"}
-                    <span className="ml-2 text-lg">⌄</span>
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-full p-0" style={{ width: "var(--radix-popover-trigger-width)" }}>
-                  <div className="p-4 sm:p-3">
-                    <div className="flex items-center border rounded-md px-4 sm:px-3">
-                      <span className="mr-2 text-gray-400">🔍</span>
-                      <Input
-                        placeholder="Search languages..."
-                        value={languageSearch}
-                        onChange={(e) => setLanguageSearch(e.target.value)}
-                        className="border-0 p-0 focus-visible:ring-0 h-12 sm:h-10 text-base"
-                      />
-                    </div>
-                  </div>
-                  <div className="max-h-60 overflow-auto">
-                    {filteredLanguages.length === 0 ? (
-                      <div className="p-4 text-sm text-gray-500">No languages found.</div>
-                    ) : (
-                      filteredLanguages.map((language) => (
-                        <div
-                          key={language.value}
-                          className="flex items-center px-4 py-4 sm:py-3 text-base sm:text-sm cursor-pointer hover:bg-accent hover:text-accent-foreground touch-manipulation min-h-[52px] sm:min-h-[auto]"
-                          onClick={() => {
-                            updateField("languagePreference", language.value)
-                            setLanguageOpen(false)
-                            setLanguageSearch("")
-                          }}
-                        >
-                          <span
-                            className={`mr-3 text-green-600 ${
-                              personalInfo.languagePreference === language.value ? "opacity-100" : "opacity-0"
-                            }`}
-                          >
-                            ✓
-                          </span>
-                          {language.label}
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </PopoverContent>
-              </Popover>
+              <Select
+                value={personalInfo.languagePreference}
+                onValueChange={(value) => updateField("languagePreference", value)}
+              >
+                <SelectTrigger className="h-14 sm:h-10 text-lg sm:text-base touch-manipulation px-4 sm:px-3">
+                  <SelectValue placeholder="Select your preferred language" />
+                </SelectTrigger>
+                <SelectContent>
+                  {LANGUAGE_OPTIONS.map((language) => (
+                    <SelectItem
+                      key={language.value}
+                      value={language.value}
+                      className="py-4 sm:py-3 touch-manipulation text-base sm:text-sm min-h-[52px] sm:min-h-[auto]"
+                    >
+                      {language.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <p className="text-sm sm:text-xs text-gray-500 leading-relaxed">
                 This helps us provide documents and assistance in your preferred language.
               </p>
