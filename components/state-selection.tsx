@@ -133,17 +133,7 @@ export function StateSelection({ selectedState, onStateSelect }: StateSelectionP
           {open && (
             <>
               <div className="fixed inset-0 z-40" onClick={handleClickOutside} />
-              <div
-                className="fixed top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-md shadow-xl z-[9999] max-h-[300px] overflow-hidden"
-                style={{
-                  position: "fixed",
-                  top: "auto",
-                  left: "auto",
-                  transform: "none",
-                  width: "var(--radix-popper-anchor-width, 100%)",
-                  minWidth: "320px",
-                }}
-              >
+              <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-md shadow-xl z-50 max-h-[300px] overflow-hidden">
                 <div className="flex items-center border-b px-3 py-2">
                   <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
                   <Input
