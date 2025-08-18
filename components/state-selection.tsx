@@ -78,7 +78,14 @@ export function StateSelection({ selectedState, onStateSelect }: StateSelectionP
 
   useEffect(() => {
     setMounted(true)
+    console.log("[v0] StateSelection component mounted")
   }, [])
+
+  useEffect(() => {
+    console.log("[v0] Dropdown open state changed:", open)
+    console.log("[v0] Button rect:", buttonRect)
+    console.log("[v0] Mounted:", mounted)
+  }, [open, buttonRect, mounted])
 
   const selectedStateName = US_STATES.find((state) => state.code === selectedState)?.name
 
@@ -88,19 +95,29 @@ export function StateSelection({ selectedState, onStateSelect }: StateSelectionP
       state.code.toLowerCase().includes(searchTerm.toLowerCase()),
   )
 
+  useEffect(() => {
+    console.log("[v0] Filtered states count:", filteredStates.length)
+    console.log("[v0] Search term:", searchTerm)
+  }, [filteredStates.length, searchTerm])
+
   const handleStateSelect = (stateCode: string) => {
+    console.log("[v0] State selected:", stateCode)
     onStateSelect(stateCode)
     setOpen(false)
     setSearchTerm("")
   }
 
   const handleButtonClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    console.log("[v0] Button clicked, current open state:", open)
     const rect = e.currentTarget.getBoundingClientRect()
+    console.log("[v0] Button rect calculated:", rect)
     setButtonRect(rect)
     setOpen(!open)
+    console.log("[v0] Setting open to:", !open)
   }
 
   const handleClickOutside = () => {
+    console.log("[v0] Click outside detected, closing dropdown")
     setOpen(false)
   }
 
@@ -157,6 +174,15 @@ export function StateSelection({ selectedState, onStateSelect }: StateSelectionP
         </div>
       </div>
     </>
+  )
+
+  console.log(
+    "[v0] About to render portal. Conditions - mounted:",
+    mounted,
+    "document exists:",
+    typeof document !== "undefined",
+    "dropdownContent exists:",
+    !!dropdownContent,
   )
 
   return (
