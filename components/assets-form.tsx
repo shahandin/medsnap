@@ -335,26 +335,26 @@ export function AssetsForm({ data, householdMembers, applicantName, onUpdate }: 
             <Button
               variant="outline"
               onClick={() => addAsset("financial")}
-              className="h-20 flex flex-col items-center justify-center space-y-2 border-dashed border-2 hover:border-green-300 hover:bg-green-50"
+              className="h-20 md:h-28 flex flex-col items-center justify-center space-y-2 md:space-y-3 border-dashed border-2 hover:border-green-300 hover:bg-green-50"
             >
-              <DollarSign className="h-6 w-6 text-green-600" />
-              <span>Add Financial Asset</span>
+              <DollarSign className="h-6 w-6 md:h-7 md:w-7 text-green-600" />
+              <span className="md:text-base">Add Financial Asset</span>
             </Button>
             <Button
               variant="outline"
               onClick={() => addAsset("vehicle")}
-              className="h-20 flex flex-col items-center justify-center space-y-2 border-dashed border-2 hover:border-blue-300 hover:bg-blue-50"
+              className="h-20 md:h-28 flex flex-col items-center justify-center space-y-2 md:space-y-3 border-dashed border-2 hover:border-blue-300 hover:bg-blue-50"
             >
-              <Car className="h-6 w-6 text-blue-600" />
-              <span>Add Vehicle</span>
+              <Car className="h-6 w-6 md:h-7 md:w-7 text-blue-600" />
+              <span className="md:text-base">Add Vehicle</span>
             </Button>
             <Button
               variant="outline"
               onClick={() => addAsset("life_insurance")}
-              className="h-20 flex flex-col items-center justify-center space-y-2 border-dashed border-2 hover:border-purple-300 hover:bg-purple-50"
+              className="h-20 md:h-28 flex flex-col items-center justify-center space-y-2 md:space-y-3 border-dashed border-2 hover:border-purple-300 hover:bg-purple-50"
             >
-              <Shield className="h-6 w-6 text-purple-600" />
-              <span>Add Life Insurance</span>
+              <Shield className="h-6 w-6 md:h-7 md:w-7 text-purple-600" />
+              <span className="md:text-base">Add Life Insurance</span>
             </Button>
           </div>
         </div>
