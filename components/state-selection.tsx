@@ -1,15 +1,8 @@
 "use client"
-
-import type React from "react"
-
-import { useState, useEffect } from "react"
-import { createPortal } from "react-dom"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
-import { MapPin, ChevronDown, Check, Search } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { cn } from "@/lib/utils"
+import { MapPin } from "lucide-react"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 const US_STATES = [
   { code: "AL", name: "Alabama" },
@@ -71,173 +64,7 @@ interface StateSelectionProps {
 }
 
 export function StateSelection({ selectedState, onStateSelect }: StateSelectionProps) {
-  const [open, setOpen] = useState(() => {
-    console.log("[v0] Initializing open state to false")
-    return false
-  })
-  const [searchTerm, setSearchTerm] = useState("")
-  const [buttonRect, setButtonRect] = useState<DOMRect | null>(null)
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
-    console.log("[v0] StateSelection component mounted, initial open state:", open)
-  }, [])
-
-  useEffect(() => {
-    console.log("[v0] === STATE CHANGE ===")
-    console.log("[v0] Dropdown open state changed:", open)
-    console.log("[v0] Button rect exists:", !!buttonRect)
-    console.log("[v0] Mounted:", mounted)
-    console.log("[v0] === END STATE CHANGE ===")
-  }, [open, buttonRect, mounted])
-
   const selectedStateName = US_STATES.find((state) => state.code === selectedState)?.name
-
-  const filteredStates = US_STATES.filter(
-    (state) =>
-      state.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      state.code.toLowerCase().includes(searchTerm.toLowerCase()),
-  )
-
-  useEffect(() => {
-    console.log("[v0] Filtered states count:", filteredStates.length)
-    console.log("[v0] Search term:", searchTerm)
-  }, [filteredStates.length, searchTerm])
-
-  const handleStateSelect = (stateCode: string) => {
-    console.log("[v0] State selected:", stateCode)
-    onStateSelect(stateCode)
-    setOpen(false)
-    setSearchTerm("")
-  }
-
-  const handleButtonClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation()
-    console.log("[v0] === BUTTON CLICK START ===")
-    console.log("[v0] Button clicked, BEFORE toggle - current open state:", open)
-    console.log("[v0] About to toggle to:", !open)
-
-    const rect = e.currentTarget.getBoundingClientRect()
-    console.log("[v0] Button rect calculated:", rect)
-    setButtonRect(rect)
-
-    const newOpenState = !open
-    console.log("[v0] Setting open state from", open, "to", newOpenState)
-    setOpen(newOpenState)
-    console.log("[v0] === BUTTON CLICK END ===")
-  }
-
-  useEffect(() => {
-    console.log("[v0] Document click effect triggered, open state:", open)
-    if (open) {
-      console.log("[v0] Setting up document click listener with delay")
-      const timer = setTimeout(() => {
-        const handleDocumentClick = (e: MouseEvent) => {
-          console.log("[v0] Document click detected, target:", e.target)
-          handleClickOutside()
-        }
-        document.addEventListener("click", handleDocumentClick)
-        console.log("[v0] Document click listener added")
-
-        return () => {
-          console.log("[v0] Removing document click listener")
-          document.removeEventListener("click", handleDocumentClick)
-        }
-      }, 100)
-
-      return () => {
-        console.log("[v0] Clearing timeout for document click listener")
-        clearTimeout(timer)
-      }
-    }
-  }, [open])
-
-  const handleClickOutside = () => {
-    console.log("[v0] === CLICK OUTSIDE ===")
-    console.log("[v0] Click outside detected, current open state:", open)
-    console.log("[v0] Closing dropdown")
-    setOpen(false)
-    console.log("[v0] === END CLICK OUTSIDE ===")
-  }
-
-  const dropdownContent = open && buttonRect && (
-    <>
-      {console.log("[v0] Rendering dropdown content, open:", open, "buttonRect exists:", !!buttonRect)}
-      <div
-        className="fixed bg-white border-2 border-gray-300 rounded-lg shadow-2xl z-[9999] max-h-[300px] overflow-hidden backdrop-blur-sm"
-        style={{
-          top: buttonRect.bottom + window.scrollY + 8,
-          left: buttonRect.left + window.scrollX,
-          width: buttonRect.width,
-          position: "fixed",
-          display: "block",
-          visibility: "visible",
-          opacity: 1,
-          minHeight: "100px",
-        }}
-        onClick={(e) => {
-          console.log("[v0] Dropdown content clicked")
-          e.stopPropagation()
-        }}
-      >
-        <div className="flex items-center border-b-2 border-gray-200 px-3 py-3 bg-gray-50">
-          <Search className="mr-2 h-4 w-4 shrink-0 text-gray-600" />
-          <Input
-            placeholder="Search states..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0 h-8 text-sm bg-transparent"
-            onClick={(e) => e.stopPropagation()}
-          />
-        </div>
-        <div className="max-h-[240px] overflow-y-auto overscroll-contain bg-white">
-          {filteredStates.length === 0 ? (
-            <div className="py-6 text-center text-sm text-gray-500">No state found.</div>
-          ) : (
-            <div className="p-2">
-              {filteredStates.map((state) => (
-                <button
-                  key={state.code}
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    handleStateSelect(state.code)
-                  }}
-                  className={cn(
-                    "relative flex w-full cursor-pointer select-none items-center justify-between rounded-md px-3 py-3 text-sm outline-none transition-all duration-200 hover:bg-blue-50 hover:text-blue-900 focus:bg-blue-50 focus:text-blue-900 border border-transparent hover:border-blue-200",
-                    selectedState === state.code && "bg-blue-100 text-blue-900 border-blue-300 font-medium",
-                  )}
-                >
-                  <div className="flex items-center">
-                    <span className="font-medium">{state.name}</span>
-                    <span className="ml-2 text-sm text-gray-500">({state.code})</span>
-                  </div>
-                  <Check
-                    className={cn("h-4 w-4 text-blue-600", selectedState === state.code ? "opacity-100" : "opacity-0")}
-                  />
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-    </>
-  )
-
-  console.log(
-    "[v0] === RENDER CHECK ===",
-    "mounted:",
-    mounted,
-    "document exists:",
-    typeof document !== "undefined",
-    "open:",
-    open,
-    "buttonRect exists:",
-    !!buttonRect,
-    "dropdownContent exists:",
-    !!dropdownContent,
-  )
 
   return (
     <div className="space-y-6">
@@ -254,31 +81,30 @@ export function StateSelection({ selectedState, onStateSelect }: StateSelectionP
         <Label htmlFor="state-selector" className="text-sm font-medium mb-2 block">
           State of Residence
         </Label>
-        <div className="relative">
-          <Button
-            id="state-selector"
-            variant="outline"
-            role="combobox"
-            aria-expanded={open}
-            type="button"
-            onClick={handleButtonClick}
-            className="w-full justify-between h-12 text-left font-normal bg-white hover:bg-gray-50 border-gray-300 hover:border-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-          >
-            {selectedState ? (
-              <span className="flex items-center">
-                <span className="font-medium">{selectedStateName}</span>
-                <span className="ml-2 text-sm text-gray-500">({selectedState})</span>
-              </span>
-            ) : (
-              <span className="text-gray-500">Select a state...</span>
-            )}
-            <ChevronDown
-              className={cn("ml-2 h-4 w-4 shrink-0 opacity-50 transition-transform", open && "rotate-180")}
-            />
-          </Button>
-
-          {mounted && typeof document !== "undefined" && createPortal(dropdownContent, document.body)}
-        </div>
+        <Select value={selectedState} onValueChange={onStateSelect}>
+          <SelectTrigger className="w-full h-12 text-left font-normal bg-white hover:bg-gray-50 border-gray-300 hover:border-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+            <SelectValue placeholder="Select a state...">
+              {selectedState ? (
+                <span className="flex items-center">
+                  <span className="font-medium">{selectedStateName}</span>
+                  <span className="ml-2 text-sm text-gray-500">({selectedState})</span>
+                </span>
+              ) : (
+                <span className="text-gray-500">Select a state...</span>
+              )}
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent className="max-h-60">
+            {US_STATES.map((state) => (
+              <SelectItem key={state.code} value={state.code} className="py-3">
+                <div className="flex items-center justify-between w-full">
+                  <span className="font-medium">{state.name}</span>
+                  <span className="ml-2 text-sm text-gray-500">({state.code})</span>
+                </div>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       {selectedState && (
