@@ -2,7 +2,10 @@
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { MapPin } from "lucide-react"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useState } from "react"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Button } from "@/components/ui/button"
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 
 const US_STATES = [
   { code: "AL", name: "Alabama" },
@@ -65,6 +68,7 @@ interface StateSelectionProps {
 
 export function StateSelection({ selectedState, onStateSelect }: StateSelectionProps) {
   const selectedStateName = US_STATES.find((state) => state.code === selectedState)?.name
+  const [open, setOpen] = useState(false)
 
   return (
     <div className="space-y-6">
@@ -81,9 +85,14 @@ export function StateSelection({ selectedState, onStateSelect }: StateSelectionP
         <Label htmlFor="state-selector" className="text-sm font-medium mb-2 block">
           State of Residence
         </Label>
-        <Select value={selectedState} onValueChange={onStateSelect}>
-          <SelectTrigger className="w-full h-12 text-left font-normal bg-white hover:bg-gray-50 border-gray-300 hover:border-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
-            <SelectValue placeholder="Select a state...">
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              role="combobox"
+              aria-expanded={open}
+              className="w-full h-12 justify-between text-left font-normal bg-white hover:bg-gray-50 border-gray-300 hover:border-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+            >
               {selectedState ? (
                 <span className="flex items-center">
                   <span className="font-medium">{selectedStateName}</span>
@@ -92,19 +101,37 @@ export function StateSelection({ selectedState, onStateSelect }: StateSelectionP
               ) : (
                 <span className="text-gray-500">Select a state...</span>
               )}
-            </SelectValue>
-          </SelectTrigger>
-          <SelectContent className="max-h-60">
-            {US_STATES.map((state) => (
-              <SelectItem key={state.code} value={state.code} className="py-3">
-                <div className="flex items-center justify-between w-full">
-                  <span className="font-medium">{state.name}</span>
-                  <span className="ml-2 text-sm text-gray-500">({state.code})</span>
-                </div>
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+              <span className="ml-2 text-lg">⌄</span>
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-full p-0" align="start">
+            <Command>
+              <CommandInput placeholder="Search states..." className="h-9" />
+              <CommandList>
+                <CommandEmpty>No state found.</CommandEmpty>
+                <CommandGroup>
+                  {US_STATES.map((state) => (
+                    <CommandItem
+                      key={state.code}
+                      value={`${state.name} ${state.code}`}
+                      onSelect={() => {
+                        onStateSelect(state.code)
+                        setOpen(false)
+                      }}
+                      className="py-3"
+                    >
+                      <div className="flex items-center justify-between w-full">
+                        <span className="font-medium">{state.name}</span>
+                        <span className="ml-2 text-sm text-gray-500">({state.code})</span>
+                      </div>
+                      {selectedState === state.code && <span className="ml-auto text-green-600">✓</span>}
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </CommandList>
+            </Command>
+          </PopoverContent>
+        </Popover>
       </div>
 
       {selectedState && (
