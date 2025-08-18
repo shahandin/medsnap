@@ -1,11 +1,12 @@
 "use client"
 
+import type React from "react"
+
 import { useState } from "react"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { MapPin, ChevronDown, Check, Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 
@@ -86,6 +87,11 @@ export function StateSelection({ selectedState, onStateSelect }: StateSelectionP
     setSearchTerm("")
   }
 
+  const handleClickOutside = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setOpen(false)
+  }
+
   return (
     <div className="space-y-6">
       <div className="text-center">
@@ -101,66 +107,80 @@ export function StateSelection({ selectedState, onStateSelect }: StateSelectionP
         <Label htmlFor="state-selector" className="text-sm font-medium mb-2 block">
           State of Residence
         </Label>
-        <Popover open={open} onOpenChange={setOpen}>
-          <PopoverTrigger asChild>
-            <Button
-              id="state-selector"
-              variant="outline"
-              role="combobox"
-              aria-expanded={open}
-              type="button"
-              className="w-full justify-between h-12 text-left font-normal bg-white hover:bg-gray-50 border-gray-300 hover:border-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-            >
-              {selectedState ? (
-                <span className="flex items-center">
-                  <span className="font-medium">{selectedStateName}</span>
-                  <span className="ml-2 text-sm text-gray-500">({selectedState})</span>
-                </span>
-              ) : (
-                <span className="text-gray-500">Select a state...</span>
-              )}
-              <ChevronDown
-                className={cn("ml-2 h-4 w-4 shrink-0 opacity-50 transition-transform", open && "rotate-180")}
-              />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0 z-50" align="start" sideOffset={4}>
-            <div className="flex items-center border-b px-3">
-              <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
-              <Input
-                placeholder="Search states..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0 h-11"
-              />
-            </div>
-            <div className="max-h-[300px] overflow-y-auto">
-              {filteredStates.length === 0 ? (
-                <div className="py-6 text-center text-sm text-muted-foreground">No state found.</div>
-              ) : (
-                <div className="p-1">
-                  {filteredStates.map((state) => (
-                    <button
-                      key={state.code}
-                      type="button"
-                      onClick={() => handleStateSelect(state.code)}
-                      className={cn(
-                        "relative flex w-full cursor-pointer select-none items-center justify-between rounded-sm px-2 py-2 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
-                        selectedState === state.code && "bg-accent text-accent-foreground",
-                      )}
-                    >
-                      <div className="flex items-center">
-                        <span className="font-medium">{state.name}</span>
-                        <span className="ml-2 text-sm text-muted-foreground">({state.code})</span>
-                      </div>
-                      <Check className={cn("h-4 w-4", selectedState === state.code ? "opacity-100" : "opacity-0")} />
-                    </button>
-                  ))}
+        <div className="relative">
+          <Button
+            id="state-selector"
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            type="button"
+            onClick={() => setOpen(!open)}
+            className="w-full justify-between h-12 text-left font-normal bg-white hover:bg-gray-50 border-gray-300 hover:border-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+          >
+            {selectedState ? (
+              <span className="flex items-center">
+                <span className="font-medium">{selectedStateName}</span>
+                <span className="ml-2 text-sm text-gray-500">({selectedState})</span>
+              </span>
+            ) : (
+              <span className="text-gray-500">Select a state...</span>
+            )}
+            <ChevronDown
+              className={cn("ml-2 h-4 w-4 shrink-0 opacity-50 transition-transform", open && "rotate-180")}
+            />
+          </Button>
+
+          {open && (
+            <>
+              <div className="fixed inset-0 z-40" onClick={handleClickOutside} />
+              <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg z-50 max-h-[300px] overflow-hidden">
+                <div className="flex items-center border-b px-3 py-2">
+                  <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
+                  <Input
+                    placeholder="Search states..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0 h-8 text-sm"
+                    onClick={(e) => e.stopPropagation()}
+                  />
                 </div>
-              )}
-            </div>
-          </PopoverContent>
-        </Popover>
+                <div className="max-h-[250px] overflow-y-auto">
+                  {filteredStates.length === 0 ? (
+                    <div className="py-6 text-center text-sm text-gray-500">No state found.</div>
+                  ) : (
+                    <div className="p-1">
+                      {filteredStates.map((state) => (
+                        <button
+                          key={state.code}
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleStateSelect(state.code)
+                          }}
+                          className={cn(
+                            "relative flex w-full cursor-pointer select-none items-center justify-between rounded-sm px-3 py-2 text-sm outline-none transition-colors hover:bg-gray-100 focus:bg-gray-100",
+                            selectedState === state.code && "bg-blue-50 text-blue-900",
+                          )}
+                        >
+                          <div className="flex items-center">
+                            <span className="font-medium">{state.name}</span>
+                            <span className="ml-2 text-sm text-gray-500">({state.code})</span>
+                          </div>
+                          <Check
+                            className={cn(
+                              "h-4 w-4 text-blue-600",
+                              selectedState === state.code ? "opacity-100" : "opacity-0",
+                            )}
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </>
+          )}
+        </div>
       </div>
 
       {selectedState && (
