@@ -1,7 +1,9 @@
 "use client"
+import { useState } from "react"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
-import { MapPin } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { MapPin, Search } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 const US_STATES = [
@@ -64,6 +66,14 @@ interface StateSelectionProps {
 }
 
 export function StateSelection({ selectedState, onStateSelect }: StateSelectionProps) {
+  const [searchTerm, setSearchTerm] = useState("")
+
+  const filteredStates = US_STATES.filter(
+    (state) =>
+      state.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      state.code.toLowerCase().includes(searchTerm.toLowerCase()),
+  )
+
   const selectedStateName = US_STATES.find((state) => state.code === selectedState)?.name
 
   return (
@@ -81,13 +91,25 @@ export function StateSelection({ selectedState, onStateSelect }: StateSelectionP
         <Label htmlFor="state-selector" className="text-sm font-medium mb-2 block">
           State of Residence
         </Label>
+
+        <div className="relative mb-3">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+          <Input
+            type="text"
+            placeholder="Search states..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10 h-10"
+          />
+        </div>
+
         <Select value={selectedState} onValueChange={onStateSelect}>
-          <SelectTrigger className="w-full bg-white h-12 text-base">
+          <SelectTrigger className="w-full h-12 text-base">
             <SelectValue placeholder="Select a state..." />
           </SelectTrigger>
           <SelectContent>
-            {US_STATES.map((state) => (
-              <SelectItem key={state.code} value={state.code} className="text-base py-3">
+            {filteredStates.map((state) => (
+              <SelectItem key={state.code} value={state.code} className="text-base">
                 {state.name} ({state.code})
               </SelectItem>
             ))}
