@@ -820,13 +820,15 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
                     <Button
                       onClick={() => setSelectedChangeCategory("income-assets")}
                       variant="outline"
-                      className="h-auto p-6 md:p-8 justify-start bg-white hover:bg-gray-50 rounded-2xl md:rounded-xl border-2 md:border shadow-sm md:shadow-none"
+                      className="h-auto p-6 md:p-8 justify-start bg-white hover:bg-blue-50 md:hover:bg-blue-50 hover:border-blue-200 md:hover:border-blue-200 rounded-2xl md:rounded-xl border-2 md:border shadow-sm md:shadow-none transition-all duration-200"
                     >
                       <div className="flex items-center gap-4 md:gap-6 w-full">
-                        <DollarSign className="w-7 h-7 md:w-8 md:h-8 text-primary flex-shrink-0" />
+                        <DollarSign className="w-7 h-7 md:w-8 md:h-8 text-primary hover:text-blue-600 md:hover:text-blue-600 flex-shrink-0 transition-colors duration-200" />
                         <div className="text-left flex-1">
-                          <div className="font-bold text-base md:text-lg">Income & Asset Changes</div>
-                          <div className="text-sm md:text-base text-gray-500 mt-1 md:mt-2 leading-relaxed">
+                          <div className="font-bold text-base md:text-lg text-gray-900 hover:text-blue-900 md:hover:text-blue-900 transition-colors duration-200">
+                            Income & Asset Changes
+                          </div>
+                          <div className="text-sm md:text-base text-gray-500 hover:text-blue-700 md:hover:text-blue-700 mt-1 md:mt-2 leading-relaxed transition-colors duration-200">
                             Job changes, income, assets
                           </div>
                         </div>
@@ -836,13 +838,15 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
                     <Button
                       onClick={() => setSelectedChangeCategory("household")}
                       variant="outline"
-                      className="h-auto p-6 md:p-8 justify-start bg-white hover:bg-gray-50 rounded-2xl md:rounded-xl border-2 md:border shadow-sm md:shadow-none"
+                      className="h-auto p-6 md:p-8 justify-start bg-white hover:bg-blue-50 md:hover:bg-blue-50 hover:border-blue-200 md:hover:border-blue-200 rounded-2xl md:rounded-xl border-2 md:border shadow-sm md:shadow-none transition-all duration-200"
                     >
                       <div className="flex items-center gap-4 md:gap-6 w-full">
-                        <Users className="w-7 h-7 md:w-8 md:h-8 text-secondary flex-shrink-0" />
+                        <Users className="w-7 h-7 md:w-8 md:h-8 text-secondary hover:text-blue-600 md:hover:text-blue-600 flex-shrink-0 transition-colors duration-200" />
                         <div className="text-left flex-1">
-                          <div className="font-bold text-base md:text-lg">Household Changes</div>
-                          <div className="text-sm md:text-base text-gray-500 mt-1 md:mt-2 leading-relaxed">
+                          <div className="font-bold text-base md:text-lg text-gray-900 hover:text-blue-900 md:hover:text-blue-900 transition-colors duration-200">
+                            Household Changes
+                          </div>
+                          <div className="text-sm md:text-base text-gray-500 hover:text-blue-700 md:hover:text-blue-700 mt-1 md:mt-2 leading-relaxed transition-colors duration-200">
                             Marriage, family members
                           </div>
                         </div>
@@ -852,13 +856,15 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
                     <Button
                       onClick={() => setSelectedChangeCategory("address")}
                       variant="outline"
-                      className="h-auto p-6 md:p-8 justify-start bg-white hover:bg-gray-50 rounded-2xl md:rounded-xl border-2 md:border shadow-sm md:shadow-none"
+                      className="h-auto p-6 md:p-8 justify-start bg-white hover:bg-blue-50 md:hover:bg-blue-50 hover:border-blue-200 md:hover:border-blue-200 rounded-2xl md:rounded-xl border-2 md:border shadow-sm md:shadow-none transition-all duration-200"
                     >
                       <div className="flex items-center gap-4 md:gap-6 w-full">
-                        <Home className="w-7 h-7 md:w-8 md:h-8 text-primary flex-shrink-0" />
+                        <Home className="w-7 h-7 md:w-8 md:h-8 text-primary hover:text-blue-600 md:hover:text-blue-600 flex-shrink-0 transition-colors duration-200" />
                         <div className="text-left flex-1">
-                          <div className="font-bold text-base md:text-lg">Address Changes</div>
-                          <div className="text-sm md:text-base text-gray-500 mt-1 md:mt-2 leading-relaxed">
+                          <div className="font-bold text-base md:text-lg text-gray-900 hover:text-blue-900 md:hover:text-blue-900 transition-colors duration-200">
+                            Address Changes
+                          </div>
+                          <div className="text-sm md:text-base text-gray-500 hover:text-blue-700 md:hover:text-blue-700 mt-1 md:mt-2 leading-relaxed transition-colors duration-200">
                             Moving, residency
                           </div>
                         </div>
@@ -868,13 +874,15 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
                     <Button
                       onClick={() => setSelectedChangeCategory("insurance")}
                       variant="outline"
-                      className="h-auto p-6 md:p-8 justify-start bg-white hover:bg-gray-50 rounded-2xl md:rounded-xl border-2 md:border shadow-sm md:shadow-none"
+                      className="h-auto p-6 md:p-8 justify-start bg-white hover:bg-blue-50 md:hover:bg-blue-50 hover:border-blue-200 md:hover:border-blue-200 rounded-2xl md:rounded-xl border-2 md:border shadow-sm md:shadow-none transition-all duration-200"
                     >
                       <div className="flex items-center gap-4 md:gap-6 w-full">
-                        <Shield className="w-7 h-7 md:w-8 md:h-8 text-secondary flex-shrink-0" />
+                        <Shield className="w-7 h-7 md:w-8 md:h-8 text-secondary hover:text-blue-600 md:hover:text-blue-600 flex-shrink-0 transition-colors duration-200" />
                         <div className="text-left flex-1">
-                          <div className="font-bold text-base md:text-lg">Insurance Changes</div>
-                          <div className="text-sm md:text-base text-gray-500 mt-1 md:mt-2 leading-relaxed">
+                          <div className="font-bold text-base md:text-lg text-gray-900 hover:text-blue-900 md:hover:text-blue-900 transition-colors duration-200">
+                            Insurance Changes
+                          </div>
+                          <div className="text-sm md:text-base text-gray-500 hover:text-blue-700 md:hover:text-blue-700 mt-1 md:mt-2 leading-relaxed transition-colors duration-200">
                             Health coverage updates
                           </div>
                         </div>
