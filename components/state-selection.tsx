@@ -133,7 +133,17 @@ export function StateSelection({ selectedState, onStateSelect }: StateSelectionP
           {open && (
             <>
               <div className="fixed inset-0 z-40" onClick={handleClickOutside} />
-              <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg z-50 max-h-[300px] overflow-hidden">
+              <div
+                className="fixed top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-md shadow-xl z-[9999] max-h-[300px] overflow-hidden"
+                style={{
+                  position: "fixed",
+                  top: "auto",
+                  left: "auto",
+                  transform: "none",
+                  width: "var(--radix-popper-anchor-width, 100%)",
+                  minWidth: "320px",
+                }}
+              >
                 <div className="flex items-center border-b px-3 py-2">
                   <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
                   <Input
@@ -144,7 +154,7 @@ export function StateSelection({ selectedState, onStateSelect }: StateSelectionP
                     onClick={(e) => e.stopPropagation()}
                   />
                 </div>
-                <div className="max-h-[250px] overflow-y-auto">
+                <div className="max-h-[280px] overflow-y-auto overscroll-contain">
                   {filteredStates.length === 0 ? (
                     <div className="py-6 text-center text-sm text-gray-500">No state found.</div>
                   ) : (
