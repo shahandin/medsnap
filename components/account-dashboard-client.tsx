@@ -513,7 +513,13 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
 
             {/* Mobile Tab Navigation - Dropdown Style */}
             <div className="md:hidden">
-              <Select value={activeTab} onValueChange={setActiveTab}>
+              <Select
+                value={activeTab}
+                onValueChange={(value) => {
+                  console.log("[v0] Mobile dropdown selection:", value)
+                  setActiveTab(value)
+                }}
+              >
                 <SelectTrigger className="w-full h-14 bg-white shadow-sm border rounded-xl px-4 text-base font-medium">
                   <div className="flex items-center gap-3">
                     <Menu className="w-5 h-5 text-gray-500" />
@@ -527,39 +533,39 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
                     </span>
                   </div>
                 </SelectTrigger>
-                <SelectContent className="w-full">
-                  <SelectItem value="overview" className="h-12 px-4">
-                    <div className="flex items-center gap-3">
+                <SelectContent className="w-full z-50">
+                  <SelectItem value="overview" className="h-14 px-4 cursor-pointer touch-manipulation">
+                    <div className="flex items-center gap-3 w-full py-2">
                       <TrendingUp className="w-5 h-5" />
                       <span className="text-base">Overview</span>
                     </div>
                   </SelectItem>
-                  <SelectItem value="applications" className="h-12 px-4">
-                    <div className="flex items-center gap-3">
+                  <SelectItem value="applications" className="h-14 px-4 cursor-pointer touch-manipulation">
+                    <div className="flex items-center gap-3 w-full py-2">
                       <FileText className="w-5 h-5" />
                       <span className="text-base">Applications</span>
                     </div>
                   </SelectItem>
-                  <SelectItem value="notifications" className="h-12 px-4">
-                    <div className="flex items-center gap-3">
+                  <SelectItem value="notifications" className="h-14 px-4 cursor-pointer touch-manipulation">
+                    <div className="flex items-center gap-3 w-full py-2">
                       <Bell className="w-5 h-5" />
                       <span className="text-base">Notifications</span>
                     </div>
                   </SelectItem>
-                  <SelectItem value="report-changes" className="h-12 px-4">
-                    <div className="flex items-center gap-3">
+                  <SelectItem value="report-changes" className="h-14 px-4 cursor-pointer touch-manipulation">
+                    <div className="flex items-center gap-3 w-full py-2">
                       <AlertTriangle className="w-5 h-5" />
                       <span className="text-base">Report Changes</span>
                     </div>
                   </SelectItem>
-                  <SelectItem value="documents" className="h-12 px-4">
-                    <div className="flex items-center gap-3">
+                  <SelectItem value="documents" className="h-14 px-4 cursor-pointer touch-manipulation">
+                    <div className="flex items-center gap-3 w-full py-2">
                       <Upload className="w-5 h-5" />
                       <span className="text-base">Documents</span>
                     </div>
                   </SelectItem>
-                  <SelectItem value="profile" className="h-12 px-4">
-                    <div className="flex items-center gap-3">
+                  <SelectItem value="profile" className="h-14 px-4 cursor-pointer touch-manipulation">
+                    <div className="flex items-center gap-3 w-full py-2">
                       <Users className="w-5 h-5" />
                       <span className="text-base">Profile</span>
                     </div>
