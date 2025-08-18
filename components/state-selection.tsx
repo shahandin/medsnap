@@ -2,10 +2,7 @@
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { MapPin } from "lucide-react"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { useState } from "react"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 const US_STATES = [
   { code: "AL", name: "Alabama" },
@@ -67,17 +64,7 @@ interface StateSelectionProps {
 }
 
 export function StateSelection({ selectedState, onStateSelect }: StateSelectionProps) {
-  const [stateOpen, setStateOpen] = useState(false)
-  const [stateSearch, setStateSearch] = useState("")
-
   const selectedStateName = US_STATES.find((state) => state.code === selectedState)?.name
-  const selectedStateData = US_STATES.find((state) => state.code === selectedState)
-
-  const filteredStates = US_STATES.filter(
-    (state) =>
-      state.name.toLowerCase().includes(stateSearch.toLowerCase()) ||
-      state.code.toLowerCase().includes(stateSearch.toLowerCase()),
-  )
 
   return (
     <div className="space-y-6">
@@ -94,59 +81,18 @@ export function StateSelection({ selectedState, onStateSelect }: StateSelectionP
         <Label htmlFor="state-selector" className="text-sm font-medium mb-2 block">
           State of Residence
         </Label>
-        <Popover open={stateOpen} onOpenChange={setStateOpen}>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              role="combobox"
-              aria-expanded={stateOpen}
-              className="w-full justify-between bg-white h-12 text-base"
-            >
-              {selectedStateData ? `${selectedStateData.name} (${selectedStateData.code})` : "Select a state..."}
-              <span className="ml-2 text-lg">⌄</span>
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-full p-0" style={{ width: "var(--radix-popover-trigger-width)" }}>
-            <div className="p-3">
-              <div className="flex items-center border rounded-md px-3">
-                <span className="mr-2 text-gray-400">🔍</span>
-                <Input
-                  placeholder="Search states..."
-                  value={stateSearch}
-                  onChange={(e) => setStateSearch(e.target.value)}
-                  className="border-0 p-0 focus-visible:ring-0 h-10 text-base"
-                />
-              </div>
-            </div>
-            <div className="max-h-60 overflow-auto">
-              {filteredStates.length === 0 ? (
-                <div className="p-4 text-sm text-gray-500">No states found.</div>
-              ) : (
-                filteredStates.map((state) => (
-                  <div
-                    key={state.code}
-                    className="flex items-center px-4 py-3 text-sm cursor-pointer hover:bg-accent hover:text-accent-foreground"
-                    onClick={() => {
-                      onStateSelect(state.code)
-                      setStateOpen(false)
-                      setStateSearch("")
-                    }}
-                  >
-                    <span
-                      className={`mr-3 text-green-600 ${selectedState === state.code ? "opacity-100" : "opacity-0"}`}
-                    >
-                      ✓
-                    </span>
-                    <div className="flex items-center justify-between w-full">
-                      <span>{state.name}</span>
-                      <span className="ml-2 text-sm text-gray-500">({state.code})</span>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </PopoverContent>
-        </Popover>
+        <Select value={selectedState} onValueChange={onStateSelect}>
+          <SelectTrigger className="w-full bg-white h-12 text-base">
+            <SelectValue placeholder="Select a state..." />
+          </SelectTrigger>
+          <SelectContent>
+            {US_STATES.map((state) => (
+              <SelectItem key={state.code} value={state.code} className="text-base py-3">
+                {state.name} ({state.code})
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       {selectedState && (
