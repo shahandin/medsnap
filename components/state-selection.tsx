@@ -71,20 +71,25 @@ interface StateSelectionProps {
 }
 
 export function StateSelection({ selectedState, onStateSelect }: StateSelectionProps) {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(() => {
+    console.log("[v0] Initializing open state to false")
+    return false
+  })
   const [searchTerm, setSearchTerm] = useState("")
   const [buttonRect, setButtonRect] = useState<DOMRect | null>(null)
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
     setMounted(true)
-    console.log("[v0] StateSelection component mounted")
+    console.log("[v0] StateSelection component mounted, initial open state:", open)
   }, [])
 
   useEffect(() => {
+    console.log("[v0] === STATE CHANGE ===")
     console.log("[v0] Dropdown open state changed:", open)
-    console.log("[v0] Button rect:", buttonRect)
+    console.log("[v0] Button rect exists:", !!buttonRect)
     console.log("[v0] Mounted:", mounted)
+    console.log("[v0] === END STATE CHANGE ===")
   }, [open, buttonRect, mounted])
 
   const selectedStateName = US_STATES.find((state) => state.code === selectedState)?.name
@@ -109,39 +114,56 @@ export function StateSelection({ selectedState, onStateSelect }: StateSelectionP
 
   const handleButtonClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation()
-    console.log("[v0] Button clicked, current open state:", open)
+    console.log("[v0] === BUTTON CLICK START ===")
+    console.log("[v0] Button clicked, BEFORE toggle - current open state:", open)
+    console.log("[v0] About to toggle to:", !open)
+
     const rect = e.currentTarget.getBoundingClientRect()
     console.log("[v0] Button rect calculated:", rect)
     setButtonRect(rect)
-    setOpen(!open)
-    console.log("[v0] Setting open to:", !open)
+
+    const newOpenState = !open
+    console.log("[v0] Setting open state from", open, "to", newOpenState)
+    setOpen(newOpenState)
+    console.log("[v0] === BUTTON CLICK END ===")
   }
 
   useEffect(() => {
+    console.log("[v0] Document click effect triggered, open state:", open)
     if (open) {
+      console.log("[v0] Setting up document click listener with delay")
       const timer = setTimeout(() => {
         const handleDocumentClick = (e: MouseEvent) => {
-          console.log("[v0] Document click detected")
+          console.log("[v0] Document click detected, target:", e.target)
           handleClickOutside()
         }
         document.addEventListener("click", handleDocumentClick)
+        console.log("[v0] Document click listener added")
 
         return () => {
+          console.log("[v0] Removing document click listener")
           document.removeEventListener("click", handleDocumentClick)
         }
       }, 100)
 
-      return () => clearTimeout(timer)
+      return () => {
+        console.log("[v0] Clearing timeout for document click listener")
+        clearTimeout(timer)
+      }
     }
   }, [open])
 
   const handleClickOutside = () => {
-    console.log("[v0] Click outside detected, closing dropdown")
+    console.log("[v0] === CLICK OUTSIDE ===")
+    console.log("[v0] Click outside detected, current open state:", open)
+    console.log("[v0] Closing dropdown")
     setOpen(false)
+    console.log("[v0] === END CLICK OUTSIDE ===")
   }
 
   const dropdownContent = open && buttonRect && (
     <>
+      {console.log("[v0] Rendering dropdown content, open:", open, "buttonRect exists:", !!buttonRect)}
       <div
         className="fixed bg-white border border-gray-200 rounded-md shadow-xl z-50 max-h-[300px] overflow-hidden"
         style={{
@@ -149,7 +171,10 @@ export function StateSelection({ selectedState, onStateSelect }: StateSelectionP
           left: buttonRect.left + window.scrollX,
           width: buttonRect.width,
         }}
-        onClick={(e) => e.stopPropagation()}
+        onClick={(e) => {
+          console.log("[v0] Dropdown content clicked")
+          e.stopPropagation()
+        }}
       >
         <div className="flex items-center border-b px-3 py-2">
           <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
@@ -196,10 +221,15 @@ export function StateSelection({ selectedState, onStateSelect }: StateSelectionP
   )
 
   console.log(
-    "[v0] About to render portal. Conditions - mounted:",
+    "[v0] === RENDER CHECK ===",
+    "mounted:",
     mounted,
     "document exists:",
     typeof document !== "undefined",
+    "open:",
+    open,
+    "buttonRect exists:",
+    !!buttonRect,
     "dropdownContent exists:",
     !!dropdownContent,
   )
