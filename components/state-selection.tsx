@@ -2,7 +2,8 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { createPortal } from "react-dom"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { MapPin, ChevronDown, Check, Search } from "lucide-react"
@@ -72,6 +73,12 @@ interface StateSelectionProps {
 export function StateSelection({ selectedState, onStateSelect }: StateSelectionProps) {
   const [open, setOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
+  const [buttonRect, setButtonRect] = useState<DOMRect | null>(null)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const selectedStateName = US_STATES.find((state) => state.code === selectedState)?.name
 
@@ -87,10 +94,70 @@ export function StateSelection({ selectedState, onStateSelect }: StateSelectionP
     setSearchTerm("")
   }
 
-  const handleClickOutside = (e: React.MouseEvent) => {
-    e.stopPropagation()
+  const handleButtonClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect()
+    setButtonRect(rect)
+    setOpen(!open)
+  }
+
+  const handleClickOutside = () => {
     setOpen(false)
   }
+
+  const dropdownContent = open && buttonRect && (
+    <>
+      <div className="fixed inset-0 z-40" onClick={handleClickOutside} />
+      <div
+        className="fixed bg-white border border-gray-200 rounded-md shadow-xl z-50 max-h-[300px] overflow-hidden"
+        style={{
+          top: buttonRect.bottom + window.scrollY + 4,
+          left: buttonRect.left + window.scrollX,
+          width: buttonRect.width,
+        }}
+      >
+        <div className="flex items-center border-b px-3 py-2">
+          <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
+          <Input
+            placeholder="Search states..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0 h-8 text-sm"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+        <div className="max-h-[280px] overflow-y-auto overscroll-contain">
+          {filteredStates.length === 0 ? (
+            <div className="py-6 text-center text-sm text-gray-500">No state found.</div>
+          ) : (
+            <div className="p-1">
+              {filteredStates.map((state) => (
+                <button
+                  key={state.code}
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleStateSelect(state.code)
+                  }}
+                  className={cn(
+                    "relative flex w-full cursor-pointer select-none items-center justify-between rounded-sm px-3 py-2 text-sm outline-none transition-colors hover:bg-gray-100 focus:bg-gray-100",
+                    selectedState === state.code && "bg-blue-50 text-blue-900",
+                  )}
+                >
+                  <div className="flex items-center">
+                    <span className="font-medium">{state.name}</span>
+                    <span className="ml-2 text-sm text-gray-500">({state.code})</span>
+                  </div>
+                  <Check
+                    className={cn("h-4 w-4 text-blue-600", selectedState === state.code ? "opacity-100" : "opacity-0")}
+                  />
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </>
+  )
 
   return (
     <div className="space-y-6">
@@ -114,7 +181,7 @@ export function StateSelection({ selectedState, onStateSelect }: StateSelectionP
             role="combobox"
             aria-expanded={open}
             type="button"
-            onClick={() => setOpen(!open)}
+            onClick={handleButtonClick}
             className="w-full justify-between h-12 text-left font-normal bg-white hover:bg-gray-50 border-gray-300 hover:border-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
           >
             {selectedState ? (
@@ -130,56 +197,7 @@ export function StateSelection({ selectedState, onStateSelect }: StateSelectionP
             />
           </Button>
 
-          {open && (
-            <>
-              <div className="fixed inset-0 z-40" onClick={handleClickOutside} />
-              <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-md shadow-xl z-50 max-h-[300px] overflow-hidden">
-                <div className="flex items-center border-b px-3 py-2">
-                  <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
-                  <Input
-                    placeholder="Search states..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0 h-8 text-sm"
-                    onClick={(e) => e.stopPropagation()}
-                  />
-                </div>
-                <div className="max-h-[280px] overflow-y-auto overscroll-contain">
-                  {filteredStates.length === 0 ? (
-                    <div className="py-6 text-center text-sm text-gray-500">No state found.</div>
-                  ) : (
-                    <div className="p-1">
-                      {filteredStates.map((state) => (
-                        <button
-                          key={state.code}
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            handleStateSelect(state.code)
-                          }}
-                          className={cn(
-                            "relative flex w-full cursor-pointer select-none items-center justify-between rounded-sm px-3 py-2 text-sm outline-none transition-colors hover:bg-gray-100 focus:bg-gray-100",
-                            selectedState === state.code && "bg-blue-50 text-blue-900",
-                          )}
-                        >
-                          <div className="flex items-center">
-                            <span className="font-medium">{state.name}</span>
-                            <span className="ml-2 text-sm text-gray-500">({state.code})</span>
-                          </div>
-                          <Check
-                            className={cn(
-                              "h-4 w-4 text-blue-600",
-                              selectedState === state.code ? "opacity-100" : "opacity-0",
-                            )}
-                          />
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </>
-          )}
+          {mounted && typeof document !== "undefined" && createPortal(dropdownContent, document.body)}
         </div>
       </div>
 
