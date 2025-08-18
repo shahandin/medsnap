@@ -528,41 +528,37 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
                   </div>
                 </SelectTrigger>
                 <SelectContent className="w-full">
-                  <SelectItem value="overview" className="h-12 px-4" onClick={() => setActiveTab("overview")}>
+                  <SelectItem value="overview" className="h-12 px-4">
                     <div className="flex items-center gap-3">
                       <TrendingUp className="w-5 h-5" />
                       <span className="text-base">Overview</span>
                     </div>
                   </SelectItem>
-                  <SelectItem value="applications" className="h-12 px-4" onClick={() => setActiveTab("applications")}>
+                  <SelectItem value="applications" className="h-12 px-4">
                     <div className="flex items-center gap-3">
                       <FileText className="w-5 h-5" />
                       <span className="text-base">Applications</span>
                     </div>
                   </SelectItem>
-                  <SelectItem value="notifications" className="h-12 px-4" onClick={() => setActiveTab("notifications")}>
+                  <SelectItem value="notifications" className="h-12 px-4">
                     <div className="flex items-center gap-3">
                       <Bell className="w-5 h-5" />
                       <span className="text-base">Notifications</span>
                     </div>
                   </SelectItem>
-                  <SelectItem
-                    value="report-changes"
-                    className="h-12 px-4"
-                    onClick={() => setActiveTab("report-changes")}
-                  >
+                  <SelectItem value="report-changes" className="h-12 px-4">
                     <div className="flex items-center gap-3">
                       <AlertTriangle className="w-5 h-5" />
                       <span className="text-base">Report Changes</span>
                     </div>
                   </SelectItem>
-                  <SelectItem value="documents" className="h-12 px-4" onClick={() => setActiveTab("documents")}>
+                  <SelectItem value="documents" className="h-12 px-4">
                     <div className="flex items-center gap-3">
                       <Upload className="w-5 h-5" />
                       <span className="text-base">Documents</span>
                     </div>
                   </SelectItem>
-                  <SelectItem value="profile" className="h-12 px-4" onClick={() => setActiveTab("profile")}>
+                  <SelectItem value="profile" className="h-12 px-4">
                     <div className="flex items-center gap-3">
                       <Users className="w-5 h-5" />
                       <span className="text-base">Profile</span>
