@@ -51,7 +51,7 @@ export default async function SignUpPage() {
 
   // If user is logged in, redirect to application
   if (session) {
-    redirect("/application")
+    redirect("/")
   }
 
   return (

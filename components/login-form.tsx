@@ -39,7 +39,7 @@ export function LoginForm() {
   // Handle successful login by redirecting
   useEffect(() => {
     if (state?.success) {
-      router.push("/application")
+      router.push("/")
       router.refresh() // Force refresh to update auth state
     }
   }, [state, router])
