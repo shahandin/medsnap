@@ -76,10 +76,10 @@ export function SiteHeader({ user }: SiteHeaderProps) {
             className="flex items-center space-x-2 sm:space-x-3 hover:opacity-90 transition-all duration-200 group"
           >
             <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow duration-200">
-              <span className="text-primary-foreground font-bold text-sm sm:text-lg">BA</span>
+              <span className="text-primary-foreground font-bold text-sm sm:text-lg">BB</span>
             </div>
             <span className="font-heading font-bold text-lg sm:text-2xl text-foreground hidden xs:block">
-              Benefits Access
+              Benefit Bridge
             </span>
           </Link>
 

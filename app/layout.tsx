@@ -17,7 +17,7 @@ const manrope = Manrope({
 })
 
 export const metadata: Metadata = {
-  title: "Benefits Access - Medicaid & SNAP Applications",
+  title: "Benefit Bridge - Medicaid & SNAP Applications",
   description: "Streamlined applications for Medicaid and SNAP benefits. Access your benefits with confidence.",
   generator: "v0.app",
 }

@@ -8,9 +8,9 @@ export function SiteFooter() {
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
               <div className="h-6 w-6 rounded-full bg-primary flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-xs">BA</span>
+                <span className="text-primary-foreground font-bold text-xs">BB</span>
               </div>
-              <span className="font-bold">Benefits Access</span>
+              <span className="font-bold">Benefit Bridge</span>
             </div>
             <p className="text-sm text-muted-foreground">Streamlined applications for Medicaid and SNAP benefits.</p>
           </div>
@@ -65,7 +65,7 @@ export function SiteFooter() {
         </div>
 
         <div className="mt-8 pt-8 border-t text-center text-sm text-muted-foreground">
-          <p>&copy; 2024 Benefits Access. All rights reserved.</p>
+          <p>&copy; 2024 Benefit Bridge. All rights reserved.</p>
         </div>
       </div>
     </footer>

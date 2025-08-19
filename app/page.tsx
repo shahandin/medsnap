@@ -13,7 +13,7 @@ export default async function HomePage() {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-muted to-card">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-foreground mb-4">Benefits Application Portal</h1>
+          <h1 className="text-3xl font-bold text-foreground mb-4">Benefit Bridge Portal</h1>
           <p className="text-lg text-muted-foreground mb-8">Connect Supabase to get started</p>
         </div>
       </div>
@@ -83,7 +83,7 @@ export default async function HomePage() {
           <div className="container mx-auto px-4 md:px-6">
             <div className="text-center mb-12 md:mb-20">
               <h2 className="text-2xl md:text-4xl lg:text-5xl font-heading font-bold text-foreground mb-4 md:mb-6 px-2">
-                Why Choose Benefits Access?
+                Why Choose Benefit Bridge?
               </h2>
               <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed px-4">
                 We've designed our platform to make applying for benefits as simple, secure, and stress-free as
