@@ -149,18 +149,39 @@ RESPONSE STYLE:
     console.log("[v0] Chat API: Generated response:", result.text)
 
     let cleanedResponse = result.text
+
     // Remove content in parentheses that looks like internal instructions
     cleanedResponse = cleanedResponse.replace(
-      /\s*$$[^)]*(?:style|leading|navigating|informative|action|internal|system|instruction)[^)]*$$/gi,
+      /\s*$$[^)]*(?:style|leading|navigating|informative|action|internal|system|instruction|assistant navigates|user to|follows|stage direction)[^)]*$$/gi,
       "",
     )
+
     // Remove any remaining parenthetical instructions that contain technical terms
     cleanedResponse = cleanedResponse.replace(
-      /\s*$$[^)]*(?:without explicitly|automatically|detection|flow|prompt)[^)]*$$/gi,
+      /\s*$$[^)]*(?:without explicitly|automatically|detection|flow|prompt|navigate.*user|guide.*user|direct.*user)[^)]*$$/gi,
       "",
     )
-    // Clean up any double spaces or trailing punctuation
-    cleanedResponse = cleanedResponse.replace(/\s+/g, " ").trim()
+
+    // Remove stage directions and internal thoughts that aren't in parentheses
+    cleanedResponse = cleanedResponse.replace(/\.\.\.\.*\s*Let me help you navigate.*?(?=\.|$)/gi, "")
+
+    // Remove assistant action descriptions
+    cleanedResponse = cleanedResponse.replace(/$$The assistant .*?$$/gi, "")
+
+    // Remove internal navigation instructions
+    cleanedResponse = cleanedResponse.replace(
+      /\.\.\.\.*\s*(?:I'll|I will|Let me) (?:navigate|guide|direct|take) (?:you|the user).*?(?=\.|$)/gi,
+      "",
+    )
+
+    // Clean up any double spaces, multiple dots, or trailing punctuation
+    cleanedResponse = cleanedResponse
+      .replace(/\.{3,}/g, "")
+      .replace(/\s+/g, " ")
+      .trim()
+
+    // Remove any remaining empty parentheses or brackets
+    cleanedResponse = cleanedResponse.replace(/$$\s*$$/g, "").replace(/\[\s*\]/g, "")
 
     let navigationAction = null
 
