@@ -106,19 +106,153 @@ export async function signOut() {
 }
 
 export async function saveApplicationProgress(applicationData: any, currentStep: number) {
-  return { success: true }
+  try {
+    const cookieStore = cookies()
+    const accessToken = cookieStore.get("sb-access-token")?.value
+
+    if (!accessToken) {
+      console.log("No access token found, skipping save")
+      return { success: false, error: "Not authenticated" }
+    }
+
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+    if (!supabaseUrl || !supabaseAnonKey) {
+      throw new Error("Supabase configuration missing")
+    }
+
+    // First, try to get the user ID from the token
+    const userResponse = await fetch(`${supabaseUrl}/auth/v1/user`, {
+      headers: {
+        apikey: supabaseAnonKey,
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+    })
+
+    if (!userResponse.ok) {
+      return { success: false, error: "Failed to get user" }
+    }
+
+    const userData = await userResponse.json()
+    const userId = userData.id
+
+    // Upsert the application progress
+    const response = await fetch(`${supabaseUrl}/rest/v1/application_progress`, {
+      method: "POST",
+      headers: {
+        apikey: supabaseAnonKey,
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+        Prefer: "resolution=merge-duplicates",
+      },
+      body: JSON.stringify({
+        user_id: userId,
+        application_data: applicationData,
+        current_step: currentStep,
+      }),
+    })
+
+    if (response.ok) {
+      console.log("✅ Application progress saved successfully")
+      return { success: true }
+    } else {
+      const error = await response.text()
+      console.error("❌ Failed to save progress:", error)
+      return { success: false, error }
+    }
+  } catch (error) {
+    console.error("❌ Error saving application progress:", error)
+    return { success: false, error: error instanceof Error ? error.message : "Unknown error" }
+  }
 }
 
 export async function loadApplicationProgress() {
-  return { data: null }
+  try {
+    const cookieStore = cookies()
+    const accessToken = cookieStore.get("sb-access-token")?.value
+
+    if (!accessToken) {
+      return { data: null }
+    }
+
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+    if (!supabaseUrl || !supabaseAnonKey) {
+      throw new Error("Supabase configuration missing")
+    }
+
+    const response = await fetch(`${supabaseUrl}/rest/v1/application_progress?select=*`, {
+      headers: {
+        apikey: supabaseAnonKey,
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+    })
+
+    if (response.ok) {
+      const data = await response.json()
+      if (data && data.length > 0) {
+        console.log("✅ Application progress loaded successfully")
+        return {
+          data: {
+            applicationData: data[0].application_data,
+            currentStep: data[0].current_step,
+          },
+        }
+      }
+    }
+
+    return { data: null }
+  } catch (error) {
+    console.error("❌ Error loading application progress:", error)
+    return { data: null }
+  }
+}
+
+export async function clearApplicationProgress() {
+  try {
+    const cookieStore = cookies()
+    const accessToken = cookieStore.get("sb-access-token")?.value
+
+    if (!accessToken) {
+      return { success: false, error: "Not authenticated" }
+    }
+
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+    if (!supabaseUrl || !supabaseAnonKey) {
+      throw new Error("Supabase configuration missing")
+    }
+
+    const response = await fetch(`${supabaseUrl}/rest/v1/application_progress`, {
+      method: "DELETE",
+      headers: {
+        apikey: supabaseAnonKey,
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+    })
+
+    if (response.ok) {
+      console.log("✅ Application progress cleared successfully")
+      return { success: true }
+    } else {
+      const error = await response.text()
+      console.error("❌ Failed to clear progress:", error)
+      return { success: false, error }
+    }
+  } catch (error) {
+    console.error("❌ Error clearing application progress:", error)
+    return { success: false, error: error instanceof Error ? error.message : "Unknown error" }
+  }
 }
 
 export async function submitApplication(applicationData: any, benefitType: string) {
   return { success: true, application: { id: "mock-id" } }
-}
-
-export async function clearApplicationProgress() {
-  return { success: true }
 }
 
 export async function getSubmittedApplications() {
