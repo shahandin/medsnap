@@ -150,6 +150,12 @@ RESPONSE STYLE:
 
     let cleanedResponse = result.text
 
+    cleanedResponse = cleanedResponse.replace(/\[State Name\]/gi, "your state")
+    cleanedResponse = cleanedResponse.replace(/\[.*?\]/g, "")
+
+    cleanedResponse = cleanedResponse.replace(/\{.*?\}/g, "")
+    cleanedResponse = cleanedResponse.replace(/\$\{.*?\}/g, "")
+
     // Remove content in parentheses that looks like internal instructions
     cleanedResponse = cleanedResponse.replace(
       /\s*$$[^)]*(?:style|leading|navigating|informative|action|internal|system|instruction|assistant navigates|user to|follows|stage direction)[^)]*$$/gi,
@@ -173,6 +179,13 @@ RESPONSE STYLE:
       /\.\.\.\.*\s*(?:I'll|I will|Let me) (?:navigate|guide|direct|take) (?:you|the user).*?(?=\.|$)/gi,
       "",
     )
+
+    cleanedResponse = cleanedResponse.replace(
+      /Here's the application page for \[.*?\]/gi,
+      "Here's your application page",
+    )
+    cleanedResponse = cleanedResponse.replace(/\[.*?\] part/gi, "")
+    cleanedResponse = cleanedResponse.replace(/the \[.*?\] section/gi, "that section")
 
     // Clean up any double spaces, multiple dots, or trailing punctuation
     cleanedResponse = cleanedResponse
