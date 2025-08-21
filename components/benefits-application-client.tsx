@@ -331,19 +331,225 @@ export default function BenefitsApplicationClient() {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
+      // Calculate field completion percentages for each step
+      const getStepCompletionPercentage = (stepIndex: number) => {
+        switch (stepIndex) {
+          case 0:
+            return applicationData.benefitType ? 100 : 0
+          case 1:
+            return applicationData.state ? 100 : 0
+          case 2: {
+            const { personalInfo } = applicationData
+            const requiredFields = [
+              personalInfo.applyingFor,
+              personalInfo.firstName,
+              personalInfo.lastName,
+              personalInfo.dateOfBirth,
+              personalInfo.languagePreference,
+              personalInfo.address.street,
+              personalInfo.address.city,
+              personalInfo.address.zipCode,
+              personalInfo.phone,
+              personalInfo.email,
+              personalInfo.citizenshipStatus,
+              personalInfo.socialSecurityNumber,
+            ]
+            const completedFields = requiredFields.filter((field) => field && field.toString().trim() !== "").length
+            return Math.round((completedFields / requiredFields.length) * 100)
+          }
+          case 3:
+            return applicationData.householdMembers.length > 0 ? 100 : 0
+          case 4: {
+            const { householdQuestions } = applicationData
+            const isApplyingForSNAP = applicationData.benefitType === "snap" || applicationData.benefitType === "both"
+            const basicQuestions = [
+              householdQuestions.appliedWithDifferentInfo,
+              householdQuestions.appliedInOtherState,
+              householdQuestions.receivedBenefitsBefore,
+            ]
+            const snapQuestions = isApplyingForSNAP
+              ? [
+                  householdQuestions.receivingSNAPThisMonth,
+                  householdQuestions.disqualifiedFromBenefits,
+                  householdQuestions.wantSomeoneElseToReceiveSNAP,
+                ]
+              : []
+            const allQuestions = [...basicQuestions, ...snapQuestions]
+            const completedQuestions = allQuestions.filter((q) => q && q !== "").length
+            return allQuestions.length > 0 ? Math.round((completedQuestions / allQuestions.length) * 100) : 0
+          }
+          case 5: {
+            const { incomeEmployment } = applicationData
+            const hasEmployment = incomeEmployment.employment && incomeEmployment.employment.length > 0
+            const hasIncome = incomeEmployment.income && incomeEmployment.income.length > 0
+            const hasExpenses = incomeEmployment.expenses && incomeEmployment.expenses.length > 0
+            const hasTaxStatus = incomeEmployment.taxFilingStatus && incomeEmployment.taxFilingStatus !== ""
+            const completedSections = [hasEmployment, hasIncome, hasExpenses, hasTaxStatus].filter(Boolean).length
+            return Math.round((completedSections / 4) * 100)
+          }
+          case 6: {
+            const { assets } = applicationData
+            return assets.assets && assets.assets.length > 0 ? 100 : 50 // 50% for having the section open
+          }
+          case 7: {
+            const { healthDisability } = applicationData
+            const showNursingQuestion =
+              applicationData.benefitType === "medicaid" || applicationData.benefitType === "both"
+            return showNursingQuestion ? (healthDisability.needsNursingServices ? 100 : 0) : 100
+          }
+          case 8:
+            return 100 // Review step is always complete when reached
+          default:
+            return 0
+        }
+      }
+
+      // Identify validation errors for current step
+      const getValidationErrors = () => {
+        const errors: string[] = []
+        switch (currentStep) {
+          case 0:
+            if (!applicationData.benefitType) errors.push("Benefit type selection required")
+            break
+          case 1:
+            if (!applicationData.state) errors.push("State selection required")
+            break
+          case 2:
+            const { personalInfo } = applicationData
+            if (!personalInfo.applyingFor) errors.push("Application type required")
+            if (!personalInfo.firstName.trim()) errors.push("First name required")
+            if (!personalInfo.lastName.trim()) errors.push("Last name required")
+            if (!personalInfo.dateOfBirth) errors.push("Date of birth required")
+            if (!personalInfo.languagePreference) errors.push("Language preference required")
+            if (!personalInfo.address.street.trim()) errors.push("Street address required")
+            if (!personalInfo.address.city.trim()) errors.push("City required")
+            if (!personalInfo.address.zipCode.trim()) errors.push("ZIP code required")
+            if (!personalInfo.phone.trim()) errors.push("Phone number required")
+            if (!personalInfo.email.trim()) errors.push("Email address required")
+            if (!personalInfo.citizenshipStatus) errors.push("Citizenship status required")
+            if (!personalInfo.socialSecurityNumber.trim()) errors.push("Social Security Number required")
+            break
+          case 4:
+            const { householdQuestions } = applicationData
+            if (!householdQuestions.appliedWithDifferentInfo) errors.push("Previous application question required")
+            if (!householdQuestions.appliedInOtherState) errors.push("Other state application question required")
+            if (!householdQuestions.receivedBenefitsBefore) errors.push("Previous benefits question required")
+            const isApplyingForSNAP = applicationData.benefitType === "snap" || applicationData.benefitType === "both"
+            if (isApplyingForSNAP) {
+              if (!householdQuestions.receivingSNAPThisMonth) errors.push("Current SNAP benefits question required")
+              if (!householdQuestions.disqualifiedFromBenefits) errors.push("Disqualification question required")
+              if (!householdQuestions.wantSomeoneElseToReceiveSNAP)
+                errors.push("Authorized representative question required")
+            }
+            break
+          case 7:
+            const showNursingQuestion =
+              applicationData.benefitType === "medicaid" || applicationData.benefitType === "both"
+            if (showNursingQuestion && !applicationData.healthDisability.needsNursingServices) {
+              errors.push("Nursing services question required")
+            }
+            break
+        }
+        return errors
+      }
+
+      // Calculate next required steps
+      const getNextRequiredSteps = () => {
+        const nextSteps: string[] = []
+        for (let i = currentStep + 1; i < STEPS.length; i++) {
+          if (getStepCompletionPercentage(i) < 100) {
+            nextSteps.push(STEPS[i].title)
+            if (nextSteps.length >= 3) break // Limit to next 3 steps
+          }
+        }
+        return nextSteps
+      }
+
+      // Enhanced application context with deep state awareness
       ;(window as any).applicationContext = {
+        // Basic step information
         currentStep,
         stepTitle: STEPS[currentStep]?.title,
         stepDescription: STEPS[currentStep]?.description,
-        benefitType: applicationData.benefitType,
-        state: applicationData.state,
-        personalInfo: applicationData.personalInfo,
+        stepId: STEPS[currentStep]?.id,
+
+        // Progress tracking
         completedSteps: currentStep,
         totalSteps: STEPS.length,
+        progressPercentage: Math.round(((currentStep + 1) / STEPS.length) * 100),
         canProceed: canProceed(),
+
+        // Step completion analysis
+        currentStepCompletion: getStepCompletionPercentage(currentStep),
+        allStepCompletions: STEPS.map((_, index) => ({
+          step: index,
+          title: STEPS[index].title,
+          completion: getStepCompletionPercentage(index),
+        })),
+
+        // Validation and errors
+        validationErrors: getValidationErrors(),
+        hasValidationErrors: getValidationErrors().length > 0,
+        nextRequiredSteps: getNextRequiredSteps(),
+
+        // Complete application data for context-aware responses
+        applicationData: {
+          benefitType: applicationData.benefitType,
+          state: applicationData.state,
+          personalInfo: applicationData.personalInfo,
+          householdSize: applicationData.householdMembers.length + 1, // +1 for applicant
+          householdMembers: applicationData.householdMembers,
+
+          // Income summary
+          hasEmployment: applicationData.incomeEmployment.employment?.length > 0,
+          hasOtherIncome: applicationData.incomeEmployment.income?.length > 0,
+          hasExpenses: applicationData.incomeEmployment.expenses?.length > 0,
+          taxFilingStatus: applicationData.incomeEmployment.taxFilingStatus,
+
+          // Assets summary
+          hasAssets: applicationData.assets.assets?.length > 0,
+          assetCount: applicationData.assets.assets?.length || 0,
+
+          // Health information summary
+          hasHealthInsurance: applicationData.healthDisability.healthInsurance?.length > 0,
+          hasDisabilities: applicationData.healthDisability.disabilities?.hasDisabled,
+          isPregnant: applicationData.healthDisability.pregnancyInfo?.isPregnant,
+          hasChronicConditions: applicationData.healthDisability.medicalConditions?.hasChronicConditions,
+          needsNursingServices: applicationData.healthDisability.needsNursingServices,
+        },
+
+        // User profile information
+        userProfile: {
+          name:
+            `${applicationData.personalInfo.firstName} ${applicationData.personalInfo.lastName}`.trim() || "Applicant",
+          email: applicationData.personalInfo.email,
+          phone: applicationData.personalInfo.phone,
+          address: applicationData.personalInfo.address,
+          language: applicationData.personalInfo.languagePreference,
+          citizenship: applicationData.personalInfo.citizenshipStatus,
+        },
+
+        // Document status (placeholder for future enhancement)
+        documentStatus: {
+          uploaded: [], // Will be enhanced when document upload is implemented
+          required: [], // Will be enhanced based on application data
+          missing: [], // Will be enhanced based on requirements
+        },
+
+        // Application metadata
+        metadata: {
+          lastSaved: new Date().toISOString(),
+          isLoading,
+          isSaving,
+          isInitializing,
+          submittedApplications,
+          allApplicationsSubmitted:
+            submittedApplications.includes("both") ||
+            (submittedApplications.includes("medicaid") && submittedApplications.includes("snap")),
+        },
       }
     }
-  }, [currentStep, applicationData])
+  }, [currentStep, applicationData, isLoading, isSaving, isInitializing, submittedApplications])
 
   const updateApplicationData = (updates: any) => {
     setApplicationData((prev) => ({ ...prev, ...updates }))

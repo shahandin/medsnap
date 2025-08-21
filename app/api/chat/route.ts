@@ -1,14 +1,17 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { groq } from "@ai-sdk/groq"
-import { generateText } from "ai"
+import { streamText } from "ai"
 import { getStepGuidance } from "@/lib/chat-knowledge-base"
+import { createClient } from "@/lib/supabase/server"
+import { saveChatMessage, getChatHistory } from "@/lib/chat-memory"
+import { generateIntelligentResponse } from "@/lib/intelligent-responses"
 
 export async function POST(request: NextRequest) {
   try {
     console.log("[v0] Chat API: Starting request processing")
 
     const requestData = await request.json()
-    const { message, context, conversationHistory } = requestData
+    const { message, context, conversationHistory, sessionId } = requestData
 
     if (!message) {
       return NextResponse.json({ error: "Message is required" }, { status: 400 })
@@ -16,6 +19,73 @@ export async function POST(request: NextRequest) {
 
     console.log("[v0] Chat API: Processing message:", message)
     console.log("[v0] Chat API: Context:", context)
+    console.log("[v0] Chat API: Session ID:", sessionId)
+
+    const supabase = await createClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    let enhancedConversationHistory = conversationHistory || []
+
+    if (user && sessionId) {
+      try {
+        const dbHistory = await getChatHistory(user.id, sessionId, 10)
+        // Convert database history to the expected format
+        enhancedConversationHistory = dbHistory.map((msg) => ({
+          role: msg.role,
+          content: msg.content,
+        }))
+        console.log(
+          "[v0] Chat API: Loaded conversation history from database:",
+          enhancedConversationHistory.length,
+          "messages",
+        )
+      } catch (error) {
+        console.error("[v0] Chat API: Error loading conversation history:", error)
+        // Continue with provided history if database fails
+      }
+    }
+
+    const appContext = context?.applicationContext
+    if (appContext) {
+      const intelligentResponse = generateIntelligentResponse(message, appContext)
+      if (intelligentResponse) {
+        console.log("[v0] Chat API: Generated intelligent response:", intelligentResponse.type)
+
+        let responseContent = intelligentResponse.content
+
+        if (intelligentResponse.actionItems && intelligentResponse.actionItems.length > 0) {
+          responseContent += "\n\n**Action Items:**\n"
+          intelligentResponse.actionItems.forEach((item, index) => {
+            responseContent += `${index + 1}. ${item}\n`
+          })
+        }
+
+        // Save intelligent response to database
+        if (user && sessionId) {
+          try {
+            await saveChatMessage(user.id, sessionId, "user", message, context)
+            await saveChatMessage(
+              user.id,
+              sessionId,
+              "assistant",
+              responseContent,
+              null,
+              intelligentResponse.navigationSuggestion,
+            )
+          } catch (error) {
+            console.error("[v0] Chat API: Error saving intelligent response:", error)
+          }
+        }
+
+        return NextResponse.json({
+          message: responseContent,
+          action: intelligentResponse.navigationSuggestion || null,
+          responseType: intelligentResponse.type,
+        })
+      }
+    }
 
     const isInformationalQuestion =
       /^(what|how|when|where|why|which|can you tell me|do you know|is there|are there|does this|explain|describe)/i.test(
@@ -46,6 +116,15 @@ export async function POST(request: NextRequest) {
       }
 
       if (informationalResponse) {
+        if (user && sessionId) {
+          try {
+            await saveChatMessage(user.id, sessionId, "user", message, context)
+            await saveChatMessage(user.id, sessionId, "assistant", informationalResponse)
+          } catch (error) {
+            console.error("[v0] Chat API: Error saving informational exchange:", error)
+          }
+        }
+
         return NextResponse.json({
           message: informationalResponse,
           action: null,
@@ -54,7 +133,6 @@ export async function POST(request: NextRequest) {
     }
 
     const currentPath = context?.currentPath || "/"
-    const appContext = context?.applicationContext
     let contextPrompt = ""
     let relevantKnowledge = ""
 
@@ -64,7 +142,16 @@ export async function POST(request: NextRequest) {
       They are applying for: ${appContext.benefitType || "not selected yet"}
       State: ${appContext.state || "not selected yet"}
       Progress: ${appContext.completedSteps}/${appContext.totalSteps} steps completed.
-      Current section: ${appContext.stepDescription}`
+      Current section: ${appContext.stepDescription}
+      
+      ENHANCED CONTEXT:
+      - Step completion: ${appContext.currentStepCompletion}%
+      - Can proceed: ${appContext.canProceed}
+      - Validation errors: ${appContext.hasValidationErrors ? appContext.validationErrors.join(", ") : "None"}
+      - Next steps: ${appContext.nextRequiredSteps.join(", ")}
+      - Household size: ${appContext.applicationData.householdSize}
+      - Has employment: ${appContext.applicationData.hasEmployment}
+      - Has assets: ${appContext.applicationData.hasAssets}`
 
       if (stepInfo) {
         relevantKnowledge = `
@@ -106,6 +193,14 @@ CORE PRINCIPLES:
 - When users want to take action, AUTOMATICALLY navigate them - never ask for technical commands
 - Be supportive and never tell users to stop asking questions
 - Provide clear, accurate information about the platform and benefits
+- Use the enhanced context to provide personalized, specific guidance
+
+INTELLIGENT RESPONSE CAPABILITIES:
+- Provide step-by-step walkthroughs when users need guidance
+- Offer document assistance based on current application step
+- Help resolve validation errors with specific instructions
+- Give progress summaries showing what's completed and what's next
+- Explain current step requirements and importance
 
 WHEN TO NAVIGATE vs WHEN TO INFORM:
 - INFORM: Questions starting with "What", "How", "When", "Where", "Why", "Which", "Can you tell me", "Do you know"
@@ -129,26 +224,32 @@ RESPONSE STYLE:
 - Be conversational and helpful
 - Never use technical jargon with users
 - Always be encouraging and supportive
-- Provide actionable guidance`
+- Provide actionable guidance
+- Use the user's name when available for personalization`
 
     let conversationContext = ""
-    if (conversationHistory && conversationHistory.length > 0) {
-      const recentMessages = conversationHistory.slice(-6)
+    if (enhancedConversationHistory && enhancedConversationHistory.length > 0) {
+      const recentMessages = enhancedConversationHistory.slice(-6)
       conversationContext =
         "\n\nRECENT CONVERSATION:\n" + recentMessages.map((msg: any) => `${msg.role}: ${msg.content}`).join("\n")
     }
 
-    console.log("[v0] Chat API: About to call Groq API with balanced approach")
+    console.log("[v0] Chat API: About to call Groq API with enhanced configuration and conversation memory")
 
-    const result = await generateText({
-      model: groq("llama3-8b-8192"),
+    const result = await streamText({
+      model: groq("llama3-70b-8192"),
       prompt: `${systemPrompt}\n\n${contextPrompt}\n\n${relevantKnowledge}${conversationContext}\n\nUser: ${message}\nAssistant:`,
-      maxTokens: 400,
+      maxTokens: 1200,
     })
 
-    console.log("[v0] Chat API: Generated response:", result.text)
+    let fullText = ""
+    for await (const chunk of result.textStream) {
+      fullText += chunk
+    }
 
-    let cleanedResponse = result.text
+    console.log("[v0] Chat API: Generated response:", fullText)
+
+    let cleanedResponse = fullText
 
     cleanedResponse = cleanedResponse.replace(/\[State Name\]/gi, "your state")
     cleanedResponse = cleanedResponse.replace(/\[.*?\]/g, "")
@@ -206,6 +307,7 @@ RESPONSE STYLE:
     const isConfirmation = /^(yes|yes take me|take me|go|do it|proceed|continue)$/i.test(message.trim())
 
     if (hasActionIntent && !isInformationalQuestion) {
+      // ... existing navigation logic ...
       if (
         (message.toLowerCase().includes("notification") || message.toLowerCase().includes("notifications")) &&
         (message.toLowerCase().includes("show me") ||
@@ -585,8 +687,19 @@ RESPONSE STYLE:
       }
     }
 
+    if (user && sessionId) {
+      try {
+        await saveChatMessage(user.id, sessionId, "user", message, context)
+        await saveChatMessage(user.id, sessionId, "assistant", cleanedResponse, null, navigationAction)
+        console.log("[v0] Chat API: Saved conversation to database")
+      } catch (error) {
+        console.error("[v0] Chat API: Error saving conversation:", error)
+        // Continue without failing the request
+      }
+    }
+
     const response = {
-      message: cleanedResponse, // Use cleaned response instead of raw result.text
+      message: cleanedResponse,
       action: navigationAction,
     }
 

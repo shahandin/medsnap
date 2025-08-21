@@ -5,14 +5,16 @@ import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
-import { MessageCircle, X, Send, Bot, User, Navigation } from "lucide-react"
+import { MessageCircle, X, Send, Bot, User, Navigation, Lightbulb, HelpCircle } from "lucide-react"
 import { useRouter, usePathname } from "next/navigation"
+import { getProactiveAssistanceManager, generateContextualSuggestions } from "@/lib/proactive-assistance"
 
 interface Message {
   id: string
   content: string
   role: "user" | "assistant"
   timestamp: Date
+  isProactive?: boolean
   action?: {
     type: string
     destination?: string
@@ -24,6 +26,15 @@ interface Message {
     prefill?: any
     params?: Record<string, string>
   }
+}
+
+interface ProactiveMessage {
+  id: string
+  type: "help_offer" | "progress_nudge" | "error_assistance" | "completion_reminder" | "document_help"
+  content: string
+  priority: "low" | "medium" | "high"
+  trigger: string
+  actionItems?: string[]
 }
 
 export function GlobalAIChat() {
@@ -40,6 +51,9 @@ export function GlobalAIChat() {
   const [inputValue, setInputValue] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [isNavigating, setIsNavigating] = useState(false)
+  const [showSuggestions, setShowSuggestions] = useState(false)
+  const [contextualSuggestions, setContextualSuggestions] = useState<string[]>([])
+  const [hasNewProactiveMessage, setHasNewProactiveMessage] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
   const pathname = usePathname()
@@ -71,6 +85,64 @@ export function GlobalAIChat() {
   useEffect(() => {
     autoResize()
   }, [inputValue])
+
+  useEffect(() => {
+    const proactiveManager = getProactiveAssistanceManager()
+
+    // Listen for proactive messages
+    const handleProactiveMessage = (event: CustomEvent) => {
+      const proactiveMsg = event.detail as ProactiveMessage
+
+      const message: Message = {
+        id: `proactive_${Date.now()}`,
+        content: proactiveMsg.content,
+        role: "assistant",
+        timestamp: new Date(),
+        isProactive: true,
+      }
+
+      setMessages((prev) => [...prev, message])
+      setHasNewProactiveMessage(true)
+
+      // Auto-open chat for high priority messages
+      if (proactiveMsg.priority === "high" && !isOpen) {
+        setIsOpen(true)
+      }
+    }
+
+    window.addEventListener("proactiveMessage", handleProactiveMessage as EventListener)
+
+    // Update contextual suggestions based on application context
+    const updateSuggestions = () => {
+      const appContext = (window as any).applicationContext
+      if (appContext) {
+        const suggestions = generateContextualSuggestions(appContext)
+        setContextualSuggestions(suggestions)
+
+        // Update proactive manager with current validation errors
+        proactiveManager.updateValidationErrors(appContext.validationErrors || [])
+      }
+    }
+
+    updateSuggestions()
+    const interval = setInterval(updateSuggestions, 5000) // Update every 5 seconds
+
+    return () => {
+      window.removeEventListener("proactiveMessage", handleProactiveMessage as EventListener)
+      clearInterval(interval)
+    }
+  }, [isOpen])
+
+  useEffect(() => {
+    const proactiveManager = getProactiveAssistanceManager()
+    proactiveManager.recordPageChange()
+  }, [pathname])
+
+  useEffect(() => {
+    if (isOpen) {
+      setHasNewProactiveMessage(false)
+    }
+  }, [isOpen])
 
   const handleNavigation = (
     destination: string,
@@ -137,12 +209,25 @@ export function GlobalAIChat() {
     }, 800)
   }
 
-  const handleSendMessage = async () => {
-    if (!inputValue.trim() || isLoading) return
+  const handleSuggestionClick = (suggestion: string) => {
+    setInputValue(suggestion)
+    setShowSuggestions(false)
+    // Auto-send the suggestion
+    setTimeout(() => {
+      handleSendMessage(suggestion)
+    }, 100)
+  }
+
+  const handleSendMessage = async (messageText?: string) => {
+    const messageToSend = messageText || inputValue
+    if (!messageToSend.trim() || isLoading) return
+
+    const proactiveManager = getProactiveAssistanceManager()
+    proactiveManager.recordFormInteraction()
 
     const userMessage: Message = {
       id: Date.now().toString(),
-      content: inputValue,
+      content: messageToSend,
       role: "user",
       timestamp: new Date(),
     }
@@ -150,6 +235,7 @@ export function GlobalAIChat() {
     setMessages((prev) => [...prev, userMessage])
     setInputValue("")
     setIsLoading(true)
+    setShowSuggestions(false)
 
     try {
       const applicationContext = (window as any).applicationContext || {}
@@ -166,7 +252,7 @@ export function GlobalAIChat() {
       }))
 
       console.log("[v0] Sending chat request:", {
-        message: inputValue,
+        message: messageToSend,
         context: enhancedContext,
         conversationHistory: conversationHistory.slice(-8),
       })
@@ -175,7 +261,7 @@ export function GlobalAIChat() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          message: inputValue,
+          message: messageToSend,
           context: enhancedContext,
           conversationHistory: conversationHistory.slice(-8),
         }),
@@ -260,7 +346,7 @@ export function GlobalAIChat() {
     <>
       <Button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 h-14 w-14 sm:h-16 sm:w-16 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 z-50 bg-primary hover:bg-primary/90"
+        className={`fixed bottom-4 right-4 sm:bottom-6 sm:right-6 h-14 w-14 sm:h-16 sm:w-16 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 z-50 bg-primary hover:bg-primary/90 ${hasNewProactiveMessage ? "animate-pulse ring-4 ring-primary/30" : ""}`}
         size="icon"
         disabled={isNavigating}
       >
@@ -269,12 +355,18 @@ export function GlobalAIChat() {
         ) : isOpen ? (
           <X className="h-6 w-6 sm:h-7 sm:w-7" />
         ) : (
-          <MessageCircle className="h-6 w-6 sm:h-7 sm:w-7" />
+          <>
+            <MessageCircle className="h-6 w-6 sm:h-7 sm:w-7" />
+            {hasNewProactiveMessage && (
+              <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
+                <div className="w-2 h-2 bg-white rounded-full"></div>
+              </div>
+            )}
+          </>
         )}
       </Button>
 
       {isOpen && (
-        /* Enhanced mobile responsiveness - better spacing and full-screen on mobile */
         <Card className="fixed bottom-20 sm:bottom-24 right-2 left-2 sm:right-6 sm:left-auto sm:w-96 h-[70vh] sm:h-[500px] max-h-[600px] shadow-2xl z-50 flex flex-col bg-white">
           <div className="flex items-center justify-between p-4 sm:p-4 border-b bg-primary text-primary-foreground rounded-t-lg">
             <div className="flex items-center gap-3">
@@ -284,16 +376,49 @@ export function GlobalAIChat() {
                 <p className="text-sm sm:text-sm opacity-80">{isNavigating ? "Navigating..." : getPageContext()}</p>
               </div>
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsOpen(false)}
-              className="h-8 w-8 sm:h-9 sm:w-9 text-primary-foreground hover:bg-primary-foreground/20"
-              disabled={isNavigating}
-            >
-              <X className="h-4 w-4 sm:h-5 sm:w-5" />
-            </Button>
+            <div className="flex items-center gap-2">
+              {contextualSuggestions.length > 0 && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setShowSuggestions(!showSuggestions)}
+                  className="h-8 w-8 sm:h-9 sm:w-9 text-primary-foreground hover:bg-primary-foreground/20"
+                  title="Show suggestions"
+                >
+                  <Lightbulb className="h-4 w-4 sm:h-5 sm:w-5" />
+                </Button>
+              )}
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsOpen(false)}
+                className="h-8 w-8 sm:h-9 sm:w-9 text-primary-foreground hover:bg-primary-foreground/20"
+                disabled={isNavigating}
+              >
+                <X className="h-4 w-4 sm:h-5 sm:w-5" />
+              </Button>
+            </div>
           </div>
+
+          {showSuggestions && contextualSuggestions.length > 0 && (
+            <div className="border-b bg-gray-50 p-3">
+              <div className="flex items-center gap-2 mb-2">
+                <HelpCircle className="h-4 w-4 text-gray-600" />
+                <span className="text-sm font-medium text-gray-700">Quick Help</span>
+              </div>
+              <div className="grid gap-2">
+                {contextualSuggestions.map((suggestion, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleSuggestionClick(suggestion)}
+                    className="text-left text-sm p-2 rounded bg-white border border-gray-200 hover:border-primary hover:bg-primary/5 transition-colors"
+                  >
+                    {suggestion}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="flex-1 overflow-y-auto p-4 sm:p-4 space-y-4 sm:space-y-4">
             {messages.map((message) => (
@@ -302,13 +427,19 @@ export function GlobalAIChat() {
                 className={`flex gap-3 ${message.role === "user" ? "justify-end" : "justify-start"}`}
               >
                 {message.role === "assistant" && (
-                  <div className="flex-shrink-0 w-8 h-8 sm:w-9 sm:h-9 bg-primary rounded-full flex items-center justify-center">
-                    <Bot className="h-4 w-4 sm:h-5 sm:w-5 text-primary-foreground" />
+                  <div
+                    className={`flex-shrink-0 w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center ${message.isProactive ? "bg-orange-500" : "bg-primary"}`}
+                  >
+                    <Bot className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                   </div>
                 )}
                 <div
                   className={`max-w-[80%] sm:max-w-[75%] p-3 sm:p-3 rounded-lg ${
-                    message.role === "user" ? "bg-primary text-primary-foreground ml-auto" : "bg-muted"
+                    message.role === "user"
+                      ? "bg-primary text-primary-foreground ml-auto"
+                      : message.isProactive
+                        ? "bg-orange-50 border border-orange-200"
+                        : "bg-muted"
                   }`}
                 >
                   <p className="text-sm sm:text-sm whitespace-pre-wrap leading-relaxed">{message.content}</p>
@@ -359,7 +490,7 @@ export function GlobalAIChat() {
                 rows={1}
               />
               <Button
-                onClick={handleSendMessage}
+                onClick={() => handleSendMessage()}
                 disabled={!inputValue.trim() || isLoading || isNavigating}
                 size="icon"
                 className="flex-shrink-0 h-11 w-11 sm:h-10 sm:w-10 bg-primary hover:bg-primary/90"
