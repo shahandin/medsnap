@@ -213,12 +213,12 @@ export default function BenefitsApplicationClient() {
             const savedProgress = await loadApplicationProgress()
             console.log("[v0] 📊 Loaded progress result:", savedProgress)
 
-            if (savedProgress.success && savedProgress.data) {
+            if (savedProgress.data) {
               console.log("[v0] ✅ Found saved progress, restoring...")
-              setApplicationData(savedProgress.data.application_data)
-              setCurrentStep(savedProgress.data.current_step || 0)
-              console.log("[v0] 📋 Restored data:", savedProgress.data.application_data)
-              console.log("[v0] 📍 Restored step:", savedProgress.data.current_step)
+              setApplicationData(savedProgress.data.applicationData)
+              setCurrentStep(savedProgress.data.currentStep || 0)
+              console.log("[v0] 📋 Restored data:", savedProgress.data.applicationData)
+              console.log("[v0] 📍 Restored step:", savedProgress.data.currentStep)
             } else {
               console.log("[v0] ℹ️ No saved progress found, starting fresh")
             }
