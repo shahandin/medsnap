@@ -4,7 +4,6 @@ import { streamText } from "ai"
 import { getStepGuidance } from "@/lib/chat-knowledge-base"
 import { createClient } from "@/lib/supabase/server"
 import { saveChatMessage, getChatHistory } from "@/lib/chat-memory"
-import { generateIntelligentResponse } from "@/lib/intelligent-responses"
 
 export async function POST(request: NextRequest) {
   try {
@@ -178,45 +177,6 @@ export async function POST(request: NextRequest) {
 
     const appContext = context?.applicationContext
 
-    if (appContext && !isSimpleNavigationRequest && !isInformationalQuestion) {
-      const intelligentResponse = generateIntelligentResponse(message, appContext)
-      if (intelligentResponse && intelligentResponse.type !== "generic") {
-        // Avoid generic responses
-        console.log("[v0] Chat API: Generated intelligent response:", intelligentResponse.type)
-
-        let responseContent = intelligentResponse.content
-
-        if (intelligentResponse.actionItems && intelligentResponse.actionItems.length > 0) {
-          responseContent += "\n\n**Action Items:**\n"
-          intelligentResponse.actionItems.forEach((item, index) => {
-            responseContent += `${index + 1}. ${item}\n`
-          })
-        }
-
-        if (user && sessionId) {
-          try {
-            await saveChatMessage(user.id, sessionId, "user", message, context)
-            await saveChatMessage(
-              user.id,
-              sessionId,
-              "assistant",
-              responseContent,
-              null,
-              intelligentResponse.navigationSuggestion,
-            )
-          } catch (error) {
-            console.error("[v0] Chat API: Error saving intelligent response:", error)
-          }
-        }
-
-        return NextResponse.json({
-          message: responseContent,
-          action: intelligentResponse.navigationSuggestion || null,
-          responseType: intelligentResponse.type,
-        })
-      }
-    }
-
     const currentPath = context?.currentPath || "/"
     let contextPrompt = ""
     let relevantKnowledge = ""
@@ -226,17 +186,7 @@ export async function POST(request: NextRequest) {
       contextPrompt = `The user is currently on step ${appContext.currentStep + 1} of ${appContext.totalSteps} in the benefits application: "${appContext.stepTitle}". 
       They are applying for: ${appContext.benefitType || "not selected yet"}
       State: ${appContext.state || "not selected yet"}
-      Progress: ${appContext.completedSteps}/${appContext.totalSteps} steps completed.
-      Current section: ${appContext.stepDescription}
-      
-      ENHANCED CONTEXT:
-      - Step completion: ${appContext.currentStepCompletion}%
-      - Can proceed: ${appContext.canProceed}
-      - Validation errors: ${appContext.hasValidationErrors ? appContext.validationErrors.join(", ") : "None"}
-      - Next steps: ${appContext.nextRequiredSteps.join(", ")}
-      - Household size: ${appContext.applicationData.householdSize}
-      - Has employment: ${appContext.applicationData.hasEmployment}
-      - Has assets: ${appContext.applicationData.hasAssets}`
+      Progress: ${appContext.completedSteps}/${appContext.totalSteps} steps completed.`
 
       if (stepInfo) {
         relevantKnowledge = `
@@ -249,68 +199,37 @@ export async function POST(request: NextRequest) {
     } else if (currentPath.includes("/account")) {
       contextPrompt =
         "The user is currently viewing their account dashboard with tabs for Overview, Applications, Notifications, Documents, Profile, and Report Changes."
-      relevantKnowledge = `
-      ACCOUNT DASHBOARD FEATURES:
-      - Overview: Application status and quick actions
-      - Applications: View submitted applications and their status
-      - Notifications: Important updates and reminders
-      - Documents: Upload additional required documents
-      - Profile: Update personal information and settings
-      - Report Changes: Report life changes that affect benefits (household size, income, address, insurance)
-      
-      REPORTING CHANGES WORKFLOW:
-      For household changes (new child, baby):
-      1. Navigate to Dashboard → Report Changes → Household Changes → Pre-select "Add new household member"
-      2. Job change → Navigate to Dashboard → Report Changes → Income Changes → Pre-select "Employment change"
-      3. Address move → Navigate to Dashboard → Report Changes → Address Changes → Pre-select "Address change"
-      4. Marriage/divorce → Navigate to Dashboard → Report Changes → Household Changes → Pre-select appropriate option
-      `
     } else if (currentPath === "/") {
       contextPrompt = "The user is currently on the homepage."
     } else if (currentPath === "/about") {
       contextPrompt = "The user is currently on the about page."
     }
 
-    const systemPrompt = `You are a helpful benefits assistant for a government benefits platform. You provide both informational support and can help users navigate to complete tasks.
+    const systemPrompt = `You are a helpful benefits assistant for a government benefits platform. 
 
 CORE PRINCIPLES:
-- Answer informational questions directly and helpfully
-- When users want to take action, AUTOMATICALLY navigate them - never ask for technical commands
-- Be supportive and never tell users to stop asking questions
-- Provide clear, accurate information about the platform and benefits
-- Use the enhanced context to provide personalized, specific guidance
+- Answer only what the user asks - no unsolicited advice or proactive suggestions
+- When users want to navigate somewhere, take them there immediately
+- Be direct and concise in your responses
+- Don't provide information the user didn't request
 
-INTELLIGENT RESPONSE CAPABILITIES:
-- Provide step-by-step walkthroughs when users need guidance
-- Offer document assistance based on current application step
-- Help resolve validation errors with specific instructions
-- Give progress summaries showing what's completed and what's next
-- Explain current step requirements and importance
+RESPONSE GUIDELINES:
+- For questions: Answer directly and briefly
+- For navigation requests: Navigate immediately without extra explanation
+- Don't suggest additional steps unless specifically asked
+- Don't provide error resolution unless the user asks about errors
+- Don't give progress summaries unless requested
 
-WHEN TO NAVIGATE vs WHEN TO INFORM:
-- INFORM: Questions starting with "What", "How", "When", "Where", "Why", "Which", "Can you tell me", "Do you know"
-- NAVIGATE: Clear action requests with verbs like "start", "apply", "help me do", "take me to", "I want to", "I need to", "guide me", "navigate me"
-
-PLATFORM INFORMATION:
+PLATFORM INFORMATION (only provide when asked):
 - Serves all 50 US states with state-specific requirements
 - Offers Medicaid and SNAP benefit applications
-- Features: step-by-step guidance, progress saving, document help, change reporting, status tracking
-- Processing times: SNAP (30 days), Medicaid (45-90 days), Emergency SNAP (7 days)
+- Processing times: SNAP (30 days), Medicaid (45-90 days)
 - Required documents: ID, Social Security cards, income proof, bank statements, housing costs
 
 NAVIGATION BEHAVIOR:
-- When users ask to be taken somewhere, IMMEDIATELY navigate them
-- Never ask users to say technical commands like "FLOW:anything"
-- Never claim navigation happened when it didn't
-- Be honest about what you can and cannot do
-- If navigation fails, acknowledge it and offer alternatives
-
-RESPONSE STYLE:
-- Be conversational and helpful
-- Never use technical jargon with users
-- Always be encouraging and supportive
-- Provide actionable guidance
-- Use the user's name when available for personalization`
+- When users ask to go somewhere, take them there immediately
+- Don't ask for confirmation unless the request is unclear
+- Be honest about what you can and cannot do`
 
     let conversationContext = ""
     if (enhancedConversationHistory && enhancedConversationHistory.length > 0) {
