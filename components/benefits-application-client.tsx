@@ -5,7 +5,6 @@ import type React from "react"
 import { useState, useRef, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Progress } from "@/components/ui/progress"
 import { BenefitSelection } from "@/components/benefit-selection"
 import { StateSelection } from "@/components/state-selection"
 import { PersonalInformationForm } from "@/components/personal-information-form"
@@ -40,7 +39,7 @@ const STEPS = [
   { id: "review", title: "Review & Submit", description: "Review your application" },
 ]
 
-export default function BenefitsApplicationClient() {
+export default function BenefitsApplicationClient({ startFresh = false }: { startFresh?: boolean }) {
   const [currentStep, setCurrentStep] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
@@ -107,7 +106,7 @@ export default function BenefitsApplicationClient() {
     },
   })
   const stepParam = searchParams.get("step")
-  const startFresh = searchParams.get("startFresh") === "true"
+  const [applicationId, setApplicationId] = useState<string | null>(null)
 
   useEffect(() => {
     if (stepParam && !isLoading) {
@@ -204,6 +203,7 @@ export default function BenefitsApplicationClient() {
           console.log("[v0] 📋 Setting initial application data:", initialData)
           setApplicationData(initialData)
           setCurrentStep(0)
+          setApplicationId(null)
           setIsInitializing(false)
           console.log("[v0] ✅ Fresh application initialized successfully")
         } else {
@@ -217,8 +217,10 @@ export default function BenefitsApplicationClient() {
               console.log("[v0] ✅ Found saved progress, restoring...")
               setApplicationData(savedProgress.data.applicationData)
               setCurrentStep(savedProgress.data.currentStep || 0)
+              setApplicationId(savedProgress.data.applicationId)
               console.log("[v0] 📋 Restored data:", savedProgress.data.applicationData)
               console.log("[v0] 📍 Restored step:", savedProgress.data.currentStep)
+              console.log("[v0] 🆔 Restored applicationId:", savedProgress.data.applicationId)
             } else {
               console.log("[v0] ℹ️ No saved progress found, starting fresh")
             }
@@ -292,6 +294,7 @@ export default function BenefitsApplicationClient() {
           },
         })
         setCurrentStep(0)
+        setApplicationId(null)
       } finally {
         console.log("[v0] 🏁 loadSavedProgress completed, setting isLoading to false")
         setIsLoading(false)
@@ -308,8 +311,12 @@ export default function BenefitsApplicationClient() {
         console.log("💾 Auto-saving progress...")
         console.log("📊 Current step:", currentStep)
         console.log("📋 Application data:", applicationData)
-        const result = await saveApplicationProgress(applicationData, currentStep)
+        const result = await saveApplicationProgress(applicationData, currentStep, applicationId)
         console.log("💾 Save result:", result)
+
+        if (result.success && result.applicationId && !applicationId) {
+          setApplicationId(result.applicationId)
+        }
       } catch (error) {
         console.error("❌ Auto-save error:", error)
       }
@@ -317,20 +324,20 @@ export default function BenefitsApplicationClient() {
 
     const timeoutId = setTimeout(autoSave, 2000)
     return () => clearTimeout(timeoutId)
-  }, [applicationData, currentStep, isLoading, isInitializing])
+  }, [applicationData, currentStep, isLoading, isInitializing, applicationId])
 
   useEffect(() => {
     const periodicSave = setInterval(async () => {
       try {
         console.log("⏰ Periodic auto-save...")
-        await saveApplicationProgress(applicationData, currentStep)
+        await saveApplicationProgress(applicationData, currentStep, applicationId)
       } catch (error) {
         console.error("❌ Periodic save error:", error)
       }
     }, 30000)
 
     return () => clearInterval(periodicSave)
-  }, [applicationData, currentStep, isLoading, isInitializing])
+  }, [applicationData, currentStep, isLoading, isInitializing, applicationId])
 
   useEffect(() => {
     const handleBeforeUnload = async (event: BeforeUnloadEvent) => {
@@ -347,7 +354,7 @@ export default function BenefitsApplicationClient() {
             formData.append("data", data)
             navigator.sendBeacon("/api/save-progress", formData)
           } else {
-            await saveApplicationProgress(applicationData, currentStep)
+            await saveApplicationProgress(applicationData, currentStep, applicationId)
           }
         } catch (error) {
           console.error("❌ Error saving on unload:", error)
@@ -357,14 +364,14 @@ export default function BenefitsApplicationClient() {
 
     window.addEventListener("beforeunload", handleBeforeUnload)
     return () => window.removeEventListener("beforeunload", handleBeforeUnload)
-  }, [applicationData, currentStep, isInitializing])
+  }, [applicationData, currentStep, isInitializing, applicationId])
 
   useEffect(() => {
     const handleVisibilityChange = async () => {
       if (document.hidden && !isLoading && !isInitializing) {
         try {
           console.log("👁️ Page hidden, saving progress...")
-          await saveApplicationProgress(applicationData, currentStep)
+          await saveApplicationProgress(applicationData, currentStep, applicationId)
         } catch (error) {
           console.error("❌ Error saving on visibility change:", error)
         }
@@ -373,7 +380,7 @@ export default function BenefitsApplicationClient() {
 
     document.addEventListener("visibilitychange", handleVisibilityChange)
     return () => document.removeEventListener("visibilitychange", handleVisibilityChange)
-  }, [applicationData, currentStep, isLoading, isInitializing])
+  }, [applicationData, currentStep, isLoading, isInitializing, applicationId])
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -608,7 +615,7 @@ export default function BenefitsApplicationClient() {
       debounceTimerRef.current = setTimeout(async () => {
         try {
           console.log("📝 Form changed, auto-saving...")
-          await saveApplicationProgress({ ...applicationData, ...updates }, currentStep)
+          await saveApplicationProgress({ ...applicationData, ...updates }, currentStep, applicationId)
         } catch (error) {
           console.error("❌ Form change save error:", error)
         }
@@ -631,7 +638,7 @@ export default function BenefitsApplicationClient() {
 
       try {
         console.log("➡️ Moving to next step, saving progress...")
-        const result = await saveApplicationProgress(applicationData, currentStep + 1)
+        const result = await saveApplicationProgress(applicationData, currentStep + 1, applicationId)
         console.log("💾 Save result:", result)
       } catch (error) {
         console.error("❌ Auto-save error:", error)
@@ -654,7 +661,7 @@ export default function BenefitsApplicationClient() {
 
       try {
         console.log("⬅️ Moving to previous step, saving progress...")
-        const result = await saveApplicationProgress(applicationData, currentStep - 1)
+        const result = await saveApplicationProgress(applicationData, currentStep - 1, applicationId)
         console.log("💾 Save result:", result)
       } catch (error) {
         console.error("❌ Auto-save error:", error)
@@ -742,6 +749,7 @@ export default function BenefitsApplicationClient() {
       },
     })
     setCurrentStep(0)
+    setApplicationId(null)
   }
 
   const canProceed = () => {
@@ -985,30 +993,6 @@ export default function BenefitsApplicationClient() {
         {!allApplicationsSubmitted && (
           <>
             <div className="mb-8 sm:mb-12">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3 sm:gap-6">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-6">
-                  <span className="text-lg font-semibold text-gray-900">
-                    Step {currentStep + 1} of {STEPS.length}
-                  </span>
-                  <div className="flex items-center gap-2 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-full px-3 sm:px-4 py-2 shadow-sm">
-                    <span className="text-green-600 animate-pulse">💾</span>
-                    <span className="text-xs sm:text-sm font-medium text-green-700">Progress saved automatically</span>
-                  </div>
-                </div>
-                <span className="text-base sm:text-lg font-medium text-gray-600 self-start sm:self-auto">
-                  {Math.round(progressPercentage)}% Complete
-                </span>
-              </div>
-              <div className="relative">
-                <Progress value={progressPercentage} className="h-3 sm:h-4 bg-gray-100 rounded-full overflow-hidden" />
-                <div
-                  className="absolute top-0 left-0 h-full bg-gradient-to-r from-primary/20 to-transparent rounded-full transition-all duration-500 ease-out"
-                  style={{ width: `${Math.min(progressPercentage + 10, 100)}%` }}
-                />
-              </div>
-            </div>
-
-            <div className="mb-8 sm:mb-12">
               <div className="flex justify-center">
                 <div className="w-full overflow-x-auto scrollbar-hide">
                   <div className="flex items-center space-x-3 sm:space-x-4 pb-4 px-2 min-w-max sm:justify-center">
@@ -1052,65 +1036,65 @@ export default function BenefitsApplicationClient() {
                 </div>
               </div>
             </div>
-          </>
-        )}
 
-        <Card
-          className={`shadow-2xl border-gray-200 bg-white rounded-2xl sm:rounded-3xl overflow-hidden transition-all duration-300 ${
-            isTransitioning ? "transform scale-[0.98] opacity-90" : "transform scale-100 opacity-100"
-          }`}
-          onTouchStart={handleTouchStart}
-          onTouchEnd={handleTouchEnd}
-        >
-          {!allApplicationsSubmitted && (
-            <CardHeader className="bg-gradient-to-r from-gray-50 to-white border-b border-gray-200 px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-              <CardTitle className="text-xl sm:text-2xl font-heading font-bold text-gray-900 leading-tight">
-                {STEPS[currentStep].title}
-              </CardTitle>
-              <CardDescription className="text-base sm:text-lg text-gray-600 mt-2 leading-relaxed">
-                {STEPS[currentStep].description}
-              </CardDescription>
-              <div className="mt-4 sm:hidden">
-                <p className="text-xs text-gray-500 flex items-center gap-2">
-                  <span>👆</span>
-                  Swipe left/right to navigate between steps
-                </p>
+            <Card
+              className={`shadow-2xl border-gray-200 bg-white rounded-2xl sm:rounded-3xl overflow-hidden transition-all duration-300 ${
+                isTransitioning ? "transform scale-[0.98] opacity-90" : "transform scale-100 opacity-100"
+              }`}
+              onTouchStart={handleTouchStart}
+              onTouchEnd={handleTouchEnd}
+            >
+              {!allApplicationsSubmitted && (
+                <CardHeader className="bg-gradient-to-r from-gray-50 to-white border-b border-gray-200 px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+                  <CardTitle className="text-xl sm:text-2xl font-heading font-bold text-gray-900 leading-tight">
+                    {STEPS[currentStep].title}
+                  </CardTitle>
+                  <CardDescription className="text-base sm:text-lg text-gray-600 mt-2 leading-relaxed">
+                    {STEPS[currentStep].description}
+                  </CardDescription>
+                  <div className="mt-4 sm:hidden">
+                    <p className="text-xs text-gray-500 flex items-center gap-2">
+                      <span>👆</span>
+                      Swipe left/right to navigate between steps
+                    </p>
+                  </div>
+                </CardHeader>
+              )}
+              <CardContent
+                className={`px-4 sm:px-6 lg:px-8 py-6 sm:py-8 transition-all duration-300 ${
+                  isTransitioning
+                    ? swipeDirection === "left"
+                      ? "transform translate-x-2 opacity-80"
+                      : "transform -translate-x-2 opacity-80"
+                    : "transform translate-x-0 opacity-100"
+                }`}
+              >
+                {renderCurrentStep()}
+              </CardContent>
+            </Card>
+
+            {currentStep < 8 && !allApplicationsSubmitted && (
+              <div className="flex flex-col sm:flex-row justify-between gap-4 sm:gap-0 mt-8 sm:mt-12">
+                <Button
+                  variant="outline"
+                  onClick={prevStep}
+                  disabled={currentStep === 0}
+                  className="flex items-center justify-center gap-3 px-6 py-4 text-base font-semibold border-2 border-gray-300 hover:border-primary/50 rounded-2xl bg-white hover:bg-gray-50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed min-h-[56px] sm:min-h-[52px] touch-manipulation active:scale-95 shadow-md hover:shadow-lg"
+                >
+                  <span className="text-lg">←</span>
+                  Previous
+                </Button>
+                <Button
+                  onClick={nextStep}
+                  disabled={currentStep === STEPS.length - 1 || !canProceed()}
+                  className="flex items-center justify-center gap-3 px-8 py-4 text-base font-bold bg-gradient-to-r from-primary via-primary to-primary/90 hover:from-primary/90 hover:via-primary/85 hover:to-primary/80 text-white rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed min-h-[56px] sm:min-h-[52px] touch-manipulation active:scale-95 hover:scale-[1.02]"
+                >
+                  Next
+                  <span className="text-lg">→</span>
+                </Button>
               </div>
-            </CardHeader>
-          )}
-          <CardContent
-            className={`px-4 sm:px-6 lg:px-8 py-6 sm:py-8 transition-all duration-300 ${
-              isTransitioning
-                ? swipeDirection === "left"
-                  ? "transform translate-x-2 opacity-80"
-                  : "transform -translate-x-2 opacity-80"
-                : "transform translate-x-0 opacity-100"
-            }`}
-          >
-            {renderCurrentStep()}
-          </CardContent>
-        </Card>
-
-        {currentStep < 8 && !allApplicationsSubmitted && (
-          <div className="flex flex-col sm:flex-row justify-between gap-4 sm:gap-0 mt-8 sm:mt-12">
-            <Button
-              variant="outline"
-              onClick={prevStep}
-              disabled={currentStep === 0}
-              className="flex items-center justify-center gap-3 px-6 py-4 text-base font-semibold border-2 border-gray-300 hover:border-primary/50 rounded-2xl bg-white hover:bg-gray-50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed min-h-[56px] sm:min-h-[52px] touch-manipulation active:scale-95 shadow-md hover:shadow-lg"
-            >
-              <span className="text-lg">←</span>
-              Previous
-            </Button>
-            <Button
-              onClick={nextStep}
-              disabled={currentStep === STEPS.length - 1 || !canProceed()}
-              className="flex items-center justify-center gap-3 px-8 py-4 text-base font-bold bg-gradient-to-r from-primary via-primary to-primary/90 hover:from-primary/90 hover:via-primary/85 hover:to-primary/80 text-white rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed min-h-[56px] sm:min-h-[52px] touch-manipulation active:scale-95 hover:scale-[1.02]"
-            >
-              Next
-              <span className="text-lg">→</span>
-            </Button>
-          </div>
+            )}
+          </>
         )}
       </div>
     </div>

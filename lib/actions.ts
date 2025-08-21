@@ -105,7 +105,7 @@ export async function signOut() {
   redirect("/signin")
 }
 
-export async function saveApplicationProgress(applicationData: any, currentStep: number) {
+export async function saveApplicationProgress(applicationData: any, currentStep: number, applicationId?: string) {
   try {
     const cookieStore = cookies()
     const accessToken = cookieStore.get("sb-access-token")?.value
@@ -138,8 +138,9 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
     const userData = await userResponse.json()
     const userId = userData.id
 
-    // Upsert the application progress
-    const response = await fetch(`${supabaseUrl}/rest/v1/application_progress`, {
+    const finalApplicationId = applicationId || `draft_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+
+    const response = await fetch(`${supabaseUrl}/rest/v1/application_progress?on_conflict=user_id,application_id`, {
       method: "POST",
       headers: {
         apikey: supabaseAnonKey,
@@ -149,14 +150,16 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
       },
       body: JSON.stringify({
         user_id: userId,
+        application_id: finalApplicationId,
         application_data: applicationData,
         current_step: currentStep,
+        updated_at: new Date().toISOString(),
       }),
     })
 
     if (response.ok) {
       console.log("✅ Application progress saved successfully")
-      return { success: true }
+      return { success: true, applicationId: finalApplicationId }
     } else {
       const error = await response.text()
       console.error("❌ Failed to save progress:", error)
@@ -168,7 +171,7 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
   }
 }
 
-export async function loadApplicationProgress() {
+export async function loadApplicationProgress(applicationId?: string) {
   try {
     const cookieStore = cookies()
     const accessToken = cookieStore.get("sb-access-token")?.value
@@ -184,7 +187,14 @@ export async function loadApplicationProgress() {
       throw new Error("Supabase configuration missing")
     }
 
-    const response = await fetch(`${supabaseUrl}/rest/v1/application_progress?select=*`, {
+    let queryUrl = `${supabaseUrl}/rest/v1/application_progress?select=*&order=updated_at.desc`
+    if (applicationId) {
+      queryUrl += `&application_id=eq.${applicationId}`
+    } else {
+      queryUrl += `&limit=1`
+    }
+
+    const response = await fetch(queryUrl, {
       headers: {
         apikey: supabaseAnonKey,
         Authorization: `Bearer ${accessToken}`,
@@ -200,6 +210,7 @@ export async function loadApplicationProgress() {
           data: {
             applicationData: data[0].application_data,
             currentStep: data[0].current_step,
+            applicationId: data[0].application_id,
           },
         }
       }
@@ -212,7 +223,7 @@ export async function loadApplicationProgress() {
   }
 }
 
-export async function clearApplicationProgress() {
+export async function clearApplicationProgress(applicationId?: string) {
   try {
     const cookieStore = cookies()
     const accessToken = cookieStore.get("sb-access-token")?.value
@@ -228,7 +239,12 @@ export async function clearApplicationProgress() {
       throw new Error("Supabase configuration missing")
     }
 
-    const response = await fetch(`${supabaseUrl}/rest/v1/application_progress`, {
+    let deleteUrl = `${supabaseUrl}/rest/v1/application_progress`
+    if (applicationId) {
+      deleteUrl += `?application_id=eq.${applicationId}`
+    }
+
+    const response = await fetch(deleteUrl, {
       method: "DELETE",
       headers: {
         apikey: supabaseAnonKey,
