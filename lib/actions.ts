@@ -155,13 +155,13 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
     }
 
     console.log("[v0] 💾 Attempting to save to database...")
-    const response = await fetch(`${supabaseUrl}/rest/v1/application_progress?upsert=true`, {
+    const response = await fetch(`${supabaseUrl}/rest/v1/application_progress`, {
       method: "POST",
       headers: {
         apikey: supabaseAnonKey,
         Authorization: `Bearer ${accessToken}`,
         "Content-Type": "application/json",
-        Prefer: "return=minimal",
+        Prefer: "resolution=merge-duplicates",
       },
       body: JSON.stringify(saveData),
     })
