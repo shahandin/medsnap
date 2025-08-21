@@ -31,7 +31,6 @@ export async function POST(request: NextRequest) {
     if (user && sessionId) {
       try {
         const dbHistory = await getChatHistory(user.id, sessionId, 10)
-        // Convert database history to the expected format
         enhancedConversationHistory = dbHistory.map((msg) => ({
           role: msg.role,
           content: msg.content,
@@ -43,14 +42,98 @@ export async function POST(request: NextRequest) {
         )
       } catch (error) {
         console.error("[v0] Chat API: Error loading conversation history:", error)
-        // Continue with provided history if database fails
       }
     }
 
+    const isSimpleNavigationRequest =
+      /\b(navigate me|take me|go to|show me|bring me|direct me)\s+(to\s+)?(the\s+)?(application|dashboard|home|about|profile|documents|notifications)/i.test(
+        message,
+      ) ||
+      /^(application|dashboard|home|about|profile|documents|notifications)$/i.test(message.trim()) ||
+      /\b(start|begin|open)\s+(the\s+)?application/i.test(message)
+
+    if (isSimpleNavigationRequest) {
+      console.log("[v0] Chat API: Detected simple navigation request")
+
+      let navigationAction = null
+      let responseMessage = ""
+
+      if (/application/i.test(message)) {
+        navigationAction = {
+          type: "navigate",
+          destination: "/application",
+          message: "Taking you to the application form now...",
+        }
+        responseMessage = "Taking you to the application form now..."
+      } else if (/dashboard/i.test(message)) {
+        navigationAction = {
+          type: "navigate",
+          destination: "/account",
+          message: "Taking you to your dashboard now...",
+        }
+        responseMessage = "Taking you to your dashboard now..."
+      } else if (/home/i.test(message)) {
+        navigationAction = {
+          type: "navigate",
+          destination: "/",
+          message: "Taking you to the homepage now...",
+        }
+        responseMessage = "Taking you to the homepage now..."
+      } else if (/about/i.test(message)) {
+        navigationAction = {
+          type: "navigate",
+          destination: "/about",
+          message: "Taking you to the about page now...",
+        }
+        responseMessage = "Taking you to the about page now..."
+      } else if (/profile/i.test(message)) {
+        navigationAction = {
+          type: "navigate",
+          destination: "/account",
+          params: { tab: "profile" },
+          message: "Taking you to your profile now...",
+        }
+        responseMessage = "Taking you to your profile now..."
+      } else if (/documents/i.test(message)) {
+        navigationAction = {
+          type: "navigate",
+          destination: "/account",
+          params: { tab: "documents" },
+          message: "Taking you to your documents now...",
+        }
+        responseMessage = "Taking you to your documents now..."
+      } else if (/notifications/i.test(message)) {
+        navigationAction = {
+          type: "navigate",
+          destination: "/account",
+          params: { tab: "notifications" },
+          message: "Taking you to your notifications now...",
+        }
+        responseMessage = "Taking you to your notifications now..."
+      }
+
+      if (user && sessionId) {
+        try {
+          await saveChatMessage(user.id, sessionId, "user", message, context)
+          await saveChatMessage(user.id, sessionId, "assistant", responseMessage, null, navigationAction)
+        } catch (error) {
+          console.error("[v0] Chat API: Error saving navigation exchange:", error)
+        }
+      }
+
+      return NextResponse.json({
+        message: responseMessage,
+        action: navigationAction,
+        responseType: "navigation",
+      })
+    }
+
     const appContext = context?.applicationContext
-    if (appContext) {
+
+    if (appContext && !isSimpleNavigationRequest) {
       const intelligentResponse = generateIntelligentResponse(message, appContext)
-      if (intelligentResponse) {
+      if (intelligentResponse && intelligentResponse.type !== "generic") {
+        // Avoid generic responses
         console.log("[v0] Chat API: Generated intelligent response:", intelligentResponse.type)
 
         let responseContent = intelligentResponse.content
@@ -62,7 +145,6 @@ export async function POST(request: NextRequest) {
           })
         }
 
-        // Save intelligent response to database
         if (user && sessionId) {
           try {
             await saveChatMessage(user.id, sessionId, "user", message, context)
