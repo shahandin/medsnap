@@ -90,32 +90,19 @@ export default function BenefitsApplicationClient() {
       wantSomeoneElseToReceiveSNAPMembers: [],
     },
     incomeEmployment: {
-      taxFilingStatus: "",
       employment: [],
       income: [],
       expenses: [],
-      housingExpenses: [],
+      taxFilingStatus: "",
     },
     assets: {
       assets: [],
     },
     healthDisability: {
       healthInsurance: [],
-      disabilities: {
-        hasDisabled: false,
-        needsLongTermCare: false,
-        hasIncarcerated: false,
-      },
-      pregnancyInfo: {
-        isPregnant: false,
-      },
-      medicalConditions: {
-        hasChronicConditions: false,
-        conditions: [],
-      },
-      medicalBills: {
-        hasRecentBills: false,
-      },
+      disabilities: { hasDisabled: "" },
+      pregnancyInfo: { isPregnant: "" },
+      medicalConditions: { hasChronicConditions: "" },
       needsNursingServices: "",
     },
   })
@@ -137,14 +124,29 @@ export default function BenefitsApplicationClient() {
   useEffect(() => {
     const loadSavedProgress = async () => {
       try {
-        console.log("🔄 Loading saved progress...")
-        const supabase = createClient()
+        console.log("[v0] 🔄 Starting loadSavedProgress...")
+        console.log("[v0] 📊 Current state - isLoading:", isLoading, "startFresh:", startFresh)
+
+        let supabase
+        try {
+          supabase = createClient()
+          console.log("[v0] ✅ Supabase client created successfully")
+        } catch (supabaseError) {
+          console.error("[v0] ❌ Failed to create Supabase client:", supabaseError)
+          setIsLoading(false)
+          return
+        }
 
         if (startFresh) {
-          console.log("🆕 Starting fresh application, clearing all saved progress")
+          console.log("[v0] 🆕 Starting fresh application, clearing all saved progress")
           setIsInitializing(true)
 
-          await clearApplicationProgress()
+          try {
+            await clearApplicationProgress()
+            console.log("[v0] ✅ Successfully cleared application progress")
+          } catch (clearError) {
+            console.error("[v0] ❌ Error clearing application progress:", clearError)
+          }
 
           const initialData = {
             benefitType: "",
@@ -182,111 +184,152 @@ export default function BenefitsApplicationClient() {
               wantSomeoneElseToReceiveSNAPMembers: [],
             },
             incomeEmployment: {
-              taxFilingStatus: "",
               employment: [],
               income: [],
               expenses: [],
-              housingExpenses: [],
+              taxFilingStatus: "",
             },
             assets: {
               assets: [],
             },
             healthDisability: {
               healthInsurance: [],
-              disabilities: {
-                hasDisabled: false,
-                needsLongTermCare: false,
-                hasIncarcerated: false,
-              },
-              pregnancyInfo: {
-                isPregnant: false,
-              },
-              medicalConditions: {
-                hasChronicConditions: false,
-                conditions: [],
-              },
-              medicalBills: {
-                hasRecentBills: false,
-              },
+              disabilities: { hasDisabled: "" },
+              pregnancyInfo: { isPregnant: "" },
+              medicalConditions: { hasChronicConditions: "" },
               needsNursingServices: "",
             },
           }
 
+          console.log("[v0] 📋 Setting initial application data:", initialData)
           setApplicationData(initialData)
           setCurrentStep(0)
+          setIsInitializing(false)
+          console.log("[v0] ✅ Fresh application initialized successfully")
+        } else {
+          console.log("[v0] 📂 Loading existing progress...")
 
+          try {
+            const savedProgress = await loadApplicationProgress()
+            console.log("[v0] 📊 Loaded progress result:", savedProgress)
+
+            if (savedProgress.success && savedProgress.data) {
+              console.log("[v0] ✅ Found saved progress, restoring...")
+              setApplicationData(savedProgress.data.application_data)
+              setCurrentStep(savedProgress.data.current_step || 0)
+              console.log("[v0] 📋 Restored data:", savedProgress.data.application_data)
+              console.log("[v0] 📍 Restored step:", savedProgress.data.current_step)
+            } else {
+              console.log("[v0] ℹ️ No saved progress found, starting fresh")
+            }
+          } catch (loadError) {
+            console.error("[v0] ❌ Error loading application progress:", loadError)
+            console.log("[v0] 🔄 Falling back to fresh start due to load error")
+          }
+        }
+
+        try {
+          console.log("[v0] 📋 Loading submitted applications...")
           const applicationsResult = await getSubmittedApplications()
+          console.log("[v0] 📊 Submitted applications result:", applicationsResult)
+
           if (applicationsResult.data) {
             const submittedTypes = applicationsResult.data.map((app: any) => app.benefit_type)
             setSubmittedApplications(submittedTypes)
+            console.log("[v0] ✅ Set submitted applications:", submittedTypes)
           }
-
-          setIsLoading(false)
-          setTimeout(() => setIsInitializing(false), 500)
-          return
-        }
-
-        const result = await loadApplicationProgress()
-        console.log("📊 Load progress result:", result)
-
-        if (result.data) {
-          console.log("✅ Progress found, restoring data")
-          console.log("📋 Application data:", result.data.application_data)
-          console.log("📍 Current step:", result.data.current_step)
-
-          setApplicationData(result.data.application_data)
-          setCurrentStep(result.data.current_step)
-        } else {
-          console.log("ℹ️ No saved progress found, starting fresh")
-        }
-
-        const applicationsResult = await getSubmittedApplications()
-        if (applicationsResult.data) {
-          const submittedTypes = applicationsResult.data.map((app: any) => app.benefit_type)
-          setSubmittedApplications(submittedTypes)
+        } catch (submittedError) {
+          console.error("[v0] ❌ Error loading submitted applications:", submittedError)
+          console.log("[v0] 🔄 Continuing without submitted applications data")
         }
       } catch (error) {
-        console.error("❌ Error loading progress:", error)
+        console.error("[v0] ❌ Critical error in loadSavedProgress:", error)
+        console.error("[v0] 📊 Error details:", {
+          message: error.message,
+          stack: error.stack,
+          name: error.name,
+        })
+
+        console.log("[v0] 🚨 Initializing with default state due to critical error")
+        setApplicationData({
+          benefitType: "",
+          state: "",
+          personalInfo: {
+            applyingFor: "",
+            firstName: "",
+            lastName: "",
+            dateOfBirth: "",
+            languagePreference: "",
+            address: { street: "", city: "", state: "", zipCode: "" },
+            phone: "",
+            email: "",
+            citizenshipStatus: "",
+            socialSecurityNumber: "",
+          },
+          householdMembers: [],
+          householdQuestions: {
+            appliedWithDifferentInfo: "",
+            appliedWithDifferentInfoMembers: [],
+            appliedInOtherState: "",
+            appliedInOtherStateMembers: [],
+            receivedBenefitsBefore: "",
+            receivedBenefitsBeforeMembers: [],
+            receivingSNAPThisMonth: "",
+            receivingSNAPThisMonthMembers: [],
+            disqualifiedFromBenefits: "",
+            disqualifiedFromBenefitsMembers: [],
+            wantSomeoneElseToReceiveSNAP: "",
+            wantSomeoneElseToReceiveSNAPMembers: [],
+          },
+          incomeEmployment: { employment: [], income: [], expenses: [], taxFilingStatus: "" },
+          assets: { assets: [] },
+          healthDisability: {
+            healthInsurance: [],
+            disabilities: { hasDisabled: "" },
+            pregnancyInfo: { isPregnant: "" },
+            medicalConditions: { hasChronicConditions: "" },
+            needsNursingServices: "",
+          },
+        })
+        setCurrentStep(0)
       } finally {
+        console.log("[v0] 🏁 loadSavedProgress completed, setting isLoading to false")
         setIsLoading(false)
       }
     }
 
+    console.log("[v0] 🚀 Calling loadSavedProgress...")
     loadSavedProgress()
   }, [startFresh]) // Removed router dependency since we're not doing auth redirects here
 
   useEffect(() => {
-    if (!isLoading && !isInitializing) {
-      const autoSave = async () => {
-        try {
-          console.log("💾 Auto-saving progress...")
-          console.log("📊 Current step:", currentStep)
-          console.log("📋 Application data:", applicationData)
-          const result = await saveApplicationProgress(applicationData, currentStep)
-          console.log("💾 Save result:", result)
-        } catch (error) {
-          console.error("❌ Auto-save error:", error)
-        }
+    const autoSave = async () => {
+      try {
+        console.log("💾 Auto-saving progress...")
+        console.log("📊 Current step:", currentStep)
+        console.log("📋 Application data:", applicationData)
+        const result = await saveApplicationProgress(applicationData, currentStep)
+        console.log("💾 Save result:", result)
+      } catch (error) {
+        console.error("❌ Auto-save error:", error)
       }
-
-      const timeoutId = setTimeout(autoSave, 2000)
-      return () => clearTimeout(timeoutId)
     }
+
+    const timeoutId = setTimeout(autoSave, 2000)
+    return () => clearTimeout(timeoutId)
   }, [applicationData, currentStep, isLoading, isInitializing])
 
   useEffect(() => {
-    if (!isLoading && !isInitializing) {
-      const periodicSave = setInterval(async () => {
-        try {
-          console.log("⏰ Periodic auto-save...")
-          await saveApplicationProgress(applicationData, currentStep)
-        } catch (error) {
-          console.error("❌ Periodic save error:", error)
-        }
-      }, 30000)
+    const periodicSave = setInterval(async () => {
+      try {
+        console.log("⏰ Periodic auto-save...")
+        await saveApplicationProgress(applicationData, currentStep)
+      } catch (error) {
+        console.error("❌ Periodic save error:", error)
+      }
+    }, 30000)
 
-      return () => clearInterval(periodicSave)
-    }
+    return () => clearInterval(periodicSave)
   }, [applicationData, currentStep, isLoading, isInitializing])
 
   useEffect(() => {
@@ -682,32 +725,19 @@ export default function BenefitsApplicationClient() {
         wantSomeoneElseToReceiveSNAPMembers: [],
       },
       incomeEmployment: {
-        taxFilingStatus: "",
         employment: [],
         income: [],
         expenses: [],
-        housingExpenses: [],
+        taxFilingStatus: "",
       },
       assets: {
         assets: [],
       },
       healthDisability: {
         healthInsurance: [],
-        disabilities: {
-          hasDisabled: false,
-          needsLongTermCare: false,
-          hasIncarcerated: false,
-        },
-        pregnancyInfo: {
-          isPregnant: false,
-        },
-        medicalConditions: {
-          hasChronicConditions: false,
-          conditions: [],
-        },
-        medicalBills: {
-          hasRecentBills: false,
-        },
+        disabilities: { hasDisabled: "" },
+        pregnancyInfo: { isPregnant: "" },
+        medicalConditions: { hasChronicConditions: "" },
         needsNursingServices: "",
       },
     })
@@ -918,6 +948,21 @@ export default function BenefitsApplicationClient() {
     touchStartX.current = null
     touchStartY.current = null
   }
+
+  if (isLoading) {
+    console.log("[v0] ⏳ Component is loading...")
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading your application...</p>
+        </div>
+      </div>
+    )
+  }
+
+  console.log("[v0] 🎨 Rendering benefits application client")
+  console.log("[v0] 📊 Current state:", { currentStep, isLoading, isInitializing })
 
   return (
     <div className="min-h-screen bg-white">
