@@ -15,7 +15,12 @@ import { IncomeEmploymentForm } from "@/components/income-employment-form"
 import { AssetsForm } from "@/components/assets-form"
 import { HealthDisabilityForm } from "@/components/health-disability-form"
 import { ReviewSubmission } from "@/components/review-submission"
-import { saveApplicationProgress, loadApplicationProgress, clearApplicationProgress } from "@/lib/actions"
+import {
+  saveApplicationProgress,
+  loadApplicationProgress,
+  clearApplicationProgress,
+  getSubmittedApplications,
+} from "@/lib/actions"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter, useSearchParams } from "next/navigation"
 
@@ -210,7 +215,6 @@ export default function BenefitsApplicationClient() {
           setApplicationData(initialData)
           setCurrentStep(0)
 
-          const { getSubmittedApplications } = await import("@/lib/actions")
           const applicationsResult = await getSubmittedApplications()
           if (applicationsResult.data) {
             const submittedTypes = applicationsResult.data.map((app: any) => app.benefit_type)
@@ -236,7 +240,6 @@ export default function BenefitsApplicationClient() {
           console.log("ℹ️ No saved progress found, starting fresh")
         }
 
-        const { getSubmittedApplications } = await import("@/lib/actions")
         const applicationsResult = await getSubmittedApplications()
         if (applicationsResult.data) {
           const submittedTypes = applicationsResult.data.map((app: any) => app.benefit_type)
