@@ -570,6 +570,14 @@ export default function BenefitsApplicationClient() {
     }
   }
 
+  useEffect(() => {
+    ;(window as any).updateApplicationData = updateApplicationData
+
+    return () => {
+      delete (window as any).updateApplicationData
+    }
+  }, [])
+
   const nextStep = async () => {
     if (currentStep < STEPS.length - 1) {
       setIsTransitioning(true)

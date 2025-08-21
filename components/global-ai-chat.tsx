@@ -25,6 +25,9 @@ interface Message {
     subtype?: string
     prefill?: any
     params?: Record<string, string>
+    benefitType?: string
+    state?: string
+    nextStep?: number
   }
 }
 
@@ -76,6 +79,11 @@ export function GlobalAIChat() {
         textarea.style.overflowY = "hidden"
       }
     }
+  }
+
+  const handleSuggestionClick = (suggestion: string) => {
+    console.log("[v0] Handling suggestion click:", suggestion)
+    handleSendMessage(suggestion)
   }
 
   useEffect(() => {
@@ -209,13 +217,177 @@ export function GlobalAIChat() {
     }, 800)
   }
 
-  const handleSuggestionClick = (suggestion: string) => {
-    setInputValue(suggestion)
-    setShowSuggestions(false)
-    // Auto-send the suggestion
-    setTimeout(() => {
-      handleSendMessage(suggestion)
-    }, 100)
+  const handleFormAction = (action: any) => {
+    console.log("[v0] Handling form action:", action)
+
+    const updateApplicationData = (window as any).updateApplicationData
+    if (!updateApplicationData && action.type !== "fill_report_change") {
+      console.error("[v0] updateApplicationData function not available")
+      return
+    }
+
+    switch (action.type) {
+      case "select_benefit":
+        console.log("[v0] Selecting benefit:", action.benefitType)
+        updateApplicationData({ benefitType: action.benefitType })
+        break
+
+      case "select_state":
+        console.log("[v0] Selecting state:", action.state)
+        updateApplicationData({
+          state: action.state,
+          personalInfo: {
+            ...((window as any).applicationContext?.applicationData?.personalInfo || {}),
+            address: {
+              ...((window as any).applicationContext?.applicationData?.personalInfo?.address || {}),
+              state: action.state,
+            },
+          },
+        })
+        break
+
+      case "fill_personal_info":
+        console.log("[v0] Filling personal info:", action.fieldType, action.value)
+        const currentPersonalInfo = (window as any).applicationContext?.applicationData?.personalInfo || {}
+        const personalInfoUpdate: any = { personalInfo: { ...currentPersonalInfo } }
+
+        if (action.fieldType === "address") {
+          personalInfoUpdate.personalInfo.address = {
+            ...currentPersonalInfo.address,
+            street: action.value,
+          }
+        } else {
+          personalInfoUpdate.personalInfo[action.fieldType] = action.value
+        }
+
+        updateApplicationData(personalInfoUpdate)
+        break
+
+      case "fill_employment":
+        console.log("[v0] Filling employment:", action)
+        const currentIncomeEmployment = (window as any).applicationContext?.applicationData?.incomeEmployment || {}
+        const employmentUpdate = {
+          incomeEmployment: {
+            ...currentIncomeEmployment,
+            employment: [
+              ...(currentIncomeEmployment.employment || []),
+              {
+                memberName: "You",
+                status: action.status,
+                employer: action.employer || "",
+                jobTitle: "",
+                income: action.income || "",
+                hoursPerWeek: "",
+              },
+            ],
+          },
+        }
+        updateApplicationData(employmentUpdate)
+        break
+
+      case "fill_income":
+        console.log("[v0] Filling income:", action)
+        const currentIncomeData = (window as any).applicationContext?.applicationData?.incomeEmployment || {}
+        const incomeUpdate = {
+          incomeEmployment: {
+            ...currentIncomeData,
+            income: [
+              ...(currentIncomeData.income || []),
+              {
+                memberName: "You",
+                type: "other",
+                amount: Number.parseFloat(action.amount) || 0,
+                frequency: "monthly",
+              },
+            ],
+          },
+        }
+        updateApplicationData(incomeUpdate)
+        break
+
+      case "fill_assets":
+        console.log("[v0] Filling assets:", action)
+        const currentAssets = (window as any).applicationContext?.applicationData?.assets || {}
+        const assetUpdate = {
+          assets: {
+            ...currentAssets,
+            assets: [
+              ...(currentAssets.assets || []),
+              {
+                type: action.assetType,
+                description: action.assetType === "bank_account" ? "Bank Account" : "Vehicle",
+                value: Number.parseFloat(action.balance || action.value) || 0,
+                owner: "You",
+              },
+            ],
+          },
+        }
+        updateApplicationData(assetUpdate)
+        break
+
+      case "fill_health":
+        console.log("[v0] Filling health info:", action)
+        const currentHealth = (window as any).applicationContext?.applicationData?.healthDisability || {}
+        const healthUpdate: any = { healthDisability: { ...currentHealth } }
+
+        if (action.fieldType === "disability") {
+          healthUpdate.healthDisability.disabilities = {
+            ...currentHealth.disabilities,
+            hasDisabled: action.value === "yes",
+          }
+        } else if (action.fieldType === "pregnancy") {
+          healthUpdate.healthDisability.pregnancyInfo = {
+            ...currentHealth.pregnancyInfo,
+            isPregnant: action.value === "yes",
+            memberName: "You",
+          }
+        } else if (action.fieldType === "insurance") {
+          healthUpdate.healthDisability.healthInsurance = [
+            ...(currentHealth.healthInsurance || []),
+            {
+              memberName: "You",
+              hasInsurance: action.value === "yes",
+              provider: "",
+              policyNumber: "",
+              premium: 0,
+            },
+          ]
+        }
+
+        updateApplicationData(healthUpdate)
+        break
+
+      case "fill_household":
+        console.log("[v0] Filling household info:", action)
+        // Note: This would typically trigger the household management interface
+        // For now, we'll just acknowledge the input
+        break
+
+      case "fill_report_change":
+        console.log("[v0] Filling report change:", action)
+        // Navigate to the appropriate report changes form with pre-filled data
+        setTimeout(() => {
+          const prefillData = {
+            changeType: action.changeType,
+            details: action.details,
+            changeDate: new Date().toISOString().split("T")[0], // Today's date
+          }
+
+          handleNavigation(
+            "/account",
+            undefined,
+            `Taking you to report ${action.category.replace("-", " and ")} changes...`,
+            "report-changes",
+            action.category,
+            action.changeType,
+            prefillData,
+          )
+        }, 500)
+        break
+
+      default:
+        console.log("[v0] Unknown form action type:", action.type)
+    }
   }
 
   const handleSendMessage = async (messageText?: string) => {
@@ -305,6 +477,20 @@ export function GlobalAIChat() {
             data.action.prefill,
             data.action.params,
           )
+        }, 500)
+      } else if (
+        data.action?.type === "select_benefit" ||
+        data.action?.type === "select_state" ||
+        data.action?.type === "fill_personal_info" ||
+        data.action?.type === "fill_employment" ||
+        data.action?.type === "fill_income" ||
+        data.action?.type === "fill_assets" ||
+        data.action?.type === "fill_health" ||
+        data.action?.type === "fill_household" ||
+        data.action?.type === "fill_report_change"
+      ) {
+        setTimeout(() => {
+          handleFormAction(data.action)
         }, 500)
       }
     } catch (error) {
