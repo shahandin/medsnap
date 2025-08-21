@@ -147,6 +147,23 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
     const userId = userData.id
     console.log("[v0] ✅ User ID retrieved:", userId)
 
+    console.log("[v0] 🔍 Checking if progress record exists...")
+    const checkResponse = await fetch(
+      `${supabaseUrl}/rest/v1/application_progress?user_id=eq.${userId}&select=user_id`,
+      {
+        headers: {
+          apikey: supabaseAnonKey,
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      },
+    )
+
+    const existingRecords = await checkResponse.json()
+    const recordExists = existingRecords && existingRecords.length > 0
+
+    console.log("[v0] 📊 Record exists:", recordExists)
+
     const saveData = {
       user_id: userId,
       application_data: applicationData,
@@ -154,17 +171,36 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
       updated_at: new Date().toISOString(),
     }
 
-    console.log("[v0] 💾 Attempting to save to database...")
-    const response = await fetch(`${supabaseUrl}/rest/v1/application_progress`, {
-      method: "POST",
-      headers: {
-        apikey: supabaseAnonKey,
-        Authorization: `Bearer ${accessToken}`,
-        "Content-Type": "application/json",
-        Prefer: "resolution=merge-duplicates",
-      },
-      body: JSON.stringify(saveData),
-    })
+    let response
+    if (recordExists) {
+      // Update existing record
+      console.log("[v0] 🔄 Updating existing record...")
+      response = await fetch(`${supabaseUrl}/rest/v1/application_progress?user_id=eq.${userId}`, {
+        method: "PATCH",
+        headers: {
+          apikey: supabaseAnonKey,
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          application_data: applicationData,
+          current_step: currentStep,
+          updated_at: new Date().toISOString(),
+        }),
+      })
+    } else {
+      // Insert new record
+      console.log("[v0] ➕ Inserting new record...")
+      response = await fetch(`${supabaseUrl}/rest/v1/application_progress`, {
+        method: "POST",
+        headers: {
+          apikey: supabaseAnonKey,
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(saveData),
+      })
+    }
 
     if (response.ok) {
       console.log("[v0] ✅ Application progress saved successfully")
