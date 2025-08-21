@@ -128,9 +128,57 @@ export async function POST(request: NextRequest) {
       })
     }
 
+    const isInformationalQuestion =
+      /^(what|how|when|where|why|which|can you tell me|do you know|is there|are there|does this|explain|describe|will i)/i.test(
+        message.trim(),
+      ) ||
+      /\b(what (states?|features?|benefits?|documents?)|which states?|how (does|do)|tell me about|social security|refugee|asylum)\b/i.test(
+        message.toLowerCase(),
+      )
+
+    if (isInformationalQuestion) {
+      let informationalResponse = ""
+
+      if (/social security.*refugee|refugee.*social security|ssn.*refugee|refugee.*ssn/i.test(message)) {
+        informationalResponse =
+          "As a refugee, you may be eligible for a Social Security Number (SSN). Refugees who are authorized to work in the US can apply for an SSN at a Social Security Administration office. You'll need your refugee documentation (I-94 with refugee stamp or other USCIS documents) and identification. Having an SSN will help with benefit applications, employment, and other services. If you don't have an SSN yet, some benefit applications may still be processed using alternative documentation."
+      } else if (/states?.*covered|states?.*work|which states?|what states?/i.test(message)) {
+        informationalResponse =
+          "This benefits application platform works for all 50 US states. You can select your state during the application process, and the system will provide state-specific requirements and processing information for your Medicaid and SNAP applications."
+      } else if (/features?|what.*do|what.*have|capabilities/i.test(message)) {
+        informationalResponse =
+          "This platform offers several key features: 1) Apply for Medicaid and SNAP benefits with step-by-step guidance, 2) Save your progress and return later, 3) Get help with required documents and eligibility, 4) Report life changes to existing benefits, 5) Track your application status, and 6) Access your account dashboard with notifications and document management."
+      } else if (/documents?.*need|what.*bring|required.*documents?/i.test(message)) {
+        informationalResponse =
+          "Required documents typically include: ID (driver's license or state ID), Social Security cards for all household members, proof of income (pay stubs, tax returns), bank statements, rent/mortgage receipts, and utility bills. The exact requirements may vary by state and benefit type."
+      } else if (/eligibility|qualify|eligible/i.test(message)) {
+        informationalResponse =
+          "Eligibility is based on household size, income, assets, and other factors. Generally, SNAP serves households at or below 130% of federal poverty guidelines, while Medicaid eligibility varies by state. The application will help determine your specific eligibility."
+      } else if (/how.*long|processing.*time|when.*approved/i.test(message)) {
+        informationalResponse =
+          "Processing times vary by state and benefit type. SNAP applications are typically processed within 30 days, while Medicaid can take 45-90 days. Emergency SNAP benefits may be available within 7 days for qualifying households."
+      }
+
+      if (informationalResponse) {
+        if (user && sessionId) {
+          try {
+            await saveChatMessage(user.id, sessionId, "user", message, context)
+            await saveChatMessage(user.id, sessionId, "assistant", informationalResponse)
+          } catch (error) {
+            console.error("[v0] Chat API: Error saving informational exchange:", error)
+          }
+        }
+
+        return NextResponse.json({
+          message: informationalResponse,
+          action: null,
+        })
+      }
+    }
+
     const appContext = context?.applicationContext
 
-    if (appContext && !isSimpleNavigationRequest) {
+    if (appContext && !isSimpleNavigationRequest && !isInformationalQuestion) {
       const intelligentResponse = generateIntelligentResponse(message, appContext)
       if (intelligentResponse && intelligentResponse.type !== "generic") {
         // Avoid generic responses
@@ -165,51 +213,6 @@ export async function POST(request: NextRequest) {
           message: responseContent,
           action: intelligentResponse.navigationSuggestion || null,
           responseType: intelligentResponse.type,
-        })
-      }
-    }
-
-    const isInformationalQuestion =
-      /^(what|how|when|where|why|which|can you tell me|do you know|is there|are there|does this|explain|describe)/i.test(
-        message.trim(),
-      ) ||
-      /\b(what (states?|features?|benefits?|documents?)|which states?|how (does|do)|tell me about)\b/i.test(
-        message.toLowerCase(),
-      )
-
-    if (isInformationalQuestion) {
-      let informationalResponse = ""
-
-      if (/states?.*covered|states?.*work|which states?|what states?/i.test(message)) {
-        informationalResponse =
-          "This benefits application platform works for all 50 US states. You can select your state during the application process, and the system will provide state-specific requirements and processing information for your Medicaid and SNAP applications."
-      } else if (/features?|what.*do|what.*have|capabilities/i.test(message)) {
-        informationalResponse =
-          "This platform offers several key features: 1) Apply for Medicaid and SNAP benefits with step-by-step guidance, 2) Save your progress and return later, 3) Get help with required documents and eligibility, 4) Report life changes to existing benefits, 5) Track your application status, and 6) Access your account dashboard with notifications and document management."
-      } else if (/documents?.*need|what.*bring|required.*documents?/i.test(message)) {
-        informationalResponse =
-          "Required documents typically include: ID (driver's license or state ID), Social Security cards for all household members, proof of income (pay stubs, tax returns), bank statements, rent/mortgage receipts, and utility bills. The exact requirements may vary by state and benefit type."
-      } else if (/eligibility|qualify|eligible/i.test(message)) {
-        informationalResponse =
-          "Eligibility is based on household size, income, assets, and other factors. Generally, SNAP serves households at or below 130% of federal poverty guidelines, while Medicaid eligibility varies by state. The application will help determine your specific eligibility."
-      } else if (/how.*long|processing.*time|when.*approved/i.test(message)) {
-        informationalResponse =
-          "Processing times vary by state and benefit type. SNAP applications are typically processed within 30 days, while Medicaid can take 45-90 days. Emergency SNAP benefits may be available within 7 days for qualifying households."
-      }
-
-      if (informationalResponse) {
-        if (user && sessionId) {
-          try {
-            await saveChatMessage(user.id, sessionId, "user", message, context)
-            await saveChatMessage(user.id, sessionId, "assistant", informationalResponse)
-          } catch (error) {
-            console.error("[v0] Chat API: Error saving informational exchange:", error)
-          }
-        }
-
-        return NextResponse.json({
-          message: informationalResponse,
-          action: null,
         })
       }
     }
