@@ -107,22 +107,29 @@ export async function signOut() {
 
 export async function saveApplicationProgress(applicationData: any, currentStep: number, applicationId?: string) {
   try {
+    console.log("[v0] 🔄 Starting saveApplicationProgress...")
+    console.log("[v0] 📊 Data to save:", { currentStep, hasApplicationData: !!applicationData, applicationId })
+
     const cookieStore = cookies()
     const accessToken = cookieStore.get("sb-access-token")?.value
 
     if (!accessToken) {
-      console.log("No access token found, skipping save")
+      console.log("[v0] ❌ No access token found, skipping save")
       return { success: false, error: "Not authenticated" }
     }
+
+    console.log("[v0] ✅ Access token found, proceeding with save")
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
     if (!supabaseUrl || !supabaseAnonKey) {
+      console.log("[v0] ❌ Supabase configuration missing")
       throw new Error("Supabase configuration missing")
     }
 
     // First, try to get the user ID from the token
+    console.log("[v0] 🔍 Fetching user data from token...")
     const userResponse = await fetch(`${supabaseUrl}/auth/v1/user`, {
       headers: {
         apikey: supabaseAnonKey,
@@ -132,15 +139,23 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
     })
 
     if (!userResponse.ok) {
+      console.log("[v0] ❌ Failed to get user, status:", userResponse.status)
       return { success: false, error: "Failed to get user" }
     }
 
     const userData = await userResponse.json()
     const userId = userData.id
+    console.log("[v0] ✅ User ID retrieved:", userId)
 
-    const finalApplicationId = applicationId || `draft_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    const saveData = {
+      user_id: userId,
+      application_data: applicationData,
+      current_step: currentStep,
+      updated_at: new Date().toISOString(),
+    }
 
-    const response = await fetch(`${supabaseUrl}/rest/v1/application_progress?on_conflict=user_id,application_id`, {
+    console.log("[v0] 💾 Attempting to save to database...")
+    const response = await fetch(`${supabaseUrl}/rest/v1/application_progress`, {
       method: "POST",
       headers: {
         apikey: supabaseAnonKey,
@@ -148,51 +163,48 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
         "Content-Type": "application/json",
         Prefer: "resolution=merge-duplicates",
       },
-      body: JSON.stringify({
-        user_id: userId,
-        application_id: finalApplicationId,
-        application_data: applicationData,
-        current_step: currentStep,
-        updated_at: new Date().toISOString(),
-      }),
+      body: JSON.stringify(saveData),
     })
 
     if (response.ok) {
-      console.log("✅ Application progress saved successfully")
-      return { success: true, applicationId: finalApplicationId }
+      console.log("[v0] ✅ Application progress saved successfully")
+      return { success: true }
     } else {
       const error = await response.text()
-      console.error("❌ Failed to save progress:", error)
+      console.log("[v0] ❌ Database save failed, status:", response.status)
+      console.log("[v0] ❌ Error details:", error)
       return { success: false, error }
     }
   } catch (error) {
-    console.error("❌ Error saving application progress:", error)
+    console.error("[v0] ❌ Exception in saveApplicationProgress:", error)
     return { success: false, error: error instanceof Error ? error.message : "Unknown error" }
   }
 }
 
 export async function loadApplicationProgress(applicationId?: string) {
   try {
+    console.log("[v0] 🔄 Starting loadApplicationProgress...")
+
     const cookieStore = cookies()
     const accessToken = cookieStore.get("sb-access-token")?.value
 
     if (!accessToken) {
+      console.log("[v0] ❌ No access token found for loading")
       return { data: null }
     }
+
+    console.log("[v0] ✅ Access token found for loading")
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
     if (!supabaseUrl || !supabaseAnonKey) {
+      console.log("[v0] ❌ Supabase configuration missing for loading")
       throw new Error("Supabase configuration missing")
     }
 
-    let queryUrl = `${supabaseUrl}/rest/v1/application_progress?select=*&order=updated_at.desc`
-    if (applicationId) {
-      queryUrl += `&application_id=eq.${applicationId}`
-    } else {
-      queryUrl += `&limit=1`
-    }
+    const queryUrl = `${supabaseUrl}/rest/v1/application_progress?select=*&limit=1`
+    console.log("[v0] 🔍 Querying database for saved progress...")
 
     const response = await fetch(queryUrl, {
       headers: {
@@ -204,21 +216,34 @@ export async function loadApplicationProgress(applicationId?: string) {
 
     if (response.ok) {
       const data = await response.json()
+      console.log("[v0] 📊 Database query successful, records found:", data?.length || 0)
+
       if (data && data.length > 0) {
-        console.log("✅ Application progress loaded successfully")
+        console.log("[v0] ✅ Application progress loaded successfully")
+        console.log(
+          "[v0] 📋 Loaded data - Step:",
+          data[0].current_step,
+          "Has application data:",
+          !!data[0].application_data,
+        )
         return {
           data: {
             applicationData: data[0].application_data,
             currentStep: data[0].current_step,
-            applicationId: data[0].application_id,
           },
         }
+      } else {
+        console.log("[v0] ℹ️ No saved progress found")
       }
+    } else {
+      console.log("[v0] ❌ Database query failed, status:", response.status)
+      const error = await response.text()
+      console.log("[v0] ❌ Query error details:", error)
     }
 
     return { data: null }
   } catch (error) {
-    console.error("❌ Error loading application progress:", error)
+    console.error("[v0] ❌ Exception in loadApplicationProgress:", error)
     return { data: null }
   }
 }
@@ -236,13 +261,11 @@ export async function clearApplicationProgress(applicationId?: string) {
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
     if (!supabaseUrl || !supabaseAnonKey) {
+      console.log("[v0] ❌ Supabase configuration missing")
       throw new Error("Supabase configuration missing")
     }
 
-    let deleteUrl = `${supabaseUrl}/rest/v1/application_progress`
-    if (applicationId) {
-      deleteUrl += `?application_id=eq.${applicationId}`
-    }
+    const deleteUrl = `${supabaseUrl}/rest/v1/application_progress`
 
     const response = await fetch(deleteUrl, {
       method: "DELETE",
@@ -254,15 +277,16 @@ export async function clearApplicationProgress(applicationId?: string) {
     })
 
     if (response.ok) {
-      console.log("✅ Application progress cleared successfully")
+      console.log("[v0] ✅ Application progress cleared successfully")
       return { success: true }
     } else {
       const error = await response.text()
-      console.error("❌ Failed to clear progress:", error)
+      console.log("[v0] ❌ Failed to clear progress, status:", response.status)
+      console.log("[v0] ❌ Error details:", error)
       return { success: false, error }
     }
   } catch (error) {
-    console.error("❌ Error clearing application progress:", error)
+    console.error("[v0] ❌ Error clearing application progress:", error)
     return { success: false, error: error instanceof Error ? error.message : "Unknown error" }
   }
 }
