@@ -76,6 +76,50 @@ const supabase = {
       }
     },
   },
+
+  // Mock database operations for demo
+  from: (table: string) => ({
+    select: (columns = "*") => ({
+      order: (column: string, options?: { ascending: boolean }) => ({
+        then: (resolve: (result: { data: any[]; error: null }) => void) => {
+          // Return mock data for documents table
+          if (table === "documents") {
+            const mockDocuments = JSON.parse(localStorage.getItem("demo_documents") || "[]")
+            resolve({ data: mockDocuments, error: null })
+          } else {
+            resolve({ data: [], error: null })
+          }
+        },
+      }),
+      then: (resolve: (result: { data: any[]; error: null }) => void) => {
+        if (table === "documents") {
+          const mockDocuments = JSON.parse(localStorage.getItem("demo_documents") || "[]")
+          resolve({ data: mockDocuments, error: null })
+        } else {
+          resolve({ data: [], error: null })
+        }
+      },
+    }),
+
+    insert: (data: any) => ({
+      then: (resolve: (result: { data: any; error: null }) => void) => {
+        // Store in localStorage for demo
+        if (table === "documents") {
+          const existingDocs = JSON.parse(localStorage.getItem("demo_documents") || "[]")
+          const newDoc = {
+            ...data,
+            id: Date.now().toString(),
+            uploaded_at: new Date().toISOString(),
+          }
+          existingDocs.push(newDoc)
+          localStorage.setItem("demo_documents", JSON.stringify(existingDocs))
+          resolve({ data: newDoc, error: null })
+        } else {
+          resolve({ data: data, error: null })
+        }
+      },
+    }),
+  }),
 }
 
 const createClient = () => supabase
