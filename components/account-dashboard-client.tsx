@@ -252,27 +252,48 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
 
   const handleDocumentUpload = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!selectedDocumentType || !uploadedFile) return
+    console.log("[v0] Starting document upload process")
+    console.log("[v0] Selected document type:", selectedDocumentType)
+    console.log("[v0] Uploaded file:", uploadedFile)
+    console.log("[v0] User:", user)
+
+    if (!selectedDocumentType || !uploadedFile) {
+      console.log("[v0] Missing required fields - document type or file")
+      return
+    }
 
     setIsUploading(true)
     try {
+      console.log("[v0] Creating Supabase client")
       const supabase = createClient()
 
-      const { data, error } = await supabase.from("documents").insert({
+      console.log("[v0] Attempting to insert document record")
+      const insertData = {
         user_id: user.id,
         document_type: selectedDocumentType,
         file_name: uploadedFile.name,
         file_size: uploadedFile.size,
         file_url: null, // No actual file storage for demo
-      })
+      }
+      console.log("[v0] Insert data:", insertData)
 
-      if (error) throw error
+      const { data, error } = await supabase.from("documents").insert(insertData)
 
+      console.log("[v0] Insert result - data:", data)
+      console.log("[v0] Insert result - error:", error)
+
+      if (error) {
+        console.log("[v0] Database error details:", error)
+        throw error
+      }
+
+      console.log("[v0] Document upload successful")
       setUploadSuccess(true)
       setSelectedDocumentType("")
       setUploadedFile(null)
 
       // Reload document history
+      console.log("[v0] Reloading document history")
       await loadDocumentHistory()
 
       // Reset success message after 3 seconds
@@ -280,7 +301,7 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
         setUploadSuccess(false)
       }, 3000)
     } catch (error) {
-      console.error("Error uploading document:", error)
+      console.error("[v0] Error uploading document:", error)
       alert("Failed to upload document. Please try again.")
     } finally {
       setIsUploading(false)
