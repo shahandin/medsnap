@@ -258,14 +258,29 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
     try {
       const supabase = createClient()
 
-      // For now, we'll store document metadata without actual file storage
-      // In a real implementation, you'd upload to Supabase Storage first
+      const fileExt = uploadedFile.name.split(".").pop()
+      const fileName = `${user.id}/${selectedDocumentType}/${Date.now()}.${fileExt}`
+
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from("documents")
+        .upload(fileName, uploadedFile)
+
+      if (uploadError) {
+        console.error("Storage upload error:", uploadError)
+        throw uploadError
+      }
+
+      // Get the public URL for the uploaded file
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from("documents").getPublicUrl(fileName)
+
       const { data, error } = await supabase.from("documents").insert({
         user_id: user.id,
         document_type: selectedDocumentType,
         file_name: uploadedFile.name,
         file_size: uploadedFile.size,
-        file_url: null, // Would be the storage URL in real implementation
+        file_url: publicUrl, // Now storing the actual storage URL
       })
 
       if (error) throw error
@@ -283,6 +298,7 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
       }, 3000)
     } catch (error) {
       console.error("Error uploading document:", error)
+      alert("Failed to upload document. Please try again.")
     } finally {
       setIsUploading(false)
     }
