@@ -66,7 +66,7 @@ function SignUpForm() {
   }
 
   return (
-    <div className="w-full max-w-md space-y-8">
+    <div className="w-full max-w-md space-y-8 bg-card p-8 rounded-xl shadow-lg border">
       <div className="space-y-2 text-center">
         <h1 className="text-3xl font-heading font-bold text-foreground">Create your account</h1>
       </div>
