@@ -69,7 +69,6 @@ function SignUpForm() {
     <div className="w-full max-w-md space-y-8 bg-white/95 backdrop-blur-sm p-8 rounded-2xl shadow-xl border border-border/50">
       <div className="space-y-2 text-center">
         <h1 className="text-3xl font-heading font-bold text-foreground">Create your account</h1>
-        <p className="text-muted-foreground">Get started with your benefits application</p>
       </div>
 
       <form action={handleSubmit} className="space-y-6">
