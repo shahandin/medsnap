@@ -56,7 +56,6 @@ export function GlobalAIChat() {
   const [isNavigating, setIsNavigating] = useState(false)
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [contextualSuggestions, setContextualSuggestions] = useState<string[]>([])
-  const [hasNewProactiveMessage, setHasNewProactiveMessage] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
   const pathname = usePathname()
@@ -95,40 +94,11 @@ export function GlobalAIChat() {
   }, [inputValue])
 
   useEffect(() => {
-    const proactiveManager = getProactiveAssistanceManager()
-
-    // Listen for proactive messages
-    const handleProactiveMessage = (event: CustomEvent) => {
-      const proactiveMsg = event.detail as ProactiveMessage
-
-      const message: Message = {
-        id: `proactive_${Date.now()}`,
-        content: proactiveMsg.content,
-        role: "assistant",
-        timestamp: new Date(),
-        isProactive: true,
-      }
-
-      setMessages((prev) => [...prev, message])
-      setHasNewProactiveMessage(true)
-
-      // Auto-open chat for high priority messages
-      if (proactiveMsg.priority === "high" && !isOpen) {
-        setIsOpen(true)
-      }
-    }
-
-    window.addEventListener("proactiveMessage", handleProactiveMessage as EventListener)
-
-    // Update contextual suggestions based on application context
     const updateSuggestions = () => {
       const appContext = (window as any).applicationContext
       if (appContext) {
         const suggestions = generateContextualSuggestions(appContext)
         setContextualSuggestions(suggestions)
-
-        // Update proactive manager with current validation errors
-        proactiveManager.updateValidationErrors(appContext.validationErrors || [])
       }
     }
 
@@ -136,21 +106,14 @@ export function GlobalAIChat() {
     const interval = setInterval(updateSuggestions, 5000) // Update every 5 seconds
 
     return () => {
-      window.removeEventListener("proactiveMessage", handleProactiveMessage as EventListener)
       clearInterval(interval)
     }
-  }, [isOpen])
+  }, [])
 
   useEffect(() => {
     const proactiveManager = getProactiveAssistanceManager()
     proactiveManager.recordPageChange()
   }, [pathname])
-
-  useEffect(() => {
-    if (isOpen) {
-      setHasNewProactiveMessage(false)
-    }
-  }, [isOpen])
 
   const handleNavigation = (
     destination: string,
@@ -532,7 +495,7 @@ export function GlobalAIChat() {
     <>
       <Button
         onClick={() => setIsOpen(!isOpen)}
-        className={`fixed bottom-4 right-4 sm:bottom-6 sm:right-6 h-14 w-14 sm:h-16 sm:w-16 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 z-50 bg-primary hover:bg-primary/90 ${hasNewProactiveMessage ? "animate-pulse ring-4 ring-primary/30" : ""}`}
+        className={`fixed bottom-4 right-4 sm:bottom-6 sm:right-6 h-14 w-14 sm:h-16 sm:w-16 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 z-50 bg-primary hover:bg-primary/90`}
         size="icon"
         disabled={isNavigating}
       >
@@ -541,14 +504,7 @@ export function GlobalAIChat() {
         ) : isOpen ? (
           <X className="h-6 w-6 sm:h-7 sm:w-7" />
         ) : (
-          <>
-            <MessageCircle className="h-6 w-6 sm:h-7 sm:w-7" />
-            {hasNewProactiveMessage && (
-              <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
-                <div className="w-2 h-2 bg-white rounded-full"></div>
-              </div>
-            )}
-          </>
+          <MessageCircle className="h-6 w-6 sm:h-7 sm:w-7" />
         )}
       </Button>
 
@@ -614,18 +570,14 @@ export function GlobalAIChat() {
               >
                 {message.role === "assistant" && (
                   <div
-                    className={`flex-shrink-0 w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center ${message.isProactive ? "bg-orange-500" : "bg-primary"}`}
+                    className={`flex-shrink-0 w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center bg-primary`}
                   >
                     <Bot className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                   </div>
                 )}
                 <div
                   className={`max-w-[80%] sm:max-w-[75%] p-3 sm:p-3 rounded-lg ${
-                    message.role === "user"
-                      ? "bg-primary text-primary-foreground ml-auto"
-                      : message.isProactive
-                        ? "bg-orange-50 border border-orange-200"
-                        : "bg-muted"
+                    message.role === "user" ? "bg-primary text-primary-foreground ml-auto" : "bg-muted"
                   }`}
                 >
                   <p className="text-sm sm:text-sm whitespace-pre-wrap leading-relaxed">{message.content}</p>
