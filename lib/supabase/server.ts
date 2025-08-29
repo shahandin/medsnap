@@ -54,8 +54,23 @@ export async function createServerClient() {
   return createClient()
 }
 
-export const isSupabaseConfigured =
-  typeof process.env.NEXT_PUBLIC_SUPABASE_URL === "string" &&
-  process.env.NEXT_PUBLIC_SUPABASE_URL.length > 0 &&
-  typeof process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY === "string" &&
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY.length > 0
+export const isSupabaseConfigured = (() => {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+  console.log("[v0] Supabase config check:", {
+    hasUrl: !!supabaseUrl,
+    hasKey: !!supabaseKey,
+    urlLength: supabaseUrl?.length || 0,
+    keyLength: supabaseKey?.length || 0,
+  })
+
+  const configured =
+    typeof supabaseUrl === "string" &&
+    supabaseUrl.length > 0 &&
+    typeof supabaseKey === "string" &&
+    supabaseKey.length > 0
+
+  console.log("[v0] isSupabaseConfigured result:", configured)
+  return configured
+})()
