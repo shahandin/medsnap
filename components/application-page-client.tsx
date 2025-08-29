@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import BenefitsApplicationClient from "@/components/benefits-application-client"
+import { createClient } from "@/lib/supabase/client"
 
 export function ApplicationPageClient() {
   const [user, setUser] = useState(null)
@@ -14,21 +15,23 @@ export function ApplicationPageClient() {
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
   const searchParams = useSearchParams()
-  const startFresh = searchParams.get("fresh") === "true"
+
+  const fresh = searchParams.get("fresh") === "true"
+  const continueId = searchParams.get("continue")
+  const startFresh = fresh || !!continueId
 
   console.log("[v0] 🔄 ApplicationPageClient - URL search params:", Object.fromEntries(searchParams.entries()))
-  console.log("[v0] 🔄 ApplicationPageClient - startFresh value:", startFresh)
+  console.log("[v0] 🔄 ApplicationPageClient - fresh:", fresh, "continueId:", continueId, "startFresh:", startFresh)
 
   useEffect(() => {
-    const checkAuth = async () => {
+    const checkAuthAndRoute = async () => {
       try {
         console.log("[v0] 🔍 Checking authentication...")
         const response = await fetch("/api/auth/user", {
-          credentials: "include", // Include cookies in the request
+          credentials: "include",
         })
 
         console.log("[v0] 📡 Auth API response status:", response.status)
-        console.log("[v0] 📡 Auth API response ok:", response.ok)
 
         if (response.ok) {
           const userData = await response.json()
@@ -36,13 +39,10 @@ export function ApplicationPageClient() {
           if (userData.user) {
             console.log("[v0] ✅ User authenticated, setting user state")
             setUser(userData.user)
-            setLoading(false)
+
+            await handleRouting(userData.user)
             return
-          } else {
-            console.log("[v0] ❌ No user in response data")
           }
-        } else {
-          console.log("[v0] ❌ Auth API response not ok")
         }
       } catch (error) {
         console.error("[v0] ❌ Auth check failed with error:", error)
@@ -55,14 +55,56 @@ export function ApplicationPageClient() {
       router.push("/signin")
     }
 
+    const handleRouting = async (user: any) => {
+      try {
+        // If user has specific parameters, proceed directly
+        if (fresh || continueId) {
+          console.log("[v0] 🎯 Direct routing - fresh:", fresh, "continueId:", continueId)
+          setLoading(false)
+          return
+        }
+
+        // Check user's application state to determine routing
+        console.log("[v0] 🔍 Checking user application state...")
+        const supabase = createClient()
+
+        const { data: incompleteApps, error: progressError } = await supabase
+          .from("application_progress")
+          .select("*")
+          .eq("user_id", user.id)
+
+        if (progressError) {
+          console.error("[v0] ❌ Error checking incomplete applications:", progressError)
+          setLoading(false)
+          return
+        }
+
+        console.log("[v0] 📊 Found incomplete applications:", incompleteApps?.length || 0)
+
+        // If user has incomplete applications, redirect to choice page
+        if (incompleteApps && incompleteApps.length > 0) {
+          console.log("[v0] 🔄 User has incomplete applications, redirecting to choice page")
+          router.push("/application-choice")
+          return
+        }
+
+        // If no incomplete applications, start fresh
+        console.log("[v0] 🎯 No incomplete applications, starting fresh")
+        setLoading(false)
+      } catch (error) {
+        console.error("[v0] ❌ Error in routing logic:", error)
+        setLoading(false)
+      }
+    }
+
     try {
-      checkAuth()
+      checkAuthAndRoute()
     } catch (error) {
       console.error("[v0] ❌ Critical error in auth check:", error)
       setError(`Critical authentication error: ${error.message}`)
       setLoading(false)
     }
-  }, [router])
+  }, [router, fresh, continueId])
 
   if (loading) {
     return (
@@ -92,14 +134,19 @@ export function ApplicationPageClient() {
     return null // Will redirect to signin
   }
 
-  console.log("[v0] 🎯 About to render BenefitsApplicationClient with startFresh:", startFresh)
+  console.log(
+    "[v0] 🎯 About to render BenefitsApplicationClient with startFresh:",
+    startFresh,
+    "continueId:",
+    continueId,
+  )
 
   return (
     <div className="min-h-screen flex flex-col">
       <SiteHeader user={user} />
       <main className="flex-1">
         <ErrorBoundary>
-          <BenefitsApplicationClient startFresh={startFresh} />
+          <BenefitsApplicationClient startFresh={startFresh} continueId={continueId} />
         </ErrorBoundary>
       </main>
       <SiteFooter />
@@ -108,10 +155,10 @@ export function ApplicationPageClient() {
 }
 
 class ErrorBoundary extends React.Component<
-  { children: React.ReactNode; startFresh: boolean },
+  { children: React.ReactNode; startFresh: boolean; continueId: string | null },
   { hasError: boolean; error: Error | null }
 > {
-  constructor(props: { children: React.ReactNode; startFresh: boolean }) {
+  constructor(props: { children: React.ReactNode; startFresh: boolean; continueId: string | null }) {
     super(props)
     this.state = { hasError: false, error: null }
   }

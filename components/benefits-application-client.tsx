@@ -14,12 +14,7 @@ import { IncomeEmploymentForm } from "@/components/income-employment-form"
 import { AssetsForm } from "@/components/assets-form"
 import { HealthDisabilityForm } from "@/components/health-disability-form"
 import { ReviewSubmission } from "@/components/review-submission"
-import {
-  saveApplicationProgress,
-  loadApplicationProgress,
-  clearApplicationProgress,
-  getSubmittedApplications,
-} from "@/lib/actions"
+import { saveApplicationProgress, clearApplicationProgress } from "@/lib/actions"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter, useSearchParams } from "next/navigation"
 
@@ -39,8 +34,11 @@ const STEPS = [
   { id: "review", title: "Review & Submit", description: "Review your application" },
 ]
 
-export default function BenefitsApplicationClient({ startFresh = false }: { startFresh?: boolean }) {
-  console.log("[v0] 🎯 BenefitsApplicationClient initialized with startFresh:", startFresh)
+export default function BenefitsApplicationClient({
+  startFresh = false,
+  continueId = null,
+}: { startFresh?: boolean; continueId?: string | null }) {
+  console.log("[v0] 🎯 BenefitsApplicationClient initialized with startFresh:", startFresh, "continueId:", continueId)
 
   const [currentStep, setCurrentStep] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
@@ -107,6 +105,9 @@ export default function BenefitsApplicationClient({ startFresh = false }: { star
       medicalBills: { hasRecentBills: false },
       needsNursingServices: "",
     },
+    additionalInfo: {
+      additionalInfo: "",
+    },
   })
   const stepParam = searchParams.get("step")
   const [applicationId, setApplicationId] = useState<string | null>(null)
@@ -126,16 +127,16 @@ export default function BenefitsApplicationClient({ startFresh = false }: { star
   useEffect(() => {
     const loadSavedProgress = async () => {
       try {
-        console.log("[v0] 🔄 Starting loadSavedProgress...")
-        console.log("[v0] 📊 Current state - isLoading:", isLoading, "startFresh:", startFresh)
+        console.log("[v0] 🔄 Loading saved progress...")
+        setIsLoading(true)
 
-        let supabase
-        try {
-          supabase = createClient()
-          console.log("[v0] ✅ Supabase client created successfully")
-        } catch (supabaseError) {
-          console.error("[v0] ❌ Failed to create Supabase client:", supabaseError)
-          console.log("[v0] ⚠️ Continuing without Supabase client")
+        const supabase = createClient()
+        const {
+          data: { user },
+        } = await supabase.auth.getUser()
+
+        if (!user) {
+          console.log("[v0] ❌ No user found")
           setIsLoading(false)
           return
         }
@@ -205,120 +206,92 @@ export default function BenefitsApplicationClient({ startFresh = false }: { star
               medicalBills: { hasRecentBills: false },
               needsNursingServices: "",
             },
+            additionalInfo: {
+              additionalInfo: "",
+            },
           }
 
-          console.log("[v0] 📋 Setting initial application data:", initialData)
-          console.log("[v0] 🔄 Setting currentStep to 0 and applicationId to null")
+          console.log("[v0] 🎯 Setting initial data for fresh start")
           setApplicationData(initialData)
           setCurrentStep(0)
           setApplicationId(null)
           setIsInitializing(false)
-          console.log("[v0] ✅ Fresh application initialized successfully")
+          setIsLoading(false)
+          return
+        }
+
+        if (continueId) {
+          console.log("[v0] 🔄 Loading specific application to continue:", continueId)
+
+          const { data: specificApp, error: specificError } = await supabase
+            .from("application_progress")
+            .select("*")
+            .eq("id", continueId)
+            .eq("user_id", user.id)
+            .single()
+
+          if (specificError) {
+            console.error("[v0] ❌ Error loading specific application:", specificError)
+            setIsLoading(false)
+            return
+          }
+
+          if (specificApp) {
+            console.log("[v0] ✅ Found specific application to continue:", specificApp)
+            setApplicationData(specificApp.application_data)
+            setCurrentStep(specificApp.current_step)
+            setApplicationId(specificApp.id)
+            setSubmittedApplications(specificApp.submitted_applications || [])
+            setIsLoading(false)
+            return
+          } else {
+            console.log("[v0] ⚠️ Specific application not found, starting fresh")
+          }
+        }
+
+        console.log("[v0] 🔍 Loading any existing application progress...")
+        const { data: savedProgress, error } = await supabase
+          .from("application_progress")
+          .select("*")
+          .eq("user_id", user.id)
+          .order("updated_at", { ascending: false })
+          .limit(1)
+
+        if (error) {
+          console.error("[v0] ❌ Error loading application progress:", error)
+          setIsLoading(false)
+          return
+        }
+
+        if (savedProgress && savedProgress.length > 0) {
+          const progress = savedProgress[0]
+          console.log("[v0] ✅ Found saved progress, restoring...")
+          console.log("[v0] 📊 Saved progress data:", progress)
+
+          setApplicationData(progress.application_data)
+          setCurrentStep(progress.current_step)
+          setApplicationId(progress.id)
+          setSubmittedApplications(progress.submitted_applications || [])
         } else {
-          console.log("[v0] 📂 Loading existing progress...")
-
-          try {
-            const savedProgress = await loadApplicationProgress()
-            console.log("[v0] 📊 Loaded progress result:", savedProgress)
-
-            if (savedProgress.data) {
-              console.log("[v0] ✅ Found saved progress, restoring...")
-              setApplicationData(savedProgress.data.applicationData)
-              setCurrentStep(savedProgress.data.currentStep || 0)
-              setApplicationId(savedProgress.data.applicationId)
-              console.log("[v0] 📋 Restored data:", savedProgress.data.applicationData)
-              console.log("[v0] 📍 Restored step:", savedProgress.data.currentStep)
-              console.log("[v0] 🆔 Restored applicationId:", savedProgress.data.applicationId)
-            } else {
-              console.log("[v0] ℹ️ No saved progress found, starting fresh")
-            }
-          } catch (loadError) {
-            console.error("[v0] ❌ Error loading application progress:", loadError)
-            console.log("[v0] 🔄 Falling back to fresh start due to load error")
-          }
+          console.log("[v0] ℹ️ No saved progress found, starting fresh")
         }
 
-        try {
-          console.log("[v0] 📋 Loading submitted applications...")
-          const applicationsResult = await getSubmittedApplications()
-          console.log("[v0] 📊 Submitted applications result:", applicationsResult)
-
-          if (applicationsResult.data) {
-            const submittedTypes = applicationsResult.data.map((app: any) => app.benefit_type)
-            setSubmittedApplications(submittedTypes)
-            console.log("[v0] ✅ Set submitted applications:", submittedTypes)
-          }
-        } catch (submittedError) {
-          console.error("[v0] ❌ Error loading submitted applications:", submittedError)
-          console.log("[v0] 🔄 Continuing without submitted applications data")
-        }
+        setIsLoading(false)
       } catch (error) {
-        console.error("[v0] ❌ Critical error in loadSavedProgress:", error)
-        console.error("[v0] 📊 Error details:", {
-          message: error.message,
-          stack: error.stack,
-          name: error.name,
-        })
-
-        console.log("[v0] 🚨 Initializing with default state due to critical error")
-        setApplicationData({
-          benefitType: "",
-          state: "",
-          personalInfo: {
-            applyingFor: "",
-            firstName: "",
-            lastName: "",
-            dateOfBirth: "",
-            languagePreference: "",
-            address: { street: "", city: "", state: "", zipCode: "" },
-            phone: "",
-            email: "",
-            citizenshipStatus: "",
-            socialSecurityNumber: "",
-          },
-          householdMembers: [],
-          householdQuestions: {
-            appliedWithDifferentInfo: "",
-            appliedWithDifferentInfoMembers: [],
-            appliedInOtherState: "",
-            appliedInOtherStateMembers: [],
-            receivedBenefitsBefore: "",
-            receivedBenefitsBeforeMembers: [],
-            receivingSNAPThisMonth: "",
-            receivingSNAPThisMonthMembers: [],
-            disqualifiedFromBenefits: "",
-            disqualifiedFromBenefitsMembers: [],
-            wantSomeoneElseToReceiveSNAP: "",
-            wantSomeoneElseToReceiveSNAPMembers: [],
-          },
-          incomeEmployment: { employment: [], income: [], expenses: [], taxFilingStatus: "" },
-          assets: { assets: [] },
-          healthDisability: {
-            healthInsurance: [],
-            disabilities: { hasDisabled: "" },
-            pregnancyInfo: { isPregnant: "" },
-            medicalConditions: { hasChronicConditions: "" },
-            medicalBills: { hasRecentBills: false },
-            needsNursingServices: "",
-          },
-        })
-        setCurrentStep(0)
-        setApplicationId(null)
-      } finally {
-        console.log("[v0] 🏁 loadSavedProgress completed, setting isLoading to false")
+        console.error("[v0] ❌ Error in loadSavedProgress:", error)
         setIsLoading(false)
       }
     }
 
     try {
       console.log("[v0] 🚀 Calling loadSavedProgress...")
-      console.log("[v0] 📊 useEffect triggered with startFresh:", startFresh)
+      console.log("[v0] 📊 useEffect triggered with startFresh:", startFresh, "continueId:", continueId)
       loadSavedProgress()
     } catch (error) {
       console.error("[v0] ❌ Critical error calling loadSavedProgress:", error)
       setIsLoading(false)
     }
-  }, [startFresh]) // Removed router dependency since we're not doing auth redirects here
+  }, [startFresh, continueId]) // Added continueId to dependency array
 
   useEffect(() => {
     const autoSave = async () => {
@@ -763,6 +736,9 @@ export default function BenefitsApplicationClient({ startFresh = false }: { star
         medicalConditions: { hasChronicConditions: "" },
         medicalBills: { hasRecentBills: false },
         needsNursingServices: "",
+      },
+      additionalInfo: {
+        additionalInfo: "",
       },
     })
     setCurrentStep(0)
