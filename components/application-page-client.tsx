@@ -1,5 +1,7 @@
 "use client"
 
+import React from "react"
+
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { SiteHeader } from "@/components/site-header"
@@ -9,6 +11,7 @@ import BenefitsApplicationClient from "@/components/benefits-application-client"
 export function ApplicationPageClient() {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const router = useRouter()
 
   useEffect(() => {
@@ -38,19 +41,44 @@ export function ApplicationPageClient() {
         }
       } catch (error) {
         console.error("[v0] ❌ Auth check failed with error:", error)
+        setError(`Authentication error: ${error.message}`)
+        setLoading(false)
+        return
       }
 
       console.log("[v0] 🔄 No user found, redirecting to signin")
       router.push("/signin")
     }
 
-    checkAuth()
+    try {
+      checkAuth()
+    } catch (error) {
+      console.error("[v0] ❌ Critical error in auth check:", error)
+      setError(`Critical authentication error: ${error.message}`)
+      setLoading(false)
+    }
   }, [router])
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-lg">Loading...</div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-600 mb-4">Error: {error}</div>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            Retry
+          </button>
+        </div>
       </div>
     )
   }
@@ -63,9 +91,47 @@ export function ApplicationPageClient() {
     <div className="min-h-screen flex flex-col">
       <SiteHeader user={user} />
       <main className="flex-1">
-        <BenefitsApplicationClient />
+        <ErrorBoundary>
+          <BenefitsApplicationClient />
+        </ErrorBoundary>
       </main>
       <SiteFooter />
     </div>
   )
+}
+
+class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean; error: Error | null }> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props)
+    this.state = { hasError: false, error: null }
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error }
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error("[v0] ❌ Error boundary caught error:", error)
+    console.error("[v0] ❌ Error info:", errorInfo)
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center">
+            <div className="text-red-600 mb-4">Application Error: {this.state.error?.message || "Unknown error"}</div>
+            <button
+              onClick={() => this.setState({ hasError: false, error: null })}
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
+      )
+    }
+
+    return this.props.children
+  }
 }

@@ -132,6 +132,7 @@ export default function BenefitsApplicationClient({ startFresh = false }: { star
           console.log("[v0] ✅ Supabase client created successfully")
         } catch (supabaseError) {
           console.error("[v0] ❌ Failed to create Supabase client:", supabaseError)
+          console.log("[v0] ⚠️ Continuing without Supabase client")
           setIsLoading(false)
           return
         }
@@ -145,6 +146,7 @@ export default function BenefitsApplicationClient({ startFresh = false }: { star
             console.log("[v0] ✅ Successfully cleared application progress")
           } catch (clearError) {
             console.error("[v0] ❌ Error clearing application progress:", clearError)
+            console.log("[v0] ⚠️ Continuing despite clear error")
           }
 
           const initialData = {
@@ -301,8 +303,13 @@ export default function BenefitsApplicationClient({ startFresh = false }: { star
       }
     }
 
-    console.log("[v0] 🚀 Calling loadSavedProgress...")
-    loadSavedProgress()
+    try {
+      console.log("[v0] 🚀 Calling loadSavedProgress...")
+      loadSavedProgress()
+    } catch (error) {
+      console.error("[v0] ❌ Critical error calling loadSavedProgress:", error)
+      setIsLoading(false)
+    }
   }, [startFresh]) // Removed router dependency since we're not doing auth redirects here
 
   useEffect(() => {
