@@ -102,7 +102,7 @@ export function HealthDisabilityForm({
   benefitType,
   onUpdate,
 }: HealthDisabilityFormProps) {
-  const [selectedConditions, setSelectedConditions] = useState<string[]>(data.medicalConditions.conditions || [])
+  const [selectedConditions, setSelectedConditions] = useState<string[]>(data?.medicalConditions?.conditions || [])
 
   // Create list of all household members including applicant
   const allMembers = [
@@ -167,7 +167,7 @@ export function HealthDisabilityForm({
   }
 
   const updateMedicalBills = (updates: Partial<HealthDisabilityData["medicalBills"]>) => {
-    updateData({ medicalBills: { ...data.medicalBills, ...updates } })
+    updateData({ medicalBills: { ...(data?.medicalBills || { hasRecentBills: false }), ...updates } })
   }
 
   const updateNursingServices = (value: string) => {
@@ -562,7 +562,7 @@ export function HealthDisabilityForm({
               or within the past 3 months? *
             </Label>
             <RadioGroup
-              value={data.medicalBills.hasRecentBills ? "yes" : "no"}
+              value={data?.medicalBills?.hasRecentBills ? "yes" : "no"}
               onValueChange={(value) => updateMedicalBills({ hasRecentBills: value === "yes" })}
             >
               <div className="flex items-center space-x-2">
@@ -574,11 +574,11 @@ export function HealthDisabilityForm({
                 <Label htmlFor="bills-no">No</Label>
               </div>
             </RadioGroup>
-            {data.medicalBills.hasRecentBills && (
+            {data?.medicalBills?.hasRecentBills && (
               <div className="space-y-2">
                 <Label>Please provide details about the medical bills</Label>
                 <Textarea
-                  value={data.medicalBills.billDetails || ""}
+                  value={data?.medicalBills?.billDetails || ""}
                   onChange={(e) => updateMedicalBills({ billDetails: e.target.value })}
                   placeholder="Include details such as: provider name, approximate amount, date of service, whether paid or unpaid, and which household member the bill is for..."
                   rows={4}
