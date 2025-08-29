@@ -102,6 +102,7 @@ export default function BenefitsApplicationClient({ startFresh = false }: { star
       disabilities: { hasDisabled: "" },
       pregnancyInfo: { isPregnant: "" },
       medicalConditions: { hasChronicConditions: "" },
+      medicalBills: { hasRecentBills: false },
       needsNursingServices: "",
     },
   })
@@ -198,6 +199,7 @@ export default function BenefitsApplicationClient({ startFresh = false }: { star
               disabilities: { hasDisabled: "" },
               pregnancyInfo: { isPregnant: "" },
               medicalConditions: { hasChronicConditions: "" },
+              medicalBills: { hasRecentBills: false },
               needsNursingServices: "",
             },
           }
@@ -292,6 +294,7 @@ export default function BenefitsApplicationClient({ startFresh = false }: { star
             disabilities: { hasDisabled: "" },
             pregnancyInfo: { isPregnant: "" },
             medicalConditions: { hasChronicConditions: "" },
+            medicalBills: { hasRecentBills: false },
             needsNursingServices: "",
           },
         })
@@ -576,6 +579,7 @@ export default function BenefitsApplicationClient({ startFresh = false }: { star
           isPregnant: applicationData.healthDisability.pregnancyInfo?.isPregnant,
           hasChronicConditions: applicationData.healthDisability.medicalConditions?.hasChronicConditions,
           needsNursingServices: applicationData.healthDisability.needsNursingServices,
+          hasRecentMedicalBills: applicationData.healthDisability.medicalBills?.hasRecentBills,
         },
 
         // User profile information
@@ -752,6 +756,7 @@ export default function BenefitsApplicationClient({ startFresh = false }: { star
         disabilities: { hasDisabled: "" },
         pregnancyInfo: { isPregnant: "" },
         medicalConditions: { hasChronicConditions: "" },
+        medicalBills: { hasRecentBills: false },
         needsNursingServices: "",
       },
     })
