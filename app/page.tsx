@@ -1,4 +1,3 @@
-import { createServerClient, isSupabaseConfigured } from "@/lib/supabase/server"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import { Button } from "@/components/ui/button"
@@ -10,29 +9,26 @@ export const dynamic = "force-dynamic"
 export default async function HomePage() {
   console.log("[v0] HomePage: Starting authentication check...")
 
-  // If Supabase is not configured, show setup message
-  if (!isSupabaseConfigured) {
-    console.log("[v0] HomePage: Supabase not configured")
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-muted to-card">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold text-foreground mb-4">Benefit Bridge Portal</h1>
-          <p className="text-lg text-muted-foreground mb-8">Connect Supabase to get started</p>
-        </div>
-      </div>
-    )
-  }
-
   let user = null
   try {
-    console.log("[v0] HomePage: Creating server client...")
-    const supabase = createServerClient()
-    console.log("[v0] HomePage: Calling supabase.auth.getUser()...")
-    const { data } = await supabase.auth.getUser()
-    user = data?.user
-    console.log("[v0] HomePage: User data:", user ? { id: user.id, email: user.email } : null)
+    console.log("[v0] HomePage: Calling /api/auth/user API route...")
+    const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/api/auth/user`, {
+      headers: {
+        Cookie: require("next/headers").cookies().toString(),
+      },
+    })
+
+    console.log("[v0] HomePage: API response status:", response.status)
+
+    if (response.ok) {
+      const data = await response.json()
+      user = data.user
+      console.log("[v0] HomePage: User data from API:", user ? { id: user.id, email: user.email } : null)
+    } else {
+      console.log("[v0] HomePage: API returned non-OK status:", response.status)
+    }
   } catch (error) {
-    console.log("[v0] HomePage: Authentication check failed:", error)
+    console.log("[v0] HomePage: API call failed:", error)
     // Continue with user = null, don't crash the page
   }
 
