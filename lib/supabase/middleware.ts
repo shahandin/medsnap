@@ -2,9 +2,25 @@ import { createServerClient } from "@supabase/ssr"
 import { NextResponse, type NextRequest } from "next/server"
 
 export async function updateSession(request: NextRequest) {
+  if (!isSupabaseConfigured) {
+    console.log("[v0] Middleware: Supabase not configured, skipping session update")
+    return NextResponse.next({
+      request,
+    })
+  }
+
   let supabaseResponse = NextResponse.next({
     request,
   })
+
+  console.log(
+    "[v0] Middleware: Creating Supabase client with URL:",
+    process.env.NEXT_PUBLIC_SUPABASE_URL ? "present" : "missing",
+  )
+  console.log(
+    "[v0] Middleware: Creating Supabase client with Key:",
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? "present" : "missing",
+  )
 
   // With Fluid compute, don't put this client in a global environment
   // variable. Always create a new one on each request.
@@ -33,6 +49,8 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
+  console.log("[v0] Middleware: User from Supabase:", user ? "authenticated" : "not authenticated")
+
   if (
     request.nextUrl.pathname !== "/" &&
     !user &&
@@ -50,8 +68,19 @@ export async function updateSession(request: NextRequest) {
   return supabaseResponse
 }
 
-export const isSupabaseConfigured =
-  typeof process.env.NEXT_PUBLIC_SUPABASE_URL === "string" &&
-  process.env.NEXT_PUBLIC_SUPABASE_URL.length > 0 &&
-  typeof process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY === "string" &&
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY.length > 0
+export const isSupabaseConfigured = (() => {
+  const hasUrl =
+    typeof process.env.NEXT_PUBLIC_SUPABASE_URL === "string" && process.env.NEXT_PUBLIC_SUPABASE_URL.length > 0
+  const hasKey =
+    typeof process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY === "string" &&
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY.length > 0
+
+  console.log("[v0] Middleware config check:", {
+    hasUrl,
+    hasKey,
+    urlValue: process.env.NEXT_PUBLIC_SUPABASE_URL ? "present" : "missing",
+    keyValue: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? "present" : "missing",
+  })
+
+  return hasUrl && hasKey
+})()
