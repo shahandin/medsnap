@@ -50,7 +50,9 @@ export async function createClient() {
   }
 }
 
-export const createServerClient = createClient
+export async function createServerClient() {
+  return createClient()
+}
 
 export const isSupabaseConfigured =
   typeof process.env.NEXT_PUBLIC_SUPABASE_URL === "string" &&

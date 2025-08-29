@@ -25,18 +25,24 @@ async function makeSupabaseRequest(endpoint: string, options: any = {}) {
 }
 
 export async function signIn(prevState: any, formData: FormData) {
+  console.log("[v0] signIn: Starting authentication process...")
+
   if (!formData) {
+    console.log("[v0] signIn: Form data is missing")
     return { error: "Form data is missing" }
   }
 
   const email = formData.get("email")
   const password = formData.get("password")
+  console.log("[v0] signIn: Email provided:", !!email, "Password provided:", !!password)
 
   if (!email || !password) {
+    console.log("[v0] signIn: Missing email or password")
     return { error: "Email and password are required" }
   }
 
   try {
+    console.log("[v0] signIn: Making Supabase auth request...")
     const result = await makeSupabaseRequest("/auth/v1/token?grant_type=password", {
       method: "POST",
       body: JSON.stringify({
@@ -45,11 +51,19 @@ export async function signIn(prevState: any, formData: FormData) {
       }),
     })
 
+    console.log("[v0] signIn: Supabase response received:", {
+      hasError: !!result.error,
+      hasAccessToken: !!result.access_token,
+      errorMessage: result.error_description || result.error,
+    })
+
     if (result.error) {
+      console.log("[v0] signIn: Authentication failed:", result.error_description || result.error)
       return { error: result.error_description || result.error }
     }
 
     // Store session in cookies
+    console.log("[v0] signIn: Storing session in cookies...")
     const cookieStore = cookies()
     if (result.access_token) {
       cookieStore.set("sb-access-token", result.access_token, {
@@ -58,11 +72,15 @@ export async function signIn(prevState: any, formData: FormData) {
         sameSite: "lax",
         maxAge: result.expires_in || 3600,
       })
+      console.log("[v0] signIn: Cookie set successfully with expiry:", result.expires_in || 3600)
+    } else {
+      console.log("[v0] signIn: No access token in response")
     }
 
+    console.log("[v0] signIn: Authentication successful")
     return { success: true }
   } catch (error) {
-    console.error("Login error:", error)
+    console.error("[v0] signIn: Exception occurred:", error)
     return { error: "An unexpected error occurred. Please try again." }
   }
 }

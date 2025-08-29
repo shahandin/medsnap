@@ -39,19 +39,24 @@ export function LoginForm() {
   // Handle successful login by redirecting
   useEffect(() => {
     if (state?.success) {
+      console.log("[v0] LoginForm: Login success detected, redirecting...")
       router.push("/")
       router.refresh() // Force refresh to update auth state
     }
   }, [state, router])
 
   const handleSubmit = async (formData: FormData) => {
+    console.log("[v0] LoginForm: Starting login process...")
     setIsLoading(true)
     setState(null)
 
     try {
+      console.log("[v0] LoginForm: Calling signIn action...")
       const result = await signIn(null, formData)
+      console.log("[v0] LoginForm: SignIn result:", result)
       setState(result)
     } catch (error) {
+      console.log("[v0] LoginForm: SignIn error:", error)
       setState({ error: "An unexpected error occurred" })
     } finally {
       setIsLoading(false)
