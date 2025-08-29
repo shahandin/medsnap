@@ -16,6 +16,9 @@ export function ApplicationPageClient() {
   const searchParams = useSearchParams()
   const startFresh = searchParams.get("fresh") === "true"
 
+  console.log("[v0] 🔄 ApplicationPageClient - URL search params:", Object.fromEntries(searchParams.entries()))
+  console.log("[v0] 🔄 ApplicationPageClient - startFresh value:", startFresh)
+
   useEffect(() => {
     const checkAuth = async () => {
       try {
@@ -88,6 +91,8 @@ export function ApplicationPageClient() {
   if (!user) {
     return null // Will redirect to signin
   }
+
+  console.log("[v0] 🎯 About to render BenefitsApplicationClient with startFresh:", startFresh)
 
   return (
     <div className="min-h-screen flex flex-col">

@@ -40,6 +40,8 @@ const STEPS = [
 ]
 
 export default function BenefitsApplicationClient({ startFresh = false }: { startFresh?: boolean }) {
+  console.log("[v0] 🎯 BenefitsApplicationClient initialized with startFresh:", startFresh)
+
   const [currentStep, setCurrentStep] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
@@ -140,6 +142,7 @@ export default function BenefitsApplicationClient({ startFresh = false }: { star
 
         if (startFresh) {
           console.log("[v0] 🆕 Starting fresh application, clearing all saved progress")
+          console.log("[v0] 🧹 About to clear application progress...")
           setIsInitializing(true)
 
           try {
@@ -205,6 +208,7 @@ export default function BenefitsApplicationClient({ startFresh = false }: { star
           }
 
           console.log("[v0] 📋 Setting initial application data:", initialData)
+          console.log("[v0] 🔄 Setting currentStep to 0 and applicationId to null")
           setApplicationData(initialData)
           setCurrentStep(0)
           setApplicationId(null)
@@ -308,6 +312,7 @@ export default function BenefitsApplicationClient({ startFresh = false }: { star
 
     try {
       console.log("[v0] 🚀 Calling loadSavedProgress...")
+      console.log("[v0] 📊 useEffect triggered with startFresh:", startFresh)
       loadSavedProgress()
     } catch (error) {
       console.error("[v0] ❌ Critical error calling loadSavedProgress:", error)
