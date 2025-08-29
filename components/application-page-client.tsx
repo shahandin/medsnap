@@ -3,7 +3,7 @@
 import React from "react"
 
 import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import BenefitsApplicationClient from "@/components/benefits-application-client"
@@ -13,6 +13,8 @@ export function ApplicationPageClient() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const startFresh = searchParams.get("fresh") === "true"
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -92,7 +94,7 @@ export function ApplicationPageClient() {
       <SiteHeader user={user} />
       <main className="flex-1">
         <ErrorBoundary>
-          <BenefitsApplicationClient />
+          <BenefitsApplicationClient startFresh={startFresh} />
         </ErrorBoundary>
       </main>
       <SiteFooter />
@@ -100,8 +102,11 @@ export function ApplicationPageClient() {
   )
 }
 
-class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean; error: Error | null }> {
-  constructor(props: { children: React.ReactNode }) {
+class ErrorBoundary extends React.Component<
+  { children: React.ReactNode; startFresh: boolean },
+  { hasError: boolean; error: Error | null }
+> {
+  constructor(props: { children: React.ReactNode; startFresh: boolean }) {
     super(props)
     this.state = { hasError: false, error: null }
   }
