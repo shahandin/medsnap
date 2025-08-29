@@ -37,6 +37,25 @@ export const createServerClient = () => {
         return { data: { user: null }, error: null }
       },
     },
+    from: (table: string) => ({
+      select: (columns = "*") => ({
+        eq: (column: string, value: any) => ({
+          order: (orderColumn: string, options?: { ascending?: boolean }) => ({
+            then: async () => {
+              try {
+                // For demo purposes, return empty array for application_progress queries
+                if (table === "application_progress") {
+                  return { data: [], error: null }
+                }
+                return { data: [], error: null }
+              } catch (error) {
+                return { data: null, error }
+              }
+            },
+          }),
+        }),
+      }),
+    }),
   }
 }
 
