@@ -3,34 +3,14 @@ import { SiteFooter } from "@/components/site-footer"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from "next/link"
+import { getServerUser } from "@/lib/auth"
 
 export const dynamic = "force-dynamic"
 
 export default async function HomePage() {
   console.log("[v0] HomePage: Starting authentication check...")
 
-  let user = null
-  try {
-    console.log("[v0] HomePage: Calling /api/auth/user API route...")
-    const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/api/auth/user`, {
-      headers: {
-        Cookie: require("next/headers").cookies().toString(),
-      },
-    })
-
-    console.log("[v0] HomePage: API response status:", response.status)
-
-    if (response.ok) {
-      const data = await response.json()
-      user = data.user
-      console.log("[v0] HomePage: User data from API:", user ? { id: user.id, email: user.email } : null)
-    } else {
-      console.log("[v0] HomePage: API returned non-OK status:", response.status)
-    }
-  } catch (error) {
-    console.log("[v0] HomePage: API call failed:", error)
-    // Continue with user = null, don't crash the page
-  }
+  const user = await getServerUser()
 
   console.log("[v0] HomePage: Final user state:", user ? "authenticated" : "unauthenticated")
 
