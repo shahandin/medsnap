@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
     console.log("[v0] Chat API: Context:", context)
     console.log("[v0] Chat API: Session ID:", sessionId)
 
-    const supabase = await createClient()
+    const supabase = createClient()
     const {
       data: { user },
     } = await supabase.auth.getUser()

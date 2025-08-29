@@ -16,7 +16,7 @@ export interface ChatSession {
   lastActivity: Date
 }
 
-export async function saveChatMessage(
+export function saveChatMessage(
   userId: string,
   sessionId: string,
   role: "user" | "assistant",
@@ -24,9 +24,9 @@ export async function saveChatMessage(
   contextData?: any,
   navigationAction?: any,
 ) {
-  const supabase = await createClient()
+  const supabase = createClient()
 
-  const { data, error } = await supabase
+  const { data, error } = supabase
     .from("chat_conversations")
     .insert({
       user_id: userId,
@@ -48,7 +48,7 @@ export async function saveChatMessage(
 }
 
 export async function getChatHistory(userId: string, sessionId: string, limit = 20): Promise<ChatMessage[]> {
-  const supabase = await createClient()
+  const supabase = createClient()
 
   const { data, error } = await supabase
     .from("chat_conversations")
@@ -74,7 +74,7 @@ export async function getChatHistory(userId: string, sessionId: string, limit = 
 }
 
 export async function getRecentChatSessions(userId: string, limit = 5): Promise<ChatSession[]> {
-  const supabase = await createClient()
+  const supabase = createClient()
 
   const { data, error } = await supabase
     .from("chat_conversations")
