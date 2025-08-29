@@ -15,6 +15,8 @@ interface SiteHeaderProps {
 }
 
 export function SiteHeader({ user }: SiteHeaderProps) {
+  console.log("[v0] SiteHeader: Received user prop:", user ? { email: user.email } : null)
+
   const pathname = usePathname()
   const [userInitials, setUserInitials] = useState("")
   const [showNotifications, setShowNotifications] = useState(false)
@@ -23,6 +25,8 @@ export function SiteHeader({ user }: SiteHeaderProps) {
 
   useEffect(() => {
     const getUserInitials = async () => {
+      console.log("[v0] SiteHeader: Getting user initials for user:", user ? "authenticated" : "unauthenticated")
+
       if (user) {
         try {
           // Try to get initials from saved application data
@@ -30,7 +34,9 @@ export function SiteHeader({ user }: SiteHeaderProps) {
           if (result.data?.application_data?.personalInfo) {
             const { firstName, lastName } = result.data.application_data.personalInfo
             if (firstName && lastName) {
-              setUserInitials(`${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase())
+              const initials = `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase()
+              console.log("[v0] SiteHeader: Set initials from application data:", initials)
+              setUserInitials(initials)
               return
             }
           }
@@ -38,11 +44,16 @@ export function SiteHeader({ user }: SiteHeaderProps) {
           // Fallback to email initials if no application data
           const emailParts = user.email?.split("@")[0] || ""
           if (emailParts.length >= 2) {
-            setUserInitials(emailParts.substring(0, 2).toUpperCase())
+            const initials = emailParts.substring(0, 2).toUpperCase()
+            console.log("[v0] SiteHeader: Set initials from email:", initials)
+            setUserInitials(initials)
           } else {
-            setUserInitials(emailParts.charAt(0).toUpperCase() + "U")
+            const initials = emailParts.charAt(0).toUpperCase() + "U"
+            console.log("[v0] SiteHeader: Set fallback initials:", initials)
+            setUserInitials(initials)
           }
         } catch (error) {
+          console.log("[v0] SiteHeader: Error getting initials:", error)
           // Fallback to email initials on error
           const emailParts = user.email?.split("@")[0] || ""
           if (emailParts.length >= 2) {
@@ -66,6 +77,12 @@ export function SiteHeader({ user }: SiteHeaderProps) {
   ]
 
   const navigation = user ? authenticatedNavigation : publicNavigation
+
+  console.log(
+    "[v0] SiteHeader: Using navigation:",
+    user ? "authenticated" : "public",
+    navigation.map((n) => n.name),
+  )
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80 shadow-sm">

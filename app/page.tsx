@@ -8,8 +8,11 @@ import Link from "next/link"
 export const dynamic = "force-dynamic"
 
 export default async function HomePage() {
+  console.log("[v0] HomePage: Starting authentication check...")
+
   // If Supabase is not configured, show setup message
   if (!isSupabaseConfigured) {
+    console.log("[v0] HomePage: Supabase not configured")
     return (
       <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-muted to-card">
         <div className="text-center">
@@ -22,13 +25,18 @@ export default async function HomePage() {
 
   let user = null
   try {
+    console.log("[v0] HomePage: Creating server client...")
     const supabase = createServerClient()
+    console.log("[v0] HomePage: Calling supabase.auth.getUser()...")
     const { data } = await supabase.auth.getUser()
     user = data?.user
+    console.log("[v0] HomePage: User data:", user ? { id: user.id, email: user.email } : null)
   } catch (error) {
-    console.log("[v0] Authentication check failed:", error)
+    console.log("[v0] HomePage: Authentication check failed:", error)
     // Continue with user = null, don't crash the page
   }
+
+  console.log("[v0] HomePage: Final user state:", user ? "authenticated" : "unauthenticated")
 
   return (
     <div className="min-h-screen flex flex-col">
