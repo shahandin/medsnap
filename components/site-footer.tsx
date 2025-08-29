@@ -19,7 +19,7 @@ export function SiteFooter() {
             <h4 className="font-semibold">Services</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/application" className="text-muted-foreground hover:text-primary">
+                <Link href="/application?fresh=true" className="text-muted-foreground hover:text-primary">
                   Apply for Benefits
                 </Link>
               </li>

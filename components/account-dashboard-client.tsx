@@ -756,7 +756,7 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
                         asChild
                         className="w-full h-14 md:h-10 text-lg md:text-sm font-semibold rounded-2xl md:rounded-lg shadow-lg md:shadow-none"
                       >
-                        <Link href="/application">Start Application</Link>
+                        <Link href="/application?fresh=true">Start Application</Link>
                       </Button>
                     </>
                   )}
@@ -872,7 +872,7 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
                       asChild
                       className="h-14 md:h-10 px-8 text-lg md:text-sm font-semibold rounded-2xl md:rounded-lg shadow-lg md:shadow-none"
                     >
-                      <Link href="/application">Start Application</Link>
+                      <Link href="/application?fresh=true">Start Application</Link>
                     </Button>
                   </div>
                 )}

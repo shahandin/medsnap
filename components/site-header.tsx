@@ -60,7 +60,7 @@ export function SiteHeader({ user }: SiteHeaderProps) {
   const publicNavigation = [{ name: "About", href: "/about" }]
 
   const authenticatedNavigation = [
-    { name: "Apply for Benefits", href: "/application" },
+    { name: "Apply for Benefits", href: "/application?fresh=true" },
     { name: "Dashboard", href: "/account" },
     { name: "About", href: "/about" },
   ]
