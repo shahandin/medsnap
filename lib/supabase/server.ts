@@ -40,19 +40,11 @@ export const createServerClient = () => {
     from: (table: string) => ({
       select: (columns = "*") => ({
         eq: (column: string, value: any) => ({
-          order: (orderColumn: string, options?: { ascending?: boolean }) => ({
-            then: async () => {
-              try {
-                // For demo purposes, return empty array for application_progress queries
-                if (table === "application_progress") {
-                  return { data: [], error: null }
-                }
-                return { data: [], error: null }
-              } catch (error) {
-                return { data: null, error }
-              }
-            },
-          }),
+          order: (orderColumn: string, options?: { ascending?: boolean }) =>
+            Promise.resolve({
+              data: table === "application_progress" ? [] : [],
+              error: null,
+            }),
         }),
       }),
     }),
