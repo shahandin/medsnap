@@ -4,7 +4,6 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { createClient } from "@/lib/supabase/client"
 import { PlusCircle, FileText, ArrowRight } from "lucide-react"
 
 interface IncompleteApplication {
@@ -18,6 +17,7 @@ interface IncompleteApplication {
 export default function ApplicationChoiceClient() {
   const [incompleteApplications, setIncompleteApplications] = useState<IncompleteApplication[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const router = useRouter()
 
   useEffect(() => {
@@ -26,35 +26,30 @@ export default function ApplicationChoiceClient() {
 
   const loadIncompleteApplications = async () => {
     try {
-      console.log("[v0] Loading incomplete applications...")
-      const supabase = createClient()
+      console.log("[v0] Client: Loading incomplete applications...")
+      const response = await fetch("/api/incomplete-applications")
 
-      // Get current user
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-      if (!user) {
-        console.log("[v0] No user found, redirecting to login")
+      if (response.status === 401) {
+        console.log("[v0] Client: Unauthorized, redirecting to login")
         router.push("/auth/sign-up")
         return
       }
 
-      // Query application_progress for incomplete applications
-      const { data, error } = await supabase
-        .from("application_progress")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("updated_at", { ascending: false })
-
-      if (error) {
-        console.error("[v0] Error loading incomplete applications:", error)
-        return
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
       }
 
-      console.log("[v0] Found incomplete applications:", data)
-      setIncompleteApplications(data || [])
+      const data = await response.json()
+
+      if (data.error) {
+        throw new Error(data.error)
+      }
+
+      console.log("[v0] Client: Found incomplete applications:", data.applications?.length || 0)
+      setIncompleteApplications(data.applications || [])
     } catch (error) {
-      console.error("[v0] Error in loadIncompleteApplications:", error)
+      console.error("[v0] Client: Error loading incomplete applications:", error)
+      setError("Failed to load applications. Please try again.")
     } finally {
       setLoading(false)
     }
@@ -100,6 +95,17 @@ export default function ApplicationChoiceClient() {
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading your applications...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">{error}</p>
+          <Button onClick={() => window.location.reload()}>Try Again</Button>
         </div>
       </div>
     )
