@@ -393,7 +393,111 @@ export async function clearApplicationProgress(applicationId?: string) {
 }
 
 export async function submitApplication(applicationData: any, benefitType: string) {
-  return { success: true, application: { id: "mock-id" } }
+  try {
+    console.log("[v0] 🚀 Starting application submission...")
+    console.log("[v0] 📊 Submitting application for benefit type:", benefitType)
+
+    const cookieStore = cookies()
+    const accessToken = cookieStore.get("sb-access-token")?.value
+
+    if (!accessToken) {
+      console.log("[v0] ❌ No access token found for submission")
+      return { success: false, error: "Not authenticated" }
+    }
+
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.log("[v0] ❌ Supabase configuration missing for submission")
+      throw new Error("Supabase configuration missing")
+    }
+
+    // Get user ID from token
+    console.log("[v0] 🔍 Getting user ID from token...")
+    const userResponse = await fetch(`${supabaseUrl}/auth/v1/user`, {
+      headers: {
+        apikey: supabaseAnonKey,
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+    })
+
+    if (!userResponse.ok) {
+      console.log("[v0] ❌ Failed to get user for submission, status:", userResponse.status)
+      return { success: false, error: "Failed to authenticate user" }
+    }
+
+    const userData = await userResponse.json()
+    const userId = userData.id
+    console.log("[v0] ✅ User ID retrieved for submission:", userId)
+
+    // Save application to applications table
+    console.log("[v0] 💾 Saving application to database...")
+    const submissionData = {
+      user_id: userId,
+      benefit_type: benefitType,
+      application_data: applicationData,
+      status: "submitted",
+      submitted_at: new Date().toISOString(),
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    }
+
+    const submitResponse = await fetch(`${supabaseUrl}/rest/v1/applications`, {
+      method: "POST",
+      headers: {
+        apikey: supabaseAnonKey,
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+        Prefer: "return=representation",
+      },
+      body: JSON.stringify(submissionData),
+    })
+
+    if (!submitResponse.ok) {
+      const error = await submitResponse.text()
+      console.log("[v0] ❌ Failed to save application, status:", submitResponse.status)
+      console.log("[v0] ❌ Submission error details:", error)
+      return { success: false, error: "Failed to submit application" }
+    }
+
+    const submittedApplication = await submitResponse.json()
+    const applicationId = submittedApplication[0]?.id
+
+    console.log("[v0] ✅ Application submitted successfully with ID:", applicationId)
+
+    // Optionally clear application progress since it's now submitted
+    console.log("[v0] 🧹 Clearing application progress...")
+    try {
+      await fetch(`${supabaseUrl}/rest/v1/application_progress?user_id=eq.${userId}`, {
+        method: "DELETE",
+        headers: {
+          apikey: supabaseAnonKey,
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      })
+      console.log("[v0] ✅ Application progress cleared")
+    } catch (clearError) {
+      console.log("[v0] ⚠️ Failed to clear progress, but submission was successful:", clearError)
+    }
+
+    return {
+      success: true,
+      application: {
+        id: applicationId,
+        status: "submitted",
+        submittedAt: submissionData.submitted_at,
+      },
+    }
+  } catch (error) {
+    console.error("[v0] ❌ Exception in submitApplication:", error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "An unexpected error occurred",
+    }
+  }
 }
 
 export async function getSubmittedApplications() {
