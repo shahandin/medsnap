@@ -185,6 +185,11 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
           }),
         },
       )
+
+      if (response.ok) {
+        console.log("[v0] ✅ Specific application updated successfully")
+        return { success: true, applicationId }
+      }
     } else {
       // Check if user has any existing progress (for backward compatibility)
       console.log("[v0] 🔍 Checking for existing progress...")
@@ -219,6 +224,11 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
             updated_at: new Date().toISOString(),
           }),
         })
+
+        if (response.ok) {
+          console.log("[v0] ✅ Existing record updated successfully")
+          return { success: true, applicationId: existingId }
+        }
       } else {
         // Create new record
         console.log("[v0] ➕ Creating new application record...")
@@ -251,15 +261,10 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
       }
     }
 
-    if (response.ok) {
-      console.log("[v0] ✅ Application progress saved successfully")
-      return { success: true, applicationId }
-    } else {
-      const error = await response.text()
-      console.log("[v0] ❌ Database save failed, status:", response.status)
-      console.log("[v0] ❌ Error details:", error)
-      return { success: false, error }
-    }
+    const error = await response.text()
+    console.log("[v0] ❌ Database save failed, status:", response.status)
+    console.log("[v0] ❌ Error details:", error)
+    return { success: false, error }
   } catch (error) {
     console.error("[v0] ❌ Exception in saveApplicationProgress:", error)
     return { success: false, error: error instanceof Error ? error.message : "Unknown error" }

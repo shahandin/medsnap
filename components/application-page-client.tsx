@@ -18,7 +18,7 @@ export function ApplicationPageClient() {
 
   const fresh = searchParams.get("fresh") === "true"
   const continueId = searchParams.get("continue")
-  const startFresh = fresh || !!continueId
+  const startFresh = fresh && !continueId
 
   console.log("[v0] 🔄 ApplicationPageClient - URL search params:", Object.fromEntries(searchParams.entries()))
   console.log("[v0] 🔄 ApplicationPageClient - fresh:", fresh, "continueId:", continueId, "startFresh:", startFresh)
