@@ -396,6 +396,7 @@ export async function submitApplication(applicationData: any, benefitType: strin
   try {
     console.log("[v0] 🚀 Starting application submission...")
     console.log("[v0] 📊 Submitting application for benefit type:", benefitType)
+    console.log("[v0] 📋 Application data keys:", Object.keys(applicationData || {}))
 
     const cookieStore = cookies()
     const accessToken = cookieStore.get("sb-access-token")?.value
@@ -405,8 +406,12 @@ export async function submitApplication(applicationData: any, benefitType: strin
       return { success: false, error: "Not authenticated" }
     }
 
+    console.log("[v0] ✅ Access token found for submission")
+
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+    console.log("[v0] 🔧 Environment check - URL exists:", !!supabaseUrl, "Key exists:", !!supabaseAnonKey)
 
     if (!supabaseUrl || !supabaseAnonKey) {
       console.log("[v0] ❌ Supabase configuration missing for submission")
@@ -423,8 +428,12 @@ export async function submitApplication(applicationData: any, benefitType: strin
       },
     })
 
+    console.log("[v0] 📡 User API response status:", userResponse.status)
+
     if (!userResponse.ok) {
+      const userError = await userResponse.text()
       console.log("[v0] ❌ Failed to get user for submission, status:", userResponse.status)
+      console.log("[v0] ❌ User API error:", userError)
       return { success: false, error: "Failed to authenticate user" }
     }
 
@@ -432,8 +441,7 @@ export async function submitApplication(applicationData: any, benefitType: strin
     const userId = userData.id
     console.log("[v0] ✅ User ID retrieved for submission:", userId)
 
-    // Save application to applications table
-    console.log("[v0] 💾 Saving application to database...")
+    console.log("[v0] 💾 Preparing submission data...")
     const submissionData = {
       user_id: userId,
       benefit_type: benefitType,
@@ -443,6 +451,16 @@ export async function submitApplication(applicationData: any, benefitType: strin
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     }
+
+    console.log("[v0] 📊 Submission data prepared:", {
+      user_id: userId,
+      benefit_type: benefitType,
+      hasApplicationData: !!applicationData,
+      applicationDataSize: JSON.stringify(applicationData || {}).length,
+      status: "submitted",
+    })
+
+    console.log("[v0] 🌐 Making database request to:", `${supabaseUrl}/rest/v1/applications`)
 
     const submitResponse = await fetch(`${supabaseUrl}/rest/v1/applications`, {
       method: "POST",
@@ -455,6 +473,9 @@ export async function submitApplication(applicationData: any, benefitType: strin
       body: JSON.stringify(submissionData),
     })
 
+    console.log("[v0] 📡 Database response status:", submitResponse.status)
+    console.log("[v0] 📡 Database response headers:", Object.fromEntries(submitResponse.headers.entries()))
+
     if (!submitResponse.ok) {
       const error = await submitResponse.text()
       console.log("[v0] ❌ Failed to save application, status:", submitResponse.status)
@@ -463,14 +484,15 @@ export async function submitApplication(applicationData: any, benefitType: strin
     }
 
     const submittedApplication = await submitResponse.json()
+    console.log("[v0] 📋 Database response data:", submittedApplication)
+
     const applicationId = submittedApplication[0]?.id
 
     console.log("[v0] ✅ Application submitted successfully with ID:", applicationId)
 
-    // Optionally clear application progress since it's now submitted
     console.log("[v0] 🧹 Clearing application progress...")
     try {
-      await fetch(`${supabaseUrl}/rest/v1/application_progress?user_id=eq.${userId}`, {
+      const clearResponse = await fetch(`${supabaseUrl}/rest/v1/application_progress?user_id=eq.${userId}`, {
         method: "DELETE",
         headers: {
           apikey: supabaseAnonKey,
@@ -478,10 +500,13 @@ export async function submitApplication(applicationData: any, benefitType: strin
           "Content-Type": "application/json",
         },
       })
+      console.log("[v0] 🧹 Clear progress response status:", clearResponse.status)
       console.log("[v0] ✅ Application progress cleared")
     } catch (clearError) {
       console.log("[v0] ⚠️ Failed to clear progress, but submission was successful:", clearError)
     }
+
+    console.log("[v0] 🎉 Submission process completed successfully")
 
     return {
       success: true,
@@ -493,6 +518,7 @@ export async function submitApplication(applicationData: any, benefitType: strin
     }
   } catch (error) {
     console.error("[v0] ❌ Exception in submitApplication:", error)
+    console.error("[v0] ❌ Error stack:", error instanceof Error ? error.stack : "No stack trace")
     return {
       success: false,
       error: error instanceof Error ? error.message : "An unexpected error occurred",
