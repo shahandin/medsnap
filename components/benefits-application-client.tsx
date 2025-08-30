@@ -222,6 +222,13 @@ export default function BenefitsApplicationClient({
 
         if (continueId) {
           console.log("[v0] 🔄 Loading specific application to continue:", continueId)
+          console.log("[v0] 🔍 User ID:", user.id)
+          console.log(
+            "[v0] 🔍 Database query: SELECT * FROM application_progress WHERE id =",
+            continueId,
+            "AND user_id =",
+            user.id,
+          )
 
           const { data: specificApp, error: specificError } = await supabase
             .from("application_progress")
@@ -230,22 +237,33 @@ export default function BenefitsApplicationClient({
             .eq("user_id", user.id)
             .single()
 
+          console.log("[v0] 📊 Database query result:", { data: specificApp, error: specificError })
+
           if (specificError) {
             console.error("[v0] ❌ Error loading specific application:", specificError)
+            console.log("[v0] 🔍 Error details:", JSON.stringify(specificError, null, 2))
             setIsLoading(false)
             return
           }
 
           if (specificApp) {
             console.log("[v0] ✅ Found specific application to continue:", specificApp)
+            console.log("[v0] 📋 Application data being loaded:", JSON.stringify(specificApp.application_data, null, 2))
+            console.log("[v0] 📍 Current step being set to:", specificApp.current_step)
+            console.log("[v0] 🆔 Application ID being set to:", specificApp.id)
+
             setApplicationData(specificApp.application_data)
             setCurrentStep(specificApp.current_step)
             setApplicationId(specificApp.id)
             setSubmittedApplications(specificApp.submitted_applications || [])
+
+            console.log("[v0] ✅ State updated successfully")
+            console.log("[v0] 📊 Final application data:", JSON.stringify(specificApp.application_data, null, 2))
             setIsLoading(false)
             return
           } else {
             console.log("[v0] ⚠️ Specific application not found, starting fresh")
+            console.log("[v0] 🔍 Query returned null/undefined data")
           }
         }
 
