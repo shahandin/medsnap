@@ -398,6 +398,16 @@ export async function submitApplication(applicationData: any, benefitType: strin
     console.log("[v0] 📊 Submitting application for benefit type:", benefitType)
     console.log("[v0] 📋 Application data keys:", Object.keys(applicationData || {}))
 
+    if (!applicationData || typeof applicationData !== "object") {
+      console.log("[v0] ❌ Invalid application data provided")
+      return { success: false, error: "Invalid application data" }
+    }
+
+    if (!benefitType || typeof benefitType !== "string") {
+      console.log("[v0] ❌ Invalid benefit type provided")
+      return { success: false, error: "Invalid benefit type" }
+    }
+
     const cookieStore = cookies()
     const accessToken = cookieStore.get("sb-access-token")?.value
 
@@ -415,29 +425,36 @@ export async function submitApplication(applicationData: any, benefitType: strin
 
     if (!supabaseUrl || !supabaseAnonKey) {
       console.log("[v0] ❌ Supabase configuration missing for submission")
-      throw new Error("Supabase configuration missing")
+      return { success: false, error: "Service configuration error" }
     }
 
-    // Get user ID from token
     console.log("[v0] 🔍 Getting user ID from token...")
-    const userResponse = await fetch(`${supabaseUrl}/auth/v1/user`, {
-      headers: {
-        apikey: supabaseAnonKey,
-        Authorization: `Bearer ${accessToken}`,
-        "Content-Type": "application/json",
-      },
-    })
+    const userResponse = (await Promise.race([
+      fetch(`${supabaseUrl}/auth/v1/user`, {
+        headers: {
+          apikey: supabaseAnonKey,
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      }),
+      new Promise((_, reject) => setTimeout(() => reject(new Error("User API timeout")), 10000)),
+    ])) as Response
 
     console.log("[v0] 📡 User API response status:", userResponse.status)
 
     if (!userResponse.ok) {
-      const userError = await userResponse.text()
+      const userError = await userResponse.text().catch(() => "Unknown error")
       console.log("[v0] ❌ Failed to get user for submission, status:", userResponse.status)
       console.log("[v0] ❌ User API error:", userError)
-      return { success: false, error: "Failed to authenticate user" }
+      return { success: false, error: "Authentication failed" }
     }
 
-    const userData = await userResponse.json()
+    const userData = await userResponse.json().catch(() => null)
+    if (!userData || !userData.id) {
+      console.log("[v0] ❌ Invalid user data received")
+      return { success: false, error: "Invalid user data" }
+    }
+
     const userId = userData.id
     console.log("[v0] ✅ User ID retrieved for submission:", userId)
 
@@ -462,44 +479,55 @@ export async function submitApplication(applicationData: any, benefitType: strin
 
     console.log("[v0] 🌐 Making database request to:", `${supabaseUrl}/rest/v1/applications`)
 
-    const submitResponse = await fetch(`${supabaseUrl}/rest/v1/applications`, {
-      method: "POST",
-      headers: {
-        apikey: supabaseAnonKey,
-        Authorization: `Bearer ${accessToken}`,
-        "Content-Type": "application/json",
-        Prefer: "return=representation",
-      },
-      body: JSON.stringify(submissionData),
-    })
+    const submitResponse = (await Promise.race([
+      fetch(`${supabaseUrl}/rest/v1/applications`, {
+        method: "POST",
+        headers: {
+          apikey: supabaseAnonKey,
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+          Prefer: "return=representation",
+        },
+        body: JSON.stringify(submissionData),
+      }),
+      new Promise((_, reject) => setTimeout(() => reject(new Error("Database submission timeout")), 15000)),
+    ])) as Response
 
     console.log("[v0] 📡 Database response status:", submitResponse.status)
-    console.log("[v0] 📡 Database response headers:", Object.fromEntries(submitResponse.headers.entries()))
 
     if (!submitResponse.ok) {
-      const error = await submitResponse.text()
+      const error = await submitResponse.text().catch(() => "Unknown database error")
       console.log("[v0] ❌ Failed to save application, status:", submitResponse.status)
       console.log("[v0] ❌ Submission error details:", error)
       return { success: false, error: "Failed to submit application" }
     }
 
-    const submittedApplication = await submitResponse.json()
+    const submittedApplication = await submitResponse.json().catch(() => null)
     console.log("[v0] 📋 Database response data:", submittedApplication)
 
-    const applicationId = submittedApplication[0]?.id
+    const applicationId = submittedApplication?.[0]?.id
+
+    if (!applicationId) {
+      console.log("[v0] ❌ No application ID returned from database")
+      return { success: false, error: "Submission failed - no ID returned" }
+    }
 
     console.log("[v0] ✅ Application submitted successfully with ID:", applicationId)
 
     console.log("[v0] 🧹 Clearing application progress...")
     try {
-      const clearResponse = await fetch(`${supabaseUrl}/rest/v1/application_progress?user_id=eq.${userId}`, {
-        method: "DELETE",
-        headers: {
-          apikey: supabaseAnonKey,
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-      })
+      const clearResponse = (await Promise.race([
+        fetch(`${supabaseUrl}/rest/v1/application_progress?user_id=eq.${userId}`, {
+          method: "DELETE",
+          headers: {
+            apikey: supabaseAnonKey,
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+        }),
+        new Promise((_, reject) => setTimeout(() => reject(new Error("Clear progress timeout")), 5000)),
+      ])) as Response
+
       console.log("[v0] 🧹 Clear progress response status:", clearResponse.status)
       console.log("[v0] ✅ Application progress cleared")
     } catch (clearError) {
@@ -517,11 +545,14 @@ export async function submitApplication(applicationData: any, benefitType: strin
       },
     }
   } catch (error) {
-    console.error("[v0] ❌ Exception in submitApplication:", error)
+    console.error("[v0] ❌ Critical exception in submitApplication:", error)
+    console.error("[v0] ❌ Error name:", error instanceof Error ? error.name : "Unknown")
+    console.error("[v0] ❌ Error message:", error instanceof Error ? error.message : "Unknown error")
     console.error("[v0] ❌ Error stack:", error instanceof Error ? error.stack : "No stack trace")
+
     return {
       success: false,
-      error: error instanceof Error ? error.message : "An unexpected error occurred",
+      error: error instanceof Error ? error.message : "An unexpected error occurred during submission",
     }
   }
 }
