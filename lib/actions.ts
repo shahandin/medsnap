@@ -165,64 +165,95 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
     const userId = userData.id
     console.log("[v0] ✅ User ID retrieved:", userId)
 
-    console.log("[v0] 🔍 Checking if progress record exists...")
-    const checkResponse = await fetch(
-      `${supabaseUrl}/rest/v1/application_progress?user_id=eq.${userId}&select=user_id`,
-      {
-        headers: {
-          apikey: supabaseAnonKey,
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-      },
-    )
-
-    const existingRecords = await checkResponse.json()
-    const recordExists = existingRecords && existingRecords.length > 0
-
-    console.log("[v0] 📊 Record exists:", recordExists)
-
-    const saveData = {
-      user_id: userId,
-      application_data: applicationData,
-      current_step: currentStep,
-      updated_at: new Date().toISOString(),
-    }
-
     let response
-    if (recordExists) {
-      // Update existing record
-      console.log("[v0] 🔄 Updating existing record...")
-      response = await fetch(`${supabaseUrl}/rest/v1/application_progress?user_id=eq.${userId}`, {
-        method: "PATCH",
-        headers: {
-          apikey: supabaseAnonKey,
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
+    if (applicationId) {
+      // Update existing specific application
+      console.log("[v0] 🔄 Updating specific application:", applicationId)
+      response = await fetch(
+        `${supabaseUrl}/rest/v1/application_progress?id=eq.${applicationId}&user_id=eq.${userId}`,
+        {
+          method: "PATCH",
+          headers: {
+            apikey: supabaseAnonKey,
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            application_data: applicationData,
+            current_step: currentStep,
+            updated_at: new Date().toISOString(),
+          }),
         },
-        body: JSON.stringify({
+      )
+    } else {
+      // Check if user has any existing progress (for backward compatibility)
+      console.log("[v0] 🔍 Checking for existing progress...")
+      const checkResponse = await fetch(
+        `${supabaseUrl}/rest/v1/application_progress?user_id=eq.${userId}&select=id&limit=1`,
+        {
+          headers: {
+            apikey: supabaseAnonKey,
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+        },
+      )
+
+      const existingRecords = await checkResponse.json()
+      const hasExistingRecord = existingRecords && existingRecords.length > 0
+
+      if (hasExistingRecord) {
+        // Update the existing record
+        const existingId = existingRecords[0].id
+        console.log("[v0] 🔄 Updating existing record:", existingId)
+        response = await fetch(`${supabaseUrl}/rest/v1/application_progress?id=eq.${existingId}`, {
+          method: "PATCH",
+          headers: {
+            apikey: supabaseAnonKey,
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            application_data: applicationData,
+            current_step: currentStep,
+            updated_at: new Date().toISOString(),
+          }),
+        })
+      } else {
+        // Create new record
+        console.log("[v0] ➕ Creating new application record...")
+        const saveData = {
+          user_id: userId,
           application_data: applicationData,
           current_step: currentStep,
           updated_at: new Date().toISOString(),
-        }),
-      })
-    } else {
-      // Insert new record
-      console.log("[v0] ➕ Inserting new record...")
-      response = await fetch(`${supabaseUrl}/rest/v1/application_progress`, {
-        method: "POST",
-        headers: {
-          apikey: supabaseAnonKey,
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(saveData),
-      })
+        }
+
+        response = await fetch(`${supabaseUrl}/rest/v1/application_progress`, {
+          method: "POST",
+          headers: {
+            apikey: supabaseAnonKey,
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+            Prefer: "return=representation",
+          },
+          body: JSON.stringify(saveData),
+        })
+
+        // Get the new application ID from response
+        if (response.ok) {
+          const newRecord = await response.json()
+          if (newRecord && newRecord[0] && newRecord[0].id) {
+            console.log("[v0] ✅ New application created with ID:", newRecord[0].id)
+            return { success: true, applicationId: newRecord[0].id }
+          }
+        }
+      }
     }
 
     if (response.ok) {
       console.log("[v0] ✅ Application progress saved successfully")
-      return { success: true }
+      return { success: true, applicationId }
     } else {
       const error = await response.text()
       console.log("[v0] ❌ Database save failed, status:", response.status)
@@ -237,7 +268,7 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
 
 export async function loadApplicationProgress(applicationId?: string) {
   try {
-    console.log("[v0] 🔄 Starting loadApplicationProgress...")
+    console.log("[v0] 🔄 Starting loadApplicationProgress with ID:", applicationId)
 
     const cookieStore = cookies()
     const accessToken = cookieStore.get("sb-access-token")?.value
@@ -257,8 +288,16 @@ export async function loadApplicationProgress(applicationId?: string) {
       throw new Error("Supabase configuration missing")
     }
 
-    const queryUrl = `${supabaseUrl}/rest/v1/application_progress?select=*&limit=1`
-    console.log("[v0] 🔍 Querying database for saved progress...")
+    let queryUrl
+    if (applicationId) {
+      // Load specific application
+      console.log("[v0] 🔍 Loading specific application:", applicationId)
+      queryUrl = `${supabaseUrl}/rest/v1/application_progress?id=eq.${applicationId}&select=*&limit=1`
+    } else {
+      // Load most recent application for backward compatibility
+      console.log("[v0] 🔍 Loading most recent application for user...")
+      queryUrl = `${supabaseUrl}/rest/v1/application_progress?select=*&order=updated_at.desc&limit=1`
+    }
 
     const response = await fetch(queryUrl, {
       headers: {
@@ -279,11 +318,14 @@ export async function loadApplicationProgress(applicationId?: string) {
           data[0].current_step,
           "Has application data:",
           !!data[0].application_data,
+          "Application ID:",
+          data[0].id,
         )
         return {
           data: {
             applicationData: data[0].application_data,
             currentStep: data[0].current_step,
+            applicationId: data[0].id,
           },
         }
       } else {
