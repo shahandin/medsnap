@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/input"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
-import { signIn } from "@/lib/actions"
 
 function SubmitButton({ isLoading }: { isLoading: boolean }) {
   return (
@@ -45,19 +44,41 @@ export function LoginForm() {
     setError(null)
 
     try {
+      console.log("[v0] LoginForm: Starting authentication for:", email)
       const supabase = createClient()
+
       await supabase.auth.signOut()
+      console.log("[v0] LoginForm: Cleared existing session")
 
-      const result = await signIn(email, password)
+      console.log("[v0] LoginForm: Attempting sign in...")
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
 
-      if (result.error) {
-        setError(result.error)
+      console.log("[v0] LoginForm: Sign in response:", {
+        user: data.user ? `${data.user.email} (${data.user.id})` : null,
+        session: data.session ? "present" : "null",
+        error: signInError?.message || "none",
+      })
+
+      if (signInError) {
+        console.log("[v0] LoginForm: Authentication failed:", signInError.message)
+        setError(signInError.message)
         return
       }
 
+      if (!data.user || !data.session) {
+        console.log("[v0] LoginForm: No user or session returned")
+        setError("Authentication failed - no user session created")
+        return
+      }
+
+      console.log("[v0] LoginForm: Authentication successful, redirecting...")
       router.push("/")
       router.refresh()
     } catch (error: unknown) {
+      console.log("[v0] LoginForm: Exception during authentication:", error)
       setError(error instanceof Error ? error.message : "An error occurred")
     } finally {
       setIsLoading(false)

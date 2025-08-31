@@ -1,22 +1,22 @@
 "use client"
 
+import type React from "react"
+
 import { useState } from "react"
-import { useFormStatus } from "react-dom"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import Link from "next/link"
-import { signUp } from "@/lib/actions"
+import { useRouter } from "next/navigation"
+import { createClient } from "@/lib/supabase/client"
 
-function SubmitButton({ isFormValid }: { isFormValid: boolean }) {
-  const { pending } = useFormStatus()
-
+function SubmitButton({ isFormValid, isLoading }: { isFormValid: boolean; isLoading: boolean }) {
   return (
     <Button
       type="submit"
-      disabled={pending || !isFormValid}
+      disabled={isLoading || !isFormValid}
       className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80 text-primary-foreground rounded-xl px-8 py-4 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 group h-[60px] disabled:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
     >
-      {pending ? (
+      {isLoading ? (
         <>
           <span className="mr-2 inline-block animate-spin">⏳</span>
           Creating account...
@@ -32,11 +32,15 @@ function SubmitButton({ isFormValid }: { isFormValid: boolean }) {
 }
 
 function SignUpForm() {
-  const [state, setState] = useState<{ error?: string; success?: string } | null>(null)
+  const router = useRouter()
+  const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
 
   const validatePassword = (password: string) => {
     const minLength = password.length >= 8
@@ -53,15 +57,37 @@ function SignUpForm() {
 
   const passwordValidation = validatePassword(password)
   const passwordsMatch = password === confirmPassword && confirmPassword.length > 0
-  const isFormValid = passwordValidation.isValid && passwordsMatch
+  const isFormValid = passwordValidation.isValid && passwordsMatch && email.length > 0
 
-  const handleSubmit = async (formData: FormData) => {
-    setState(null)
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsLoading(true)
+    setError(null)
+    setSuccess(null)
+
     try {
-      const result = await signUp(null, formData)
-      setState(result)
-    } catch (error) {
-      setState({ error: "An error occurred during sign up" })
+      const supabase = createClient()
+
+      const { error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL || `${window.location.origin}/protected`,
+        },
+      })
+
+      if (signUpError) {
+        setError(signUpError.message)
+        return
+      }
+
+      setSuccess("Account created successfully! Please check your email to confirm your account.")
+      // Optionally redirect to a success page
+      // router.push("/auth/sign-up-success")
+    } catch (error: unknown) {
+      setError(error instanceof Error ? error.message : "An error occurred during sign up")
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -71,13 +97,11 @@ function SignUpForm() {
         <h1 className="text-3xl font-heading font-bold text-foreground">Create your account</h1>
       </div>
 
-      <form action={handleSubmit} className="space-y-6">
-        {state?.error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl">{state.error}</div>
-        )}
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl">{error}</div>}
 
-        {state?.success && (
-          <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-xl">{state.success}</div>
+        {success && (
+          <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-xl">{success}</div>
         )}
 
         <div className="space-y-4">
@@ -87,10 +111,11 @@ function SignUpForm() {
             </label>
             <Input
               id="email"
-              name="email"
               type="email"
               placeholder="you@example.com"
               required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="bg-white border-border text-foreground placeholder:text-muted-foreground rounded-xl h-12 px-4 focus:border-primary/50 focus:ring-primary/20"
             />
           </div>
@@ -101,7 +126,6 @@ function SignUpForm() {
             <div className="relative">
               <Input
                 id="password"
-                name="password"
                 type={showPassword ? "text" : "password"}
                 required
                 minLength={8}
@@ -145,7 +169,6 @@ function SignUpForm() {
             <div className="relative">
               <Input
                 id="confirmPassword"
-                name="confirmPassword"
                 type={showConfirmPassword ? "text" : "password"}
                 required
                 value={confirmPassword}
@@ -169,7 +192,7 @@ function SignUpForm() {
           </div>
         </div>
 
-        <SubmitButton isFormValid={isFormValid} />
+        <SubmitButton isFormValid={isFormValid} isLoading={isLoading} />
 
         <div className="text-center text-muted-foreground">
           Already have an account?{" "}

@@ -24,18 +24,10 @@ async function makeSupabaseRequest(endpoint: string, options: any = {}) {
   return response.json()
 }
 
-export async function signIn(prevState: any, formData: FormData) {
+export async function signIn(email: string, password: string) {
   console.log("[v0] signIn: Starting authentication process...")
-
-  if (!formData) {
-    console.log("[v0] signIn: Form data is missing")
-    return { error: "Form data is missing" }
-  }
-
-  const email = formData.get("email")
-  const password = formData.get("password")
   console.log("[v0] signIn: Email provided:", !!email, "Password provided:", !!password)
-  console.log("[v0] signIn: Email value:", email?.toString())
+  console.log("[v0] signIn: Email value:", email)
 
   if (!email || !password) {
     console.log("[v0] signIn: Missing email or password")
@@ -47,8 +39,8 @@ export async function signIn(prevState: any, formData: FormData) {
     const result = await makeSupabaseRequest("/auth/v1/token?grant_type=password", {
       method: "POST",
       body: JSON.stringify({
-        email: email.toString(),
-        password: password.toString(),
+        email: email,
+        password: password,
       }),
     })
 
