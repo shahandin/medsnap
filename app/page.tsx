@@ -3,14 +3,17 @@ import { SiteFooter } from "@/components/site-footer"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from "next/link"
-import { getServerUser } from "@/lib/auth"
+import { createServerClient } from "@/lib/supabase/server"
 
 export const dynamic = "force-dynamic"
 
 export default async function HomePage() {
-  console.log("[v0] HomePage: Starting authentication check...")
+  const supabase = createServerClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
-  const user = await getServerUser()
+  console.log("[v0] HomePage: Starting authentication check...")
 
   console.log("[v0] HomePage: Final user state:", user ? "authenticated" : "unauthenticated")
 

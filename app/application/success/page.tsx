@@ -1,4 +1,4 @@
-import { getServerUser } from "@/lib/auth"
+import { createServerClient } from "@/lib/supabase/server"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -9,7 +9,10 @@ import Link from "next/link"
 export const dynamic = "force-dynamic"
 
 export default async function ApplicationSuccessPage() {
-  const user = await getServerUser()
+  const supabase = createServerClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
   console.log("[v0] Success page: User authentication state:", user ? "authenticated" : "unauthenticated")
 

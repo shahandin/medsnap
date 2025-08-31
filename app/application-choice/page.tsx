@@ -1,12 +1,15 @@
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import ApplicationChoiceClient from "@/components/application-choice-client"
-import { getServerUser } from "@/lib/auth"
+import { createServerClient } from "@/lib/supabase/server"
 
 export const dynamic = "force-dynamic"
 
 export default async function ApplicationChoicePage() {
-  const user = await getServerUser()
+  const supabase = createServerClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
   return (
     <div className="min-h-screen flex flex-col">

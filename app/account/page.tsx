@@ -1,4 +1,4 @@
-import { getServerUser } from "@/lib/auth"
+import { createServerClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
@@ -7,7 +7,10 @@ import AccountDashboardClient from "@/components/account-dashboard-client"
 export const dynamic = "force-dynamic"
 
 export default async function AccountPage() {
-  const user = await getServerUser()
+  const supabase = createServerClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
   // If not authenticated, redirect to signin
   if (!user) {
