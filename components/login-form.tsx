@@ -142,6 +142,9 @@ export function LoginForm() {
           <Link
             href="/signup"
             className="text-primary hover:text-primary/80 font-medium transition-colors duration-200"
+            onClick={() => {
+              console.log("[v0] LoginForm: Sign up link clicked, navigating to /signup")
+            }}
           >
             Sign up
           </Link>
