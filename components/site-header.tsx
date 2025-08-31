@@ -11,11 +11,21 @@ import { NotificationsModal } from "./notifications-modal"
 interface SiteHeaderProps {
   user?: {
     email?: string
+    id?: string
   } | null
 }
 
 export function SiteHeader({ user }: SiteHeaderProps) {
-  console.log("[v0] SiteHeader: Received user prop:", user ? { email: user.email } : null)
+  console.log(
+    "[v0] SiteHeader: Received user prop:",
+    user
+      ? {
+          email: user.email,
+          id: user.id,
+          timestamp: new Date().toISOString(),
+        }
+      : null,
+  )
 
   const pathname = usePathname()
   const [userInitials, setUserInitials] = useState("")
@@ -26,6 +36,9 @@ export function SiteHeader({ user }: SiteHeaderProps) {
   useEffect(() => {
     const getUserInitials = async () => {
       console.log("[v0] SiteHeader: Getting user initials for user:", user ? "authenticated" : "unauthenticated")
+      if (user) {
+        console.log("[v0] SiteHeader: Processing initials for user ID:", user.id)
+      }
 
       if (user) {
         try {
@@ -45,7 +58,7 @@ export function SiteHeader({ user }: SiteHeaderProps) {
           const emailParts = user.email?.split("@")[0] || ""
           if (emailParts.length >= 2) {
             const initials = emailParts.substring(0, 2).toUpperCase()
-            console.log("[v0] SiteHeader: Set initials from email:", initials)
+            console.log("[v0] SiteHeader: Set initials from email:", initials, "for user:", user.email)
             setUserInitials(initials)
           } else {
             const initials = emailParts.charAt(0).toUpperCase() + "U"

@@ -173,7 +173,10 @@ function SignUpForm() {
 
         <div className="text-center text-muted-foreground">
           Already have an account?{" "}
-          <Link href="/login" className="text-primary hover:text-primary/80 font-medium transition-colors duration-200">
+          <Link
+            href="/signin"
+            className="text-primary hover:text-primary/80 font-medium transition-colors duration-200"
+          >
             Sign in
           </Link>
         </div>
