@@ -26,33 +26,36 @@ export function ApplicationPageClient() {
   useEffect(() => {
     const checkAuthAndRoute = async () => {
       try {
-        console.log("[v0] 🔍 Checking authentication...")
-        const response = await fetch("/api/auth/user", {
-          credentials: "include",
-        })
+        console.log("[v0] 🔍 Checking authentication with Supabase client...")
+        const supabase = createClient()
+        const {
+          data: { user: authUser },
+          error: authError,
+        } = await supabase.auth.getUser()
 
-        console.log("[v0] 📡 Auth API response status:", response.status)
+        console.log("[v0] 📡 Supabase auth result:", { hasUser: !!authUser, error: authError?.message })
 
-        if (response.ok) {
-          const userData = await response.json()
-          console.log("[v0] 👤 User data received:", userData)
-          if (userData.user) {
-            console.log("[v0] ✅ User authenticated, setting user state")
-            setUser(userData.user)
-
-            await handleRouting(userData.user)
-            return
-          }
+        if (authError) {
+          console.error("[v0] ❌ Supabase auth error:", authError)
+          setError(`Authentication error: ${authError.message}`)
+          setLoading(false)
+          return
         }
+
+        if (authUser) {
+          console.log("[v0] ✅ User authenticated:", { id: authUser.id, email: authUser.email })
+          setUser(authUser)
+          await handleRouting(authUser)
+          return
+        }
+
+        console.log("[v0] 🔄 No user found, redirecting to signin")
+        router.push("/signin")
       } catch (error) {
         console.error("[v0] ❌ Auth check failed with error:", error)
         setError(`Authentication error: ${error.message}`)
         setLoading(false)
-        return
       }
-
-      console.log("[v0] 🔄 No user found, redirecting to signin")
-      router.push("/signin")
     }
 
     const handleRouting = async (user: any) => {
