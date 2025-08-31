@@ -27,10 +27,13 @@ export default function ApplicationChoiceClient() {
   const loadIncompleteApplications = async () => {
     try {
       console.log("[v0] Client: Loading incomplete applications...")
+      console.log("[v0] Client: Current URL:", window.location.href)
+      console.log("[v0] Client: Checking authentication status...")
+
       const response = await fetch("/api/incomplete-applications")
 
       if (response.status === 401) {
-        console.log("[v0] Client: Unauthorized, redirecting to login")
+        console.log("[v0] Client: Unauthorized - user not signed in, redirecting to sign-up")
         router.push("/auth/sign-up")
         return
       }

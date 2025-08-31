@@ -74,9 +74,8 @@ export function LoginForm() {
         return
       }
 
-      console.log("[v0] LoginForm: Authentication successful, redirecting...")
-      router.push("/")
-      router.refresh()
+      console.log("[v0] LoginForm: Authentication successful, redirecting to auth callback...")
+      router.push("/auth/callback")
     } catch (error: unknown) {
       console.log("[v0] LoginForm: Exception during authentication:", error)
       setError(error instanceof Error ? error.message : "An error occurred")
