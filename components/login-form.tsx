@@ -1,13 +1,13 @@
 "use client"
 
+import type React from "react"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useEffect } from "react"
+import { createClient } from "@/lib/supabase/client"
 import { signIn } from "@/lib/actions"
-// import { createClient } from "@/lib/supabase/client"
 
 function SubmitButton({ isLoading }: { isLoading: boolean }) {
   return (
@@ -33,31 +33,32 @@ function SubmitButton({ isLoading }: { isLoading: boolean }) {
 
 export function LoginForm() {
   const router = useRouter()
-  const [state, setState] = useState<{ success?: boolean; error?: string } | null>(null)
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
 
-  useEffect(() => {
-    if (state?.success) {
-      console.log("[v0] LoginForm: Login success detected, redirecting...")
-      router.push("/")
-      router.refresh()
-    }
-  }, [state, router])
-
-  const handleSubmit = async (formData: FormData) => {
-    console.log("[v0] LoginForm: Starting login process...")
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
     setIsLoading(true)
-    setState(null)
+    setError(null)
 
     try {
-      console.log("[v0] LoginForm: Calling signIn action...")
-      const result = await signIn(null, formData)
-      console.log("[v0] LoginForm: SignIn result:", result)
-      setState(result)
-    } catch (error) {
-      console.log("[v0] LoginForm: SignIn error:", error)
-      setState({ error: "An unexpected error occurred" })
+      const supabase = createClient()
+      await supabase.auth.signOut()
+
+      const result = await signIn(email, password)
+
+      if (result.error) {
+        setError(result.error)
+        return
+      }
+
+      router.push("/")
+      router.refresh()
+    } catch (error: unknown) {
+      setError(error instanceof Error ? error.message : "An error occurred")
     } finally {
       setIsLoading(false)
     }
@@ -70,16 +71,9 @@ export function LoginForm() {
         <p className="text-base sm:text-lg text-muted-foreground">Sign in to your account</p>
       </div>
 
-      <form
-        onSubmit={async (e) => {
-          e.preventDefault()
-          const formData = new FormData(e.currentTarget)
-          await handleSubmit(formData)
-        }}
-        className="space-y-5 sm:space-y-6"
-      >
-        {state?.error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">{state.error}</div>
+      <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">{error}</div>
         )}
 
         <div className="space-y-4">
@@ -89,10 +83,11 @@ export function LoginForm() {
             </label>
             <Input
               id="email"
-              name="email"
               type="email"
               placeholder="you@example.com"
               required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="bg-white border-border text-foreground placeholder:text-muted-foreground rounded-xl h-12 sm:h-12 px-4 focus:border-primary/50 focus:ring-primary/20 text-base"
             />
           </div>
@@ -103,9 +98,10 @@ export function LoginForm() {
             <div className="relative">
               <Input
                 id="password"
-                name="password"
                 type={showPassword ? "text" : "password"}
                 required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 className="bg-white border-border text-foreground pr-12 rounded-xl h-12 sm:h-12 px-4 focus:border-primary/50 focus:ring-primary/20 text-base"
               />
               <button

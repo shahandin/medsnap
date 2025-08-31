@@ -74,7 +74,17 @@ export async function signIn(prevState: any, formData: FormData) {
 
     if (result.error) {
       console.log("[v0] signIn: Authentication failed:", result.error_description || result.error)
-      return { error: result.error_description || result.error }
+      const errorMessage = result.error_description || result.error
+
+      if (errorMessage.includes("Invalid login credentials")) {
+        return { error: "Invalid email or password. Please check your credentials and try again." }
+      } else if (errorMessage.includes("Email not confirmed")) {
+        return { error: "Please check your email and click the confirmation link before signing in." }
+      } else if (errorMessage.includes("Too many requests")) {
+        return { error: "Too many login attempts. Please wait a few minutes and try again." }
+      } else {
+        return { error: `Authentication failed: ${errorMessage}` }
+      }
     }
 
     // Store session in cookies
@@ -103,7 +113,9 @@ export async function signIn(prevState: any, formData: FormData) {
       }
     } else {
       console.log("[v0] signIn: No access token in response")
-      return { error: "Authentication failed - no access token received" }
+      return {
+        error: "Authentication failed - no access token received. The user account may not exist or may have issues.",
+      }
     }
 
     console.log("[v0] signIn: Authentication successful")
