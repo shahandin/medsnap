@@ -9,18 +9,12 @@ import Link from "next/link"
 export const dynamic = "force-dynamic"
 
 export default async function ApplicationSuccessPage() {
-  let user = null
-  try {
-    const supabase = createServerClient()
-    const {
-      data: { user: authUser },
-    } = await supabase.auth.getUser()
-    user = authUser
-    console.log("[v0] Success page: User authentication state:", user ? "authenticated" : "unauthenticated")
-  } catch (error) {
-    console.log("[v0] Success page: Authentication check failed, continuing without user:", error)
-    user = null
-  }
+  const supabase = createServerClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  console.log("[v0] Success page: User authentication state:", user ? "authenticated" : "unauthenticated")
 
   const referenceNumber = `BEN-${Date.now().toString().slice(-8)}`
   const submissionDate = new Date().toLocaleDateString()
