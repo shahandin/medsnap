@@ -30,23 +30,31 @@ export function ReviewSubmission({ applicationData, onSubmit, onEdit }: ReviewSu
     try {
       console.log("[v0] 🚀 Starting application submission...")
 
-      const { submitApplication } = await import("@/lib/actions")
-      const result = await submitApplication(applicationData, applicationData.benefitType)
+      const response = await fetch("/api/submit-application", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          applicationData,
+          benefitType: applicationData.benefitType,
+        }),
+      })
+
+      const result = await response.json()
 
       console.log("[v0] 📤 Submission result:", result)
 
-      if (!result.success || result.error) {
+      if (!response.ok || result.error) {
         console.error("[v0] ❌ Error submitting application:", result.error)
 
         // Check if it's an authentication error
-        if (result.error?.includes("logged in") || result.error?.includes("sign in")) {
+        if (response.status === 401 || result.error?.includes("logged in") || result.error?.includes("sign in")) {
           alert("Your session has expired. Please sign in again and try submitting your application.")
-          // Redirect to sign in page
           router.push("/signin")
           return
         }
 
-        // Handle other errors
         alert(`Error: ${result.error || "There was an error submitting your application. Please try again."}`)
         setIsSubmitting(false)
         return
