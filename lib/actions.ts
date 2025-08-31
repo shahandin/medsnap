@@ -182,22 +182,15 @@ export async function clearApplicationProgress(applicationId?: string) {
 
 export async function submitApplication(applicationData: any, benefitType: string) {
   try {
-    console.log("[v0] 🚀 Starting application submission...")
-    console.log("[v0] 📊 Submitting application for benefit type:", benefitType)
-
     if (!applicationData || typeof applicationData !== "object") {
-      console.log("[v0] ❌ VALIDATION ERROR: Invalid application data provided")
       return { success: false, error: "Invalid application data provided" }
     }
 
     if (!benefitType || typeof benefitType !== "string") {
-      console.log("[v0] ❌ VALIDATION ERROR: Invalid benefit type provided")
       return { success: false, error: "Invalid benefit type provided" }
     }
 
     const supabase = createClient()
-
-    console.log("[v0] 🔍 Checking authentication for submission...")
     const {
       data: { user },
       error: authError,
@@ -212,7 +205,6 @@ export async function submitApplication(applicationData: any, benefitType: strin
 
     if (authError || !user) {
       console.log("[v0] ❌ AUTHENTICATION ERROR: No authenticated user found for submission")
-      console.log("[v0] 🔍 Auth error details:", authError)
       return {
         success: false,
         error: "You must be logged in to submit an application. Please sign in and try again.",
@@ -220,6 +212,8 @@ export async function submitApplication(applicationData: any, benefitType: strin
     }
 
     console.log("[v0] ✅ Authenticated user found for submission:", user.id)
+    console.log("[v0] 🚀 Starting application submission...")
+    console.log("[v0] 📊 Submitting application for benefit type:", benefitType)
 
     // Check for existing applications of this type
     console.log("[v0] 🔍 Checking for existing applications of type:", benefitType)
