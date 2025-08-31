@@ -699,7 +699,7 @@ export default function BenefitsApplicationClient({
 
   const handleSubmit = async () => {
     console.log("Application submitted:", applicationData)
-    resetApplication()
+    // The application state should remain intact until the user navigates away
   }
 
   const resetApplication = () => {

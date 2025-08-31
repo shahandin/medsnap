@@ -1,5 +1,4 @@
-import { createServerClient } from "@/lib/supabase/server"
-import { redirect } from "next/navigation"
+import { getServerUser } from "@/lib/auth"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -10,16 +9,10 @@ import Link from "next/link"
 export const dynamic = "force-dynamic"
 
 export default async function ApplicationSuccessPage() {
-  const supabase = createServerClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const user = await getServerUser()
 
-  if (!user) {
-    redirect("/signin")
-  }
+  console.log("[v0] Success page: User authentication state:", user ? "authenticated" : "unauthenticated")
 
-  // Generate a reference number (in real app, this would come from the database)
   const referenceNumber = `BEN-${Date.now().toString().slice(-8)}`
   const submissionDate = new Date().toLocaleDateString()
 
@@ -29,7 +22,16 @@ export default async function ApplicationSuccessPage() {
 
       <main className="flex-1 bg-gradient-to-br from-green-50 to-blue-50 py-12">
         <div className="container mx-auto px-4 max-w-4xl">
-          {/* Success Header */}
+          {!user && (
+            <Alert className="mb-6 border-orange-300 bg-orange-50">
+              <span className="text-orange-600">⚠️</span>
+              <AlertDescription className="text-orange-800">
+                Your application was submitted successfully, but you may need to sign in again to access your account
+                dashboard.
+              </AlertDescription>
+            </Alert>
+          )}
+
           <div className="text-center mb-8">
             <div className="text-8xl mb-6">✅</div>
             <h1 className="text-4xl font-bold text-green-800 mb-4">Application Submitted Successfully!</h1>
@@ -38,7 +40,6 @@ export default async function ApplicationSuccessPage() {
             </p>
           </div>
 
-          {/* Reference Information */}
           <Card className="mb-8 border-green-200 bg-green-50">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-green-800">
@@ -66,7 +67,6 @@ export default async function ApplicationSuccessPage() {
             </CardContent>
           </Card>
 
-          {/* What Happens Next */}
           <Card className="mb-8">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -116,7 +116,6 @@ export default async function ApplicationSuccessPage() {
             </CardContent>
           </Card>
 
-          {/* Important Information */}
           <Card className="mb-8 border-orange-200 bg-orange-50">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-orange-800">
@@ -161,7 +160,6 @@ export default async function ApplicationSuccessPage() {
             </CardContent>
           </Card>
 
-          {/* Quick Actions */}
           <Card className="mb-8">
             <CardHeader>
               <CardTitle>Quick Actions</CardTitle>
@@ -169,16 +167,31 @@ export default async function ApplicationSuccessPage() {
             </CardHeader>
             <CardContent>
               <div className="grid md:grid-cols-2 gap-4">
-                <Button variant="outline" className="h-auto p-4 justify-start bg-transparent" asChild>
-                  <Link href="/account">
+                <Button
+                  variant="outline"
+                  className="h-auto p-4 justify-start bg-transparent"
+                  asChild={!!user}
+                  disabled={!user}
+                >
+                  {user ? (
+                    <Link href="/account">
+                      <div className="flex items-center gap-3">
+                        <span className="text-xl">📄</span>
+                        <div className="text-left">
+                          <p className="font-medium">View Application Status</p>
+                          <p className="text-sm text-gray-600">Check your account dashboard</p>
+                        </div>
+                      </div>
+                    </Link>
+                  ) : (
                     <div className="flex items-center gap-3">
                       <span className="text-xl">📄</span>
                       <div className="text-left">
                         <p className="font-medium">View Application Status</p>
-                        <p className="text-sm text-gray-600">Check your account dashboard</p>
+                        <p className="text-sm text-gray-600">Sign in to access dashboard</p>
                       </div>
                     </div>
-                  </Link>
+                  )}
                 </Button>
 
                 <Button variant="outline" className="h-auto p-4 justify-start bg-transparent" disabled>
@@ -201,22 +214,36 @@ export default async function ApplicationSuccessPage() {
                   </div>
                 </Button>
 
-                <Button variant="outline" className="h-auto p-4 justify-start bg-transparent" asChild>
-                  <Link href="/about">
+                <Button
+                  variant="outline"
+                  className="h-auto p-4 justify-start bg-transparent"
+                  asChild={!!user}
+                  disabled={!user}
+                >
+                  {user ? (
+                    <Link href="/about">
+                      <div className="flex items-center gap-3">
+                        <span className="text-xl">🔗</span>
+                        <div className="text-left">
+                          <p className="font-medium">Learn About Benefits</p>
+                          <p className="text-sm text-gray-600">Get more information</p>
+                        </div>
+                      </div>
+                    </Link>
+                  ) : (
                     <div className="flex items-center gap-3">
                       <span className="text-xl">🔗</span>
                       <div className="text-left">
                         <p className="font-medium">Learn About Benefits</p>
-                        <p className="text-sm text-gray-600">Get more information</p>
+                        <p className="text-sm text-gray-600">Sign in to access more features</p>
                       </div>
                     </div>
-                  </Link>
+                  )}
                 </Button>
               </div>
             </CardContent>
           </Card>
 
-          {/* Contact Information */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -249,11 +276,16 @@ export default async function ApplicationSuccessPage() {
             </CardContent>
           </Card>
 
-          {/* Navigation */}
           <div className="text-center mt-8">
-            <Button asChild size="lg">
-              <Link href="/account">Go to Account Dashboard</Link>
-            </Button>
+            {user ? (
+              <Button asChild size="lg">
+                <Link href="/account">Go to Account Dashboard</Link>
+              </Button>
+            ) : (
+              <Button asChild size="lg">
+                <Link href="/signin">Sign In to Access Dashboard</Link>
+              </Button>
+            )}
           </div>
         </div>
       </main>
