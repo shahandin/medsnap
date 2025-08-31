@@ -51,19 +51,31 @@ export async function updateSession(request: NextRequest) {
 
   console.log("[v0] Middleware: User from Supabase:", user ? "authenticated" : "not authenticated")
 
-  if (
+  const shouldRedirect =
     request.nextUrl.pathname !== "/" &&
     !user &&
-    !request.nextUrl.pathname.startsWith("/signin") && // Updated from /login to /signin
+    !request.nextUrl.pathname.startsWith("/signin") &&
     !request.nextUrl.pathname.startsWith("/auth") &&
     !request.nextUrl.pathname.startsWith("/signup")
-  ) {
-    // no user, potentially respond by redirecting the user to the login page
+
+  console.log("[v0] Middleware: Redirect check details:", {
+    pathname: request.nextUrl.pathname,
+    isNotHomepage: request.nextUrl.pathname !== "/",
+    hasNoUser: !user,
+    isNotSignin: !request.nextUrl.pathname.startsWith("/signin"),
+    isNotAuth: !request.nextUrl.pathname.startsWith("/auth"),
+    isNotSignup: !request.nextUrl.pathname.startsWith("/signup"),
+    shouldRedirect,
+  })
+
+  if (shouldRedirect) {
+    console.log("[v0] Middleware: Redirecting unauthenticated user from", request.nextUrl.pathname, "to /signin")
     const url = request.nextUrl.clone()
-    url.pathname = "/signin" // Updated redirect from /login to /signin
+    url.pathname = "/signin"
     return NextResponse.redirect(url)
   }
 
+  console.log("[v0] Middleware: No redirect needed, continuing to", request.nextUrl.pathname)
   return supabaseResponse
 }
 
