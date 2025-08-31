@@ -206,7 +206,14 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
 
   useEffect(() => {
     const loadData = async () => {
+      if (!user) {
+        console.log("[v0] No authenticated user, skipping data load")
+        setIsLoading(false)
+        return
+      }
+
       try {
+        console.log("[v0] Loading data for authenticated user:", user.email)
         // Load in-progress application
         const progressResult = await loadApplicationProgress()
         if (progressResult.data) {
@@ -227,11 +234,17 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
     }
 
     loadData()
-  }, [])
+  }, [user]) // Added user dependency
 
   const loadDocumentHistory = async () => {
+    if (!user) {
+      console.log("[v0] No authenticated user, skipping document load")
+      return
+    }
+
     setLoadingDocuments(true)
     try {
+      console.log("[v0] Loading documents for user:", user.email)
       const supabase = createClient()
       const { data, error } = await supabase.from("documents").select("*").order("uploaded_at", { ascending: false })
 

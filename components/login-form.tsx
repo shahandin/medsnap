@@ -7,6 +7,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
 import { signIn } from "@/lib/actions"
+// import { createClient } from "@/lib/supabase/client"
 
 function SubmitButton({ isLoading }: { isLoading: boolean }) {
   return (
@@ -36,12 +37,11 @@ export function LoginForm() {
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
 
-  // Handle successful login by redirecting
   useEffect(() => {
     if (state?.success) {
       console.log("[v0] LoginForm: Login success detected, redirecting...")
       router.push("/")
-      router.refresh() // Force refresh to update auth state
+      router.refresh()
     }
   }, [state, router])
 

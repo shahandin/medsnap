@@ -38,11 +38,23 @@ export function SiteHeader({ user }: SiteHeaderProps) {
       console.log("[v0] SiteHeader: Getting user initials for user:", user ? "authenticated" : "unauthenticated")
       if (user) {
         console.log("[v0] SiteHeader: Processing initials for user ID:", user.id)
+        console.log("[v0] SiteHeader: Current user email:", user.email)
       }
 
       if (user) {
         try {
-          // Try to get initials from saved application data
+          // First try to get initials from current user email
+          if (user.email) {
+            const emailParts = user.email.split("@")[0] || ""
+            if (emailParts.length >= 2) {
+              const initials = emailParts.substring(0, 2).toUpperCase()
+              console.log("[v0] SiteHeader: Set initials from current user email:", initials, "for user:", user.email)
+              setUserInitials(initials)
+              return
+            }
+          }
+
+          // Only try application data as fallback if email doesn't work
           const result = await loadApplicationProgress()
           if (result.data?.application_data?.personalInfo) {
             const { firstName, lastName } = result.data.application_data.personalInfo
@@ -54,13 +66,9 @@ export function SiteHeader({ user }: SiteHeaderProps) {
             }
           }
 
-          // Fallback to email initials if no application data
+          // Final fallback
           const emailParts = user.email?.split("@")[0] || ""
-          if (emailParts.length >= 2) {
-            const initials = emailParts.substring(0, 2).toUpperCase()
-            console.log("[v0] SiteHeader: Set initials from email:", initials, "for user:", user.email)
-            setUserInitials(initials)
-          } else {
+          if (emailParts.length >= 1) {
             const initials = emailParts.charAt(0).toUpperCase() + "U"
             console.log("[v0] SiteHeader: Set fallback initials:", initials)
             setUserInitials(initials)
