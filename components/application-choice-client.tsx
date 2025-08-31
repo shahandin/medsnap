@@ -80,12 +80,28 @@ export default function ApplicationChoiceClient() {
   }
 
   const getBenefitType = (applicationData: any) => {
+    if (applicationData?.benefitType) {
+      const benefitType = applicationData.benefitType
+      switch (benefitType) {
+        case "medicaid":
+          return "Medicaid Only"
+        case "snap":
+          return "SNAP Only"
+        case "both":
+          return "Both Medicaid and SNAP"
+        default:
+          return benefitType
+      }
+    }
+
+    // Fallback to old logic for backward compatibility
     if (applicationData?.benefitSelection?.selectedBenefits) {
       const benefits = applicationData.benefitSelection.selectedBenefits
       if (benefits.length > 0) {
         return benefits.join(", ")
       }
     }
+
     return "Application in Progress"
   }
 
@@ -157,14 +173,19 @@ export default function ApplicationChoiceClient() {
                       onClick={() => continueApplication(app.id)}
                     >
                       <div className="flex justify-between items-start">
-                        <div>
-                          <p className="font-medium text-sm">{getBenefitType(app.application_data)}</p>
-                          <p className="text-xs text-gray-500">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                            <p className="font-semibold text-base text-gray-900">
+                              {getBenefitType(app.application_data)}
+                            </p>
+                          </div>
+                          <p className="text-xs text-gray-500 mb-1">
                             Last saved: {new Date(app.updated_at).toLocaleDateString()}
                           </p>
                           <p className="text-xs text-blue-600">Current step: {getStepName(app.current_step)}</p>
                         </div>
-                        <ArrowRight className="w-4 h-4 text-gray-400" />
+                        <ArrowRight className="w-4 h-4 text-gray-400 mt-1" />
                       </div>
                     </div>
                   ))}

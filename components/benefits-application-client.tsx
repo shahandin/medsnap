@@ -141,6 +141,20 @@ export default function BenefitsApplicationClient({
           return
         }
 
+        console.log("[v0] 🔍 Loading submitted applications...")
+        const { data: submittedApps, error: submittedError } = await supabase
+          .from("applications")
+          .select("benefit_type")
+          .eq("user_id", user.id)
+
+        if (submittedError) {
+          console.error("[v0] ❌ Error loading submitted applications:", submittedError)
+        } else {
+          const submittedTypes = submittedApps?.map((app) => app.benefit_type) || []
+          console.log("[v0] ✅ Found submitted applications:", submittedTypes)
+          setSubmittedApplications(submittedTypes)
+        }
+
         if (startFresh) {
           console.log("[v0] 🆕 Starting fresh application, clearing all saved progress")
           console.log("[v0] 🧹 About to clear application progress...")
@@ -255,7 +269,6 @@ export default function BenefitsApplicationClient({
             setApplicationData(specificApp.application_data)
             setCurrentStep(specificApp.current_step)
             setApplicationId(specificApp.id)
-            setSubmittedApplications(specificApp.submitted_applications || [])
 
             console.log("[v0] ✅ State updated successfully")
             console.log("[v0] 📊 Final application data:", JSON.stringify(specificApp.application_data, null, 2))
@@ -289,7 +302,6 @@ export default function BenefitsApplicationClient({
           setApplicationData(progress.application_data)
           setCurrentStep(progress.current_step)
           setApplicationId(progress.id)
-          setSubmittedApplications(progress.submitted_applications || [])
         } else {
           console.log("[v0] ℹ️ No saved progress found, starting fresh")
         }
