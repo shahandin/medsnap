@@ -399,21 +399,28 @@ export async function submitApplication(applicationData: any, benefitType: strin
     console.log("[v0] 📋 Application data keys:", Object.keys(applicationData || {}))
 
     if (!applicationData || typeof applicationData !== "object") {
-      console.log("[v0] ❌ Invalid application data provided")
-      return { success: false, error: "Invalid application data" }
+      console.log("[v0] ❌ VALIDATION ERROR: Invalid application data provided")
+      console.log("[v0] 📊 Application data type:", typeof applicationData)
+      console.log("[v0] 📊 Application data value:", applicationData)
+      return { success: false, error: "Invalid application data provided" }
     }
 
     if (!benefitType || typeof benefitType !== "string") {
-      console.log("[v0] ❌ Invalid benefit type provided")
-      return { success: false, error: "Invalid benefit type" }
+      console.log("[v0] ❌ VALIDATION ERROR: Invalid benefit type provided")
+      console.log("[v0] 📊 Benefit type:", benefitType)
+      return { success: false, error: "Invalid benefit type provided" }
     }
 
     const cookieStore = cookies()
     const accessToken = cookieStore.get("sb-access-token")?.value
 
     if (!accessToken) {
-      console.log("[v0] ❌ No access token found for submission")
-      return { success: false, error: "Not authenticated" }
+      console.log("[v0] ❌ AUTHENTICATION ERROR: No access token found for submission")
+      console.log(
+        "[v0] 🔍 Available cookies:",
+        cookieStore.getAll().map((c) => c.name),
+      )
+      return { success: false, error: "You must be logged in to submit an application. Please sign in and try again." }
     }
 
     console.log("[v0] ✅ Access token found for submission")
@@ -424,8 +431,8 @@ export async function submitApplication(applicationData: any, benefitType: strin
     console.log("[v0] 🔧 Environment check - URL exists:", !!supabaseUrl, "Key exists:", !!supabaseAnonKey)
 
     if (!supabaseUrl || !supabaseAnonKey) {
-      console.log("[v0] ❌ Supabase configuration missing for submission")
-      return { success: false, error: "Service configuration error" }
+      console.log("[v0] ❌ CONFIGURATION ERROR: Supabase configuration missing for submission")
+      return { success: false, error: "Service configuration error. Please contact support." }
     }
 
     console.log("[v0] 🔍 Getting user ID from token...")
@@ -444,19 +451,62 @@ export async function submitApplication(applicationData: any, benefitType: strin
 
     if (!userResponse.ok) {
       const userError = await userResponse.text().catch(() => "Unknown error")
-      console.log("[v0] ❌ Failed to get user for submission, status:", userResponse.status)
+      console.log("[v0] ❌ AUTHENTICATION ERROR: Failed to get user for submission, status:", userResponse.status)
       console.log("[v0] ❌ User API error:", userError)
-      return { success: false, error: "Authentication failed" }
+
+      if (userResponse.status === 401) {
+        return {
+          success: false,
+          error: "Your session has expired. Please sign in again and try submitting your application.",
+        }
+      }
+
+      return {
+        success: false,
+        error: "Authentication failed. Please sign in again and try submitting your application.",
+      }
     }
 
     const userData = await userResponse.json().catch(() => null)
     if (!userData || !userData.id) {
-      console.log("[v0] ❌ Invalid user data received")
-      return { success: false, error: "Invalid user data" }
+      console.log("[v0] ❌ AUTHENTICATION ERROR: Invalid user data received")
+      console.log("[v0] 📊 User data:", userData)
+      return {
+        success: false,
+        error: "Invalid user session. Please sign in again and try submitting your application.",
+      }
     }
 
     const userId = userData.id
     console.log("[v0] ✅ User ID retrieved for submission:", userId)
+
+    console.log("[v0] 🔍 Checking for existing applications of type:", benefitType)
+    const existingAppResponse = await fetch(
+      `${supabaseUrl}/rest/v1/applications?user_id=eq.${userId}&benefit_type=eq.${benefitType}&select=id,status,submitted_at`,
+      {
+        headers: {
+          apikey: supabaseAnonKey,
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      },
+    )
+
+    if (existingAppResponse.ok) {
+      const existingApps = await existingAppResponse.json()
+      console.log("[v0] 📊 Existing applications found:", existingApps?.length || 0)
+
+      if (existingApps && existingApps.length > 0) {
+        console.log("[v0] ❌ DUPLICATE ERROR: User already has an application for this benefit type")
+        console.log("[v0] 📋 Existing application details:", existingApps[0])
+        return {
+          success: false,
+          error: `You have already submitted a ${benefitType} application. You can only submit one application per benefit type.`,
+        }
+      }
+    } else {
+      console.log("[v0] ⚠️ WARNING: Could not check for existing applications, status:", existingAppResponse.status)
+    }
 
     console.log("[v0] 💾 Preparing submission data...")
     const submissionData = {
@@ -497,9 +547,27 @@ export async function submitApplication(applicationData: any, benefitType: strin
 
     if (!submitResponse.ok) {
       const error = await submitResponse.text().catch(() => "Unknown database error")
-      console.log("[v0] ❌ Failed to save application, status:", submitResponse.status)
+      console.log("[v0] ❌ DATABASE ERROR: Failed to save application, status:", submitResponse.status)
       console.log("[v0] ❌ Submission error details:", error)
-      return { success: false, error: "Failed to submit application" }
+
+      if (submitResponse.status === 409) {
+        return {
+          success: false,
+          error: "A duplicate application was detected. You may have already submitted this application.",
+        }
+      } else if (submitResponse.status === 401) {
+        return {
+          success: false,
+          error: "Your session has expired. Please sign in again and try submitting your application.",
+        }
+      } else if (submitResponse.status === 400) {
+        return { success: false, error: "Invalid application data. Please review your information and try again." }
+      }
+
+      return {
+        success: false,
+        error: "Failed to submit application. Please try again or contact support if the problem persists.",
+      }
     }
 
     const submittedApplication = await submitResponse.json().catch(() => null)
@@ -508,8 +576,8 @@ export async function submitApplication(applicationData: any, benefitType: strin
     const applicationId = submittedApplication?.[0]?.id
 
     if (!applicationId) {
-      console.log("[v0] ❌ No application ID returned from database")
-      return { success: false, error: "Submission failed - no ID returned" }
+      console.log("[v0] ❌ DATABASE ERROR: No application ID returned from database")
+      return { success: false, error: "Submission failed - application was not properly saved. Please try again." }
     }
 
     console.log("[v0] ✅ Application submitted successfully with ID:", applicationId)
@@ -545,14 +613,29 @@ export async function submitApplication(applicationData: any, benefitType: strin
       },
     }
   } catch (error) {
-    console.error("[v0] ❌ Critical exception in submitApplication:", error)
+    console.error("[v0] ❌ CRITICAL EXCEPTION in submitApplication:", error)
     console.error("[v0] ❌ Error name:", error instanceof Error ? error.name : "Unknown")
     console.error("[v0] ❌ Error message:", error instanceof Error ? error.message : "Unknown error")
     console.error("[v0] ❌ Error stack:", error instanceof Error ? error.stack : "No stack trace")
 
+    if (error instanceof Error) {
+      if (error.message.includes("timeout")) {
+        return {
+          success: false,
+          error: "The submission request timed out. Please check your internet connection and try again.",
+        }
+      } else if (error.message.includes("fetch")) {
+        return {
+          success: false,
+          error: "Network error occurred during submission. Please check your internet connection and try again.",
+        }
+      }
+    }
+
     return {
       success: false,
-      error: error instanceof Error ? error.message : "An unexpected error occurred during submission",
+      error:
+        "An unexpected error occurred during submission. Please try again or contact support if the problem persists.",
     }
   }
 }
