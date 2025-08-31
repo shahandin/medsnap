@@ -1,12 +1,12 @@
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import ApplicationChoiceClient from "@/components/application-choice-client"
-import { createServerClient } from "@/lib/supabase/server"
+import { createClient } from "@/lib/supabase/server"
 
 export const dynamic = "force-dynamic"
 
 export default async function ApplicationChoicePage() {
-  const supabase = createServerClient()
+  const supabase = createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
