@@ -13,10 +13,6 @@ export default async function HomePage() {
     data: { user },
   } = await supabase.auth.getUser()
 
-  console.log("[v0] HomePage: Starting authentication check...")
-
-  console.log("[v0] HomePage: Final user state:", user ? "authenticated" : "unauthenticated")
-
   return (
     <div className="min-h-screen flex flex-col">
       <SiteHeader user={user} />
