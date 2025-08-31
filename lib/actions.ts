@@ -196,14 +196,27 @@ export async function submitApplication(applicationData: any, benefitType: strin
     }
 
     const supabase = createClient()
+
+    console.log("[v0] 🔍 Checking authentication for submission...")
     const {
       data: { user },
       error: authError,
     } = await supabase.auth.getUser()
 
+    console.log("[v0] 🔍 Auth check result:", {
+      hasUser: !!user,
+      userId: user?.id,
+      hasAuthError: !!authError,
+      authErrorMessage: authError?.message,
+    })
+
     if (authError || !user) {
       console.log("[v0] ❌ AUTHENTICATION ERROR: No authenticated user found for submission")
-      return { success: false, error: "You must be logged in to submit an application. Please sign in and try again." }
+      console.log("[v0] 🔍 Auth error details:", authError)
+      return {
+        success: false,
+        error: "You must be logged in to submit an application. Please sign in and try again.",
+      }
     }
 
     console.log("[v0] ✅ Authenticated user found for submission:", user.id)

@@ -28,29 +28,39 @@ export function ReviewSubmission({ applicationData, onSubmit, onEdit }: ReviewSu
     setIsSubmitting(true)
 
     try {
-      console.log("🚀 Starting application submission...")
+      console.log("[v0] 🚀 Starting application submission...")
 
       const { submitApplication } = await import("@/lib/actions")
       const result = await submitApplication(applicationData, applicationData.benefitType)
 
-      console.log("📤 Submission result:", result)
+      console.log("[v0] 📤 Submission result:", result)
 
-      if (result.error) {
-        console.error("❌ Error submitting application:", result.error)
-        alert("There was an error submitting your application. Please try again.")
+      if (!result.success || result.error) {
+        console.error("[v0] ❌ Error submitting application:", result.error)
+
+        // Check if it's an authentication error
+        if (result.error?.includes("logged in") || result.error?.includes("sign in")) {
+          alert("Your session has expired. Please sign in again and try submitting your application.")
+          // Redirect to sign in page
+          router.push("/signin")
+          return
+        }
+
+        // Handle other errors
+        alert(`Error: ${result.error || "There was an error submitting your application. Please try again."}`)
         setIsSubmitting(false)
         return
       }
 
-      console.log("✅ Application submitted successfully")
+      console.log("[v0] ✅ Application submitted successfully")
 
       onSubmit()
 
-      console.log("🔄 Redirecting to success page...")
+      console.log("[v0] 🔄 Redirecting to success page...")
       router.push("/application/success")
     } catch (error) {
-      console.error("❌ Error submitting application:", error)
-      alert("There was an error submitting your application. Please try again.")
+      console.error("[v0] ❌ Exception during submission:", error)
+      alert("There was an unexpected error submitting your application. Please try again or contact support.")
       setIsSubmitting(false)
     }
   }
