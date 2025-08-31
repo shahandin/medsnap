@@ -35,6 +35,7 @@ export async function signIn(prevState: any, formData: FormData) {
   const email = formData.get("email")
   const password = formData.get("password")
   console.log("[v0] signIn: Email provided:", !!email, "Password provided:", !!password)
+  console.log("[v0] signIn: Email value:", email?.toString())
 
   if (!email || !password) {
     console.log("[v0] signIn: Missing email or password")
@@ -54,8 +55,22 @@ export async function signIn(prevState: any, formData: FormData) {
     console.log("[v0] signIn: Supabase response received:", {
       hasError: !!result.error,
       hasAccessToken: !!result.access_token,
+      hasRefreshToken: !!result.refresh_token,
+      hasUser: !!result.user,
       errorMessage: result.error_description || result.error,
+      userEmail: result.user?.email,
+      expiresIn: result.expires_in,
     })
+
+    console.log("[v0] signIn: Full Supabase response keys:", Object.keys(result || {}))
+    if (result.user) {
+      console.log("[v0] signIn: User data:", {
+        id: result.user.id,
+        email: result.user.email,
+        emailConfirmed: result.user.email_confirmed_at,
+        createdAt: result.user.created_at,
+      })
+    }
 
     if (result.error) {
       console.log("[v0] signIn: Authentication failed:", result.error_description || result.error)
@@ -65,16 +80,30 @@ export async function signIn(prevState: any, formData: FormData) {
     // Store session in cookies
     console.log("[v0] signIn: Storing session in cookies...")
     const cookieStore = cookies()
+
+    console.log("[v0] signIn: Cookie store available:", !!cookieStore)
+    console.log("[v0] signIn: Access token to store:", result.access_token ? "present" : "missing")
+
     if (result.access_token) {
-      cookieStore.set("sb-access-token", result.access_token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge: result.expires_in || 3600,
-      })
-      console.log("[v0] signIn: Cookie set successfully with expiry:", result.expires_in || 3600)
+      try {
+        cookieStore.set("sb-access-token", result.access_token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "lax",
+          maxAge: result.expires_in || 3600,
+        })
+        console.log("[v0] signIn: Cookie set successfully with expiry:", result.expires_in || 3600)
+
+        const verifyToken = cookieStore.get("sb-access-token")
+        console.log("[v0] signIn: Cookie verification - token exists:", !!verifyToken?.value)
+        console.log("[v0] signIn: Cookie verification - token length:", verifyToken?.value?.length || 0)
+      } catch (cookieError) {
+        console.error("[v0] signIn: Cookie setting failed:", cookieError)
+        return { error: "Failed to store authentication session" }
+      }
     } else {
       console.log("[v0] signIn: No access token in response")
+      return { error: "Authentication failed - no access token received" }
     }
 
     console.log("[v0] signIn: Authentication successful")
