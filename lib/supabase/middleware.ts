@@ -30,6 +30,7 @@ export async function updateSession(request: NextRequest) {
     !user &&
     !request.nextUrl.pathname.startsWith("/signin") &&
     !request.nextUrl.pathname.startsWith("/auth") &&
+    !request.nextUrl.pathname.startsWith("/signup") && // Allow access to signup page for unauthenticated users
     request.nextUrl.pathname !== "/"
   ) {
     const url = request.nextUrl.clone()
