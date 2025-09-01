@@ -4,7 +4,6 @@ import type React from "react"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 
@@ -139,15 +138,24 @@ export function LoginForm() {
 
         <div className="text-center text-muted-foreground text-sm sm:text-base">
           Don't have an account?{" "}
-          <Link
-            href="/signup"
-            className="text-primary hover:text-primary/80 font-medium transition-colors duration-200"
-            onClick={() => {
-              console.log("[v0] LoginForm: Sign up link clicked, navigating to /signup")
+          <button
+            type="button"
+            onClick={(e) => {
+              console.log("[v0] LoginForm: Sign up button click event triggered")
+              console.log("[v0] LoginForm: Event details:", e)
+              console.log("[v0] LoginForm: Router object:", router)
+              try {
+                console.log("[v0] LoginForm: Attempting navigation to /signup")
+                router.push("/signup")
+                console.log("[v0] LoginForm: Navigation call completed")
+              } catch (error) {
+                console.log("[v0] LoginForm: Navigation error:", error)
+              }
             }}
+            className="text-primary hover:text-primary/80 font-medium transition-colors duration-200 underline bg-transparent border-none cursor-pointer"
           >
             Sign up
-          </Link>
+          </button>
         </div>
       </form>
     </div>
