@@ -87,13 +87,13 @@ export default function ApplicationChoiceClient() {
       const benefitType = applicationData.benefitType
       switch (benefitType) {
         case "medicaid":
-          return "Medicaid Only"
+          return "Medicaid Application"
         case "snap":
-          return "SNAP Only"
+          return "SNAP Application"
         case "both":
-          return "Both Medicaid and SNAP"
+          return "Medicaid & SNAP Application"
         default:
-          return benefitType
+          return `${benefitType} Application`
       }
     }
 
@@ -101,11 +101,28 @@ export default function ApplicationChoiceClient() {
     if (applicationData?.benefitSelection?.selectedBenefits) {
       const benefits = applicationData.benefitSelection.selectedBenefits
       if (benefits.length > 0) {
-        return benefits.join(", ")
+        return `${benefits.join(" & ")} Application`
       }
     }
 
-    return "Application in Progress"
+    return "Benefits Application"
+  }
+
+  const getBenefitTypeColor = (applicationData: any) => {
+    if (applicationData?.benefitType) {
+      const benefitType = applicationData.benefitType
+      switch (benefitType) {
+        case "medicaid":
+          return "bg-green-100 text-green-800"
+        case "snap":
+          return "bg-blue-100 text-blue-800"
+        case "both":
+          return "bg-purple-100 text-purple-800"
+        default:
+          return "bg-gray-100 text-gray-800"
+      }
+    }
+    return "bg-gray-100 text-gray-800"
   }
 
   if (loading) {
@@ -172,23 +189,28 @@ export default function ApplicationChoiceClient() {
                   {incompleteApplications.map((app) => (
                     <div
                       key={app.id}
-                      className="p-3 border rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+                      className="p-4 border rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
                       onClick={() => continueApplication(app.id)}
                     >
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                            <p className="font-semibold text-base text-gray-900">
+                          <div className="mb-3">
+                            <span
+                              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getBenefitTypeColor(app.application_data)}`}
+                            >
                               {getBenefitType(app.application_data)}
+                            </span>
+                          </div>
+                          <div className="space-y-1">
+                            <p className="text-sm text-gray-600">
+                              Last saved: {new Date(app.updated_at).toLocaleDateString()}
+                            </p>
+                            <p className="text-sm text-blue-600 font-medium">
+                              Current step: {getStepName(app.current_step)}
                             </p>
                           </div>
-                          <p className="text-xs text-gray-500 mb-1">
-                            Last saved: {new Date(app.updated_at).toLocaleDateString()}
-                          </p>
-                          <p className="text-xs text-blue-600">Current step: {getStepName(app.current_step)}</p>
                         </div>
-                        <ArrowRight className="w-4 h-4 text-gray-400 mt-1" />
+                        <ArrowRight className="w-5 h-5 text-gray-400 mt-2" />
                       </div>
                     </div>
                   ))}
