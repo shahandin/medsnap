@@ -43,40 +43,27 @@ export function LoginForm() {
     setError(null)
 
     try {
-      console.log("[v0] LoginForm: Starting authentication for:", email)
       const supabase = createClient()
 
       await supabase.auth.signOut()
-      console.log("[v0] LoginForm: Cleared existing session")
 
-      console.log("[v0] LoginForm: Attempting sign in...")
       const { data, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
 
-      console.log("[v0] LoginForm: Sign in response:", {
-        user: data.user ? `${data.user.email} (${data.user.id})` : null,
-        session: data.session ? "present" : "null",
-        error: signInError?.message || "none",
-      })
-
       if (signInError) {
-        console.log("[v0] LoginForm: Authentication failed:", signInError.message)
         setError(signInError.message)
         return
       }
 
       if (!data.user || !data.session) {
-        console.log("[v0] LoginForm: No user or session returned")
         setError("Authentication failed - no user session created")
         return
       }
 
-      console.log("[v0] LoginForm: Authentication successful, redirecting to auth callback...")
       router.push("/auth/callback")
     } catch (error: unknown) {
-      console.log("[v0] LoginForm: Exception during authentication:", error)
       setError(error instanceof Error ? error.message : "An error occurred")
     } finally {
       setIsLoading(false)
@@ -140,18 +127,7 @@ export function LoginForm() {
           Don't have an account?{" "}
           <button
             type="button"
-            onClick={(e) => {
-              console.log("[v0] LoginForm: Sign up button click event triggered")
-              console.log("[v0] LoginForm: Event details:", e)
-              console.log("[v0] LoginForm: Router object:", router)
-              try {
-                console.log("[v0] LoginForm: Attempting navigation to /signup")
-                router.push("/signup")
-                console.log("[v0] LoginForm: Navigation call completed")
-              } catch (error) {
-                console.log("[v0] LoginForm: Navigation error:", error)
-              }
-            }}
+            onClick={() => router.push("/signup")}
             className="text-primary hover:text-primary/80 font-medium transition-colors duration-200 underline bg-transparent border-none cursor-pointer"
           >
             Sign up
