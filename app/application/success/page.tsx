@@ -14,8 +14,6 @@ export default async function ApplicationSuccessPage() {
     data: { user },
   } = await supabase.auth.getUser()
 
-  console.log("[v0] Success page: User authentication state:", user ? "authenticated" : "unauthenticated")
-
   const referenceNumber = `BEN-${Date.now().toString().slice(-8)}`
   const submissionDate = new Date().toLocaleDateString()
 
