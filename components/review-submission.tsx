@@ -48,6 +48,25 @@ export function ReviewSubmission({ applicationData, onSubmit, onEdit }: ReviewSu
       if (!response.ok || result.error) {
         console.error("[v0] ❌ Error submitting application:", result.error)
 
+        if (result.details) {
+          console.error("[v0] 🔍 Error Details:")
+          console.error("[v0] - Step:", result.details.step)
+          console.error("[v0] - Message:", result.details.message)
+          if (result.details.authError) console.error("[v0] - Auth Error:", result.details.authError)
+          if (result.details.dbError) console.error("[v0] - Database Error:", result.details.dbError)
+          if (result.details.dbCode) console.error("[v0] - Database Code:", result.details.dbCode)
+          if (result.details.stack) console.error("[v0] - Stack Trace:", result.details.stack)
+
+          // Human-friendly error messages
+          if (result.details.step === "authentication") {
+            console.error("[v0] 👤 HUMAN: Authentication failed - user session is not valid on server")
+          } else if (result.details.step === "database_insert") {
+            console.error("[v0] 💾 HUMAN: Database operation failed - could be schema issue or connection problem")
+          } else if (result.details.step === "unexpected_error") {
+            console.error("[v0] ⚠️ HUMAN: Unexpected server error occurred during processing")
+          }
+        }
+
         // Check if it's an authentication error
         if (response.status === 401 || result.error?.includes("logged in") || result.error?.includes("sign in")) {
           alert("Your session has expired. Please sign in again and try submitting your application.")
@@ -68,6 +87,12 @@ export function ReviewSubmission({ applicationData, onSubmit, onEdit }: ReviewSu
       router.push("/application/success")
     } catch (error) {
       console.error("[v0] ❌ Exception during submission:", error)
+      console.error("[v0] 🔍 Client Exception Details:")
+      console.error("[v0] - Error Type:", typeof error)
+      console.error("[v0] - Error Message:", error instanceof Error ? error.message : "Unknown")
+      console.error("[v0] - Stack Trace:", error instanceof Error ? error.stack : "No stack")
+      console.error("[v0] 👤 HUMAN: Network or client-side JavaScript error occurred")
+
       alert("There was an unexpected error submitting your application. Please try again or contact support.")
       setIsSubmitting(false)
     }
