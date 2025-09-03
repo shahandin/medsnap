@@ -81,7 +81,6 @@ export function GlobalAIChat() {
   }
 
   const handleSuggestionClick = (suggestion: string) => {
-    console.log("[v0] Handling suggestion click:", suggestion)
     handleSendMessage(suggestion)
   }
 
@@ -167,8 +166,6 @@ export function GlobalAIChat() {
         url += `?${urlParams.toString()}`
       }
 
-      console.log("[v0] Navigating to:", url)
-
       router.push(url)
       setIsNavigating(false)
 
@@ -181,22 +178,17 @@ export function GlobalAIChat() {
   }
 
   const handleFormAction = (action: any) => {
-    console.log("[v0] Handling form action:", action)
-
     const updateApplicationData = (window as any).updateApplicationData
     if (!updateApplicationData && action.type !== "fill_report_change") {
-      console.error("[v0] updateApplicationData function not available")
       return
     }
 
     switch (action.type) {
       case "select_benefit":
-        console.log("[v0] Selecting benefit:", action.benefitType)
         updateApplicationData({ benefitType: action.benefitType })
         break
 
       case "select_state":
-        console.log("[v0] Selecting state:", action.state)
         updateApplicationData({
           state: action.state,
           personalInfo: {
@@ -210,7 +202,6 @@ export function GlobalAIChat() {
         break
 
       case "fill_personal_info":
-        console.log("[v0] Filling personal info:", action.fieldType, action.value)
         const currentPersonalInfo = (window as any).applicationContext?.applicationData?.personalInfo || {}
         const personalInfoUpdate: any = { personalInfo: { ...currentPersonalInfo } }
 
@@ -227,7 +218,6 @@ export function GlobalAIChat() {
         break
 
       case "fill_employment":
-        console.log("[v0] Filling employment:", action)
         const currentIncomeEmployment = (window as any).applicationContext?.applicationData?.incomeEmployment || {}
         const employmentUpdate = {
           incomeEmployment: {
@@ -249,7 +239,6 @@ export function GlobalAIChat() {
         break
 
       case "fill_income":
-        console.log("[v0] Filling income:", action)
         const currentIncomeData = (window as any).applicationContext?.applicationData?.incomeEmployment || {}
         const incomeUpdate = {
           incomeEmployment: {
@@ -269,7 +258,6 @@ export function GlobalAIChat() {
         break
 
       case "fill_assets":
-        console.log("[v0] Filling assets:", action)
         const currentAssets = (window as any).applicationContext?.applicationData?.assets || {}
         const assetUpdate = {
           assets: {
@@ -289,7 +277,6 @@ export function GlobalAIChat() {
         break
 
       case "fill_health":
-        console.log("[v0] Filling health info:", action)
         const currentHealth = (window as any).applicationContext?.applicationData?.healthDisability || {}
         const healthUpdate: any = { healthDisability: { ...currentHealth } }
 
@@ -321,14 +308,9 @@ export function GlobalAIChat() {
         break
 
       case "fill_household":
-        console.log("[v0] Filling household info:", action)
-        // Note: This would typically trigger the household management interface
-        // For now, we'll just acknowledge the input
         break
 
       case "fill_report_change":
-        console.log("[v0] Filling report change:", action)
-        // Navigate to the appropriate report changes form with pre-filled data
         setTimeout(() => {
           const prefillData = {
             changeType: action.changeType,
@@ -349,7 +331,7 @@ export function GlobalAIChat() {
         break
 
       default:
-        console.log("[v0] Unknown form action type:", action.type)
+        break
     }
   }
 
@@ -386,12 +368,6 @@ export function GlobalAIChat() {
         content: msg.content,
       }))
 
-      console.log("[v0] Sending chat request:", {
-        message: messageToSend,
-        context: enhancedContext,
-        conversationHistory: conversationHistory.slice(-8),
-      })
-
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -402,16 +378,11 @@ export function GlobalAIChat() {
         }),
       })
 
-      console.log("[v0] Chat API response status:", response.status)
-
       if (!response.ok) {
-        console.error("[v0] Chat API error response:", response.status, response.statusText)
         throw new Error(`API request failed with status ${response.status}`)
       }
 
       const data = await response.json()
-      console.log("[v0] Chat API response data:", data)
-
       if (data.error) {
         throw new Error(data.error)
       }
@@ -457,7 +428,6 @@ export function GlobalAIChat() {
         }, 500)
       }
     } catch (error) {
-      console.error("[v0] Chat error:", error)
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         content: "I'm experiencing some technical difficulties. Please try again in a moment.",
