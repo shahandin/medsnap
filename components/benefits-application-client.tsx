@@ -1119,6 +1119,72 @@ export default function BenefitsApplicationClient({
             )}
           </>
         )}
+
+        {allApplicationsSubmitted && (
+          <div className="max-w-2xl mx-auto">
+            <Card className="shadow-xl border-gray-200 bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl overflow-hidden">
+              <CardHeader className="bg-gradient-to-r from-green-100 to-emerald-100 border-b border-green-200 px-6 py-8 text-center">
+                <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-2xl text-white">✓</span>
+                </div>
+                <CardTitle className="text-2xl font-bold text-green-800 mb-2">All Applications Submitted</CardTitle>
+                <CardDescription className="text-lg text-green-700">
+                  Congratulations! You've successfully submitted all your benefit applications.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="px-6 py-8 text-center">
+                <div className="space-y-6">
+                  <div className="bg-white rounded-xl p-6 border border-green-200">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-3">What's Next?</h3>
+                    <p className="text-gray-600 mb-4">
+                      Your applications are being processed. You can track their status and view details in your
+                      dashboard.
+                    </p>
+                    <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                      <Button
+                        onClick={() => router.push("/dashboard?tab=applications")}
+                        className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 font-semibold"
+                      >
+                        <span>📋</span>
+                        View Application Status
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => router.push("/dashboard")}
+                        className="flex items-center justify-center gap-2 px-6 py-3 border-2 border-gray-300 hover:border-primary/50 rounded-xl bg-white hover:bg-gray-50 transition-all duration-300 font-semibold"
+                      >
+                        <span>🏠</span>
+                        Go to Dashboard
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="bg-blue-50 rounded-xl p-6 border border-blue-200">
+                    <h3 className="text-lg font-semibold text-blue-900 mb-3">Need Help?</h3>
+                    <p className="text-blue-700 mb-4">
+                      If you have questions about your applications or need assistance, our support team is here to
+                      help.
+                    </p>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        // Trigger the AI chat widget
+                        const chatButton = document.querySelector("[data-chat-trigger]") as HTMLElement
+                        if (chatButton) {
+                          chatButton.click()
+                        }
+                      }}
+                      className="flex items-center justify-center gap-2 px-6 py-3 border-2 border-blue-300 hover:border-blue-500 rounded-xl bg-white hover:bg-blue-50 transition-all duration-300 font-semibold text-blue-700 hover:text-blue-800"
+                    >
+                      <span>💬</span>
+                      Get Support
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
       </div>
     </div>
   )
