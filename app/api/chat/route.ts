@@ -622,6 +622,18 @@ NAVIGATION BEHAVIOR:
 
     cleanedResponse = cleanedResponse.replace(/\[State Name\]/gi, "your state")
     cleanedResponse = cleanedResponse.replace(/\[.*?\]/g, "")
+    cleanedResponse = cleanedResponse.replace(/\{.*?\}/g, "")
+
+    // Clean up spacing and ensure we have content
+    cleanedResponse = cleanedResponse.replace(/\s+/g, " ").trim()
+
+    if (!cleanedResponse || cleanedResponse.length < 10) {
+      cleanedResponse =
+        "I understand your question. Let me help you with that. Could you please provide a bit more detail about what specific information you're looking for?"
+    }
+
+    cleanedResponse = cleanedResponse.replace(/\[State Name\]/gi, "your state")
+    cleanedResponse = cleanedResponse.replace(/\[.*?\]/g, "")
 
     cleanedResponse = cleanedResponse.replace(/\{.*?\}/g, "")
     cleanedResponse = cleanedResponse.replace(/\$\{.*?\}/g, "")
