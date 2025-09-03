@@ -61,18 +61,12 @@ const US_STATES = [
 
 export async function POST(request: NextRequest) {
   try {
-    console.log("[v0] Chat API: Starting request processing")
-
     const requestData = await request.json()
     const { message, context, conversationHistory, sessionId } = requestData
 
     if (!message) {
       return NextResponse.json({ error: "Message is required" }, { status: 400 })
     }
-
-    console.log("[v0] Chat API: Processing message:", message)
-    console.log("[v0] Chat API: Context:", context)
-    console.log("[v0] Chat API: Session ID:", sessionId)
 
     const supabase = createClient()
     const {
@@ -88,11 +82,6 @@ export async function POST(request: NextRequest) {
           role: msg.role,
           content: msg.content,
         }))
-        console.log(
-          "[v0] Chat API: Loaded conversation history from database:",
-          enhancedConversationHistory.length,
-          "messages",
-        )
       } catch (error) {
         console.error("[v0] Chat API: Error loading conversation history:", error)
       }
@@ -628,8 +617,6 @@ NAVIGATION BEHAVIOR:
     for await (const chunk of result.textStream) {
       fullText += chunk
     }
-
-    console.log("[v0] Chat API: Generated response:", fullText)
 
     let cleanedResponse = fullText
 
@@ -1364,7 +1351,6 @@ NAVIGATION BEHAVIOR:
       try {
         await saveChatMessage(user.id, sessionId, "user", message, context)
         await saveChatMessage(user.id, sessionId, "assistant", cleanedResponse, null, navigationAction)
-        console.log("[v0] Chat API: Saved conversation to database")
       } catch (error) {
         console.error("[v0] Chat API: Error saving conversation:", error)
         // Continue without failing the request
