@@ -1140,45 +1140,15 @@ export default function BenefitsApplicationClient({
                       Your applications are being processed. You can track their status and view details in your
                       dashboard.
                     </p>
-                    <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                    <div className="flex justify-center">
                       <Button
                         onClick={() => router.push("/dashboard?tab=applications")}
-                        className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 font-semibold"
+                        className="flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 font-semibold text-lg"
                       >
                         <span>📋</span>
                         View Application Status
                       </Button>
-                      <Button
-                        variant="outline"
-                        onClick={() => router.push("/dashboard")}
-                        className="flex items-center justify-center gap-2 px-6 py-3 border-2 border-gray-300 hover:border-primary/50 rounded-xl bg-white hover:bg-gray-50 transition-all duration-300 font-semibold"
-                      >
-                        <span>🏠</span>
-                        Go to Dashboard
-                      </Button>
                     </div>
-                  </div>
-
-                  <div className="bg-blue-50 rounded-xl p-6 border border-blue-200">
-                    <h3 className="text-lg font-semibold text-blue-900 mb-3">Need Help?</h3>
-                    <p className="text-blue-700 mb-4">
-                      If you have questions about your applications or need assistance, our support team is here to
-                      help.
-                    </p>
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        // Trigger the AI chat widget
-                        const chatButton = document.querySelector("[data-chat-trigger]") as HTMLElement
-                        if (chatButton) {
-                          chatButton.click()
-                        }
-                      }}
-                      className="flex items-center justify-center gap-2 px-6 py-3 border-2 border-blue-300 hover:border-blue-500 rounded-xl bg-white hover:bg-blue-50 transition-all duration-300 font-semibold text-blue-700 hover:text-blue-800"
-                    >
-                      <span>💬</span>
-                      Get Support
-                    </Button>
                   </div>
                 </div>
               </CardContent>
