@@ -633,8 +633,11 @@ export default function BenefitsApplicationClient({
 
       debounceTimerRef.current = setTimeout(async () => {
         try {
-          console.log("📝 Form changed, auto-saving...")
-          await saveApplicationProgress({ ...applicationData, ...updates }, currentStep, applicationId)
+          const updatedData = { ...applicationData, ...updates }
+          if (updatedData.benefitType && updatedData.benefitType !== "") {
+            console.log("📝 Form changed, auto-saving...")
+            await saveApplicationProgress(updatedData, currentStep, applicationId)
+          }
         } catch (error) {
           console.error("❌ Form change save error:", error)
         }

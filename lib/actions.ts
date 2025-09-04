@@ -17,8 +17,16 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
     const benefitType =
       applicationData?.benefitType || applicationData?.benefitSelection?.selectedBenefits?.[0] || "unknown"
 
+    console.log("[v0] SaveProgress: Detected benefit type:", benefitType)
+    console.log("[v0] SaveProgress: Application data structure:", {
+      benefitType: applicationData?.benefitType,
+      benefitSelection: applicationData?.benefitSelection,
+      selectedBenefits: applicationData?.benefitSelection?.selectedBenefits,
+    })
+
     let response
     if (applicationId) {
+      console.log("[v0] SaveProgress: Updating existing application:", applicationId)
       // Update existing specific application
       const { data, error } = await supabase
         .from("application_progress")
@@ -39,6 +47,15 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
         .select("id, application_data")
         .eq("user_id", user.id)
 
+      console.log("[v0] SaveProgress: Found existing records:", existingRecords?.length || 0)
+      existingRecords?.forEach((record, index) => {
+        const recordBenefitType =
+          record.application_data?.benefitType ||
+          record.application_data?.benefitSelection?.selectedBenefits?.[0] ||
+          "unknown"
+        console.log(`[v0] SaveProgress: Existing record ${index + 1} benefit type:`, recordBenefitType)
+      })
+
       // Find existing record for this benefit type
       const existingRecord = existingRecords?.find((record) => {
         const recordBenefitType =
@@ -49,6 +66,7 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
       })
 
       if (existingRecord) {
+        console.log("[v0] SaveProgress: Updating existing record for benefit type:", benefitType)
         // Update the existing record for this benefit type
         const { error } = await supabase
           .from("application_progress")
@@ -63,6 +81,7 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
           return { success: true, applicationId: existingRecord.id }
         }
       } else {
+        console.log("[v0] SaveProgress: Creating new record for benefit type:", benefitType)
         // Create new record for this benefit type
         const { data, error } = await supabase
           .from("application_progress")
@@ -75,6 +94,7 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
           .select()
 
         if (!error && data && data[0]) {
+          console.log("[v0] SaveProgress: Successfully created new record:", data[0].id)
           return { success: true, applicationId: data[0].id }
         }
       }
