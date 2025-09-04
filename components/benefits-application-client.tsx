@@ -38,8 +38,6 @@ export default function BenefitsApplicationClient({
   startFresh = false,
   continueId = null,
 }: { startFresh?: boolean; continueId?: string | null }) {
-  console.log("[v0] 🎯 BenefitsApplicationClient initialized with startFresh:", startFresh, "continueId:", continueId)
-
   const [currentStep, setCurrentStep] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
@@ -127,7 +125,6 @@ export default function BenefitsApplicationClient({
   useEffect(() => {
     const loadSavedProgress = async () => {
       try {
-        console.log("[v0] 🔄 Loading saved progress...")
         setIsLoading(true)
 
         const supabase = createClient()
@@ -136,36 +133,30 @@ export default function BenefitsApplicationClient({
         } = await supabase.auth.getUser()
 
         if (!user) {
-          console.log("[v0] ❌ No user found")
           setIsLoading(false)
           return
         }
 
-        console.log("[v0] 🔍 Loading submitted applications...")
         const { data: submittedApps, error: submittedError } = await supabase
           .from("applications")
           .select("benefit_type")
           .eq("user_id", user.id)
 
         if (submittedError) {
-          console.error("[v0] ❌ Error loading submitted applications:", submittedError)
+          console.error("Error loading submitted applications:", submittedError)
         } else {
           const submittedTypes = submittedApps?.map((app) => app.benefit_type) || []
-          console.log("[v0] ✅ Found submitted applications:", submittedTypes)
           setSubmittedApplications(submittedTypes)
         }
 
         if (startFresh) {
-          console.log("[v0] 🆕 Starting fresh application, clearing all saved progress")
-          console.log("[v0] 🧹 About to clear application progress...")
           setIsInitializing(true)
 
           try {
             await clearApplicationProgress()
-            console.log("[v0] ✅ Successfully cleared application progress")
           } catch (clearError) {
-            console.error("[v0] ❌ Error clearing application progress:", clearError)
-            console.log("[v0] ⚠️ Continuing despite clear error")
+            console.error("Error clearing application progress:", clearError)
+            console.log("Continuing despite clear error")
           }
 
           const initialData = {
@@ -225,7 +216,6 @@ export default function BenefitsApplicationClient({
             },
           }
 
-          console.log("[v0] 🎯 Setting initial data for fresh start")
           setApplicationData(initialData)
           setCurrentStep(0)
           setApplicationId(null)
@@ -235,10 +225,10 @@ export default function BenefitsApplicationClient({
         }
 
         if (continueId) {
-          console.log("[v0] 🔄 Loading specific application to continue:", continueId)
-          console.log("[v0] 🔍 User ID:", user.id)
+          console.log("Loading specific application to continue:", continueId)
+          console.log("User ID:", user.id)
           console.log(
-            "[v0] 🔍 Database query: SELECT * FROM application_progress WHERE id =",
+            "Database query: SELECT * FROM application_progress WHERE id =",
             continueId,
             "AND user_id =",
             user.id,
@@ -251,35 +241,35 @@ export default function BenefitsApplicationClient({
             .eq("user_id", user.id)
             .single()
 
-          console.log("[v0] 📊 Database query result:", { data: specificApp, error: specificError })
+          console.log("Database query result:", { data: specificApp, error: specificError })
 
           if (specificError) {
-            console.error("[v0] ❌ Error loading specific application:", specificError)
-            console.log("[v0] 🔍 Error details:", JSON.stringify(specificError, null, 2))
+            console.error("Error loading specific application:", specificError)
+            console.log("Error details:", JSON.stringify(specificError, null, 2))
             setIsLoading(false)
             return
           }
 
           if (specificApp) {
-            console.log("[v0] ✅ Found specific application to continue:", specificApp)
-            console.log("[v0] 📋 Application data being loaded:", JSON.stringify(specificApp.application_data, null, 2))
-            console.log("[v0] 📍 Current step being set to:", specificApp.current_step)
-            console.log("[v0] 🆔 Application ID being set to:", specificApp.id)
+            console.log("Found specific application to continue:", specificApp)
+            console.log("Application data being loaded:", JSON.stringify(specificApp.application_data, null, 2))
+            console.log("Current step being set to:", specificApp.current_step)
+            console.log("Application ID being set to:", specificApp.id)
 
             setApplicationData(specificApp.application_data)
             setCurrentStep(specificApp.current_step)
             setApplicationId(specificApp.id)
 
-            console.log("[v0] ✅ State updated successfully")
-            console.log("[v0] 📊 Final application data:", JSON.stringify(specificApp.application_data, null, 2))
+            console.log("State updated successfully")
+            console.log("Final application data:", JSON.stringify(specificApp.application_data, null, 2))
             setIsLoading(false)
             return
           } else {
-            console.log("[v0] ⚠️ Specific application not found, starting fresh")
-            console.log("[v0] 🔍 Query returned null/undefined data")
+            console.log("Specific application not found, starting fresh")
+            console.log("Query returned null/undefined data")
           }
         } else {
-          console.log("[v0] 🔍 Loading any existing application progress...")
+          console.log("Loading any existing application progress...")
           const { data: savedProgress, error } = await supabase
             .from("application_progress")
             .select("*")
@@ -288,55 +278,52 @@ export default function BenefitsApplicationClient({
             .limit(1)
 
           if (error) {
-            console.error("[v0] ❌ Error loading application progress:", error)
+            console.error("Error loading application progress:", error)
             setIsLoading(false)
             return
           }
 
           if (savedProgress && savedProgress.length > 0) {
             const progress = savedProgress[0]
-            console.log("[v0] ✅ Found saved progress, restoring...")
-            console.log("[v0] 📊 Saved progress data:", progress)
+            console.log("Found saved progress, restoring...")
+            console.log("Saved progress data:", progress)
 
             setApplicationData(progress.application_data)
             setCurrentStep(progress.current_step)
             setApplicationId(progress.id)
           } else {
-            console.log("[v0] ℹ️ No saved progress found, starting fresh")
+            console.log("No saved progress found, starting fresh")
           }
 
           setIsLoading(false)
         }
       } catch (error) {
-        console.error("[v0] ❌ Error in loadSavedProgress:", error)
+        console.error("Error in loadSavedProgress:", error)
         setIsLoading(false)
       }
     }
 
     try {
-      console.log("[v0] 🚀 Calling loadSavedProgress...")
-      console.log("[v0] 📊 useEffect triggered with startFresh:", startFresh, "continueId:", continueId)
+      console.log("Calling loadSavedProgress...")
+      console.log("useEffect triggered with startFresh:", startFresh, "continueId:", continueId)
       loadSavedProgress()
     } catch (error) {
-      console.error("[v0] ❌ Critical error calling loadSavedProgress:", error)
+      console.error("Critical error calling loadSavedProgress:", error)
       setIsLoading(false)
     }
-  }, [startFresh, continueId]) // Added continueId to dependency array
+  }, [startFresh, continueId])
 
   useEffect(() => {
     const autoSave = async () => {
-      try {
-        console.log("💾 Auto-saving progress...")
-        console.log("📊 Current step:", currentStep)
-        console.log("📋 Application data:", applicationData)
-        const result = await saveApplicationProgress(applicationData, currentStep, applicationId)
-        console.log("💾 Save result:", result)
-
-        if (result.success && result.applicationId && !applicationId) {
-          setApplicationId(result.applicationId)
+      if (applicationData.benefitType && applicationData.benefitType !== "" && !isLoading && !isInitializing) {
+        try {
+          const result = await saveApplicationProgress(applicationData, currentStep, applicationId)
+          if (result.success && result.applicationId && !applicationId) {
+            setApplicationId(result.applicationId)
+          }
+        } catch (error) {
+          console.error("Auto-save error:", error)
         }
-      } catch (error) {
-        console.error("❌ Auto-save error:", error)
       }
     }
 
@@ -345,23 +332,10 @@ export default function BenefitsApplicationClient({
   }, [applicationData, currentStep, isLoading, isInitializing, applicationId])
 
   useEffect(() => {
-    const periodicSave = setInterval(async () => {
-      try {
-        console.log("⏰ Periodic auto-save...")
-        await saveApplicationProgress(applicationData, currentStep, applicationId)
-      } catch (error) {
-        console.error("❌ Periodic save error:", error)
-      }
-    }, 30000)
-
-    return () => clearInterval(periodicSave)
-  }, [applicationData, currentStep, isLoading, isInitializing, applicationId])
-
-  useEffect(() => {
     const handleBeforeUnload = async (event: BeforeUnloadEvent) => {
       if (!isInitializing) {
         try {
-          console.log("🚪 Page unloading, saving progress...")
+          console.log("Page unloading, saving progress...")
           const data = JSON.stringify({
             applicationData,
             currentStep,
@@ -375,7 +349,7 @@ export default function BenefitsApplicationClient({
             await saveApplicationProgress(applicationData, currentStep, applicationId)
           }
         } catch (error) {
-          console.error("❌ Error saving on unload:", error)
+          console.error("Error saving on unload:", error)
         }
       }
     }
@@ -388,10 +362,10 @@ export default function BenefitsApplicationClient({
     const handleVisibilityChange = async () => {
       if (document.hidden && !isLoading && !isInitializing) {
         try {
-          console.log("👁️ Page hidden, saving progress...")
+          console.log("Page hidden, saving progress...")
           await saveApplicationProgress(applicationData, currentStep, applicationId)
         } catch (error) {
-          console.error("❌ Error saving on visibility change:", error)
+          console.error("Error saving on visibility change:", error)
         }
       }
     }
@@ -402,7 +376,6 @@ export default function BenefitsApplicationClient({
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      // Calculate field completion percentages for each step
       const getStepCompletionPercentage = (stepIndex: number) => {
         switch (stepIndex) {
           case 0:
@@ -460,7 +433,7 @@ export default function BenefitsApplicationClient({
           }
           case 6: {
             const { assets } = applicationData
-            return assets.assets && assets.assets.length > 0 ? 100 : 50 // 50% for having the section open
+            return assets.assets && assets.assets.length > 0 ? 100 : 50
           }
           case 7: {
             const { healthDisability } = applicationData
@@ -469,13 +442,12 @@ export default function BenefitsApplicationClient({
             return showNursingQuestion ? (healthDisability.needsNursingServices ? 100 : 0) : 100
           }
           case 8:
-            return 100 // Review step is always complete when reached
+            return 100
           default:
             return 0
         }
       }
 
-      // Identify validation errors for current step
       const getValidationErrors = () => {
         const errors: string[] = []
         switch (currentStep) {
@@ -524,64 +496,46 @@ export default function BenefitsApplicationClient({
         return errors
       }
 
-      // Calculate next required steps
       const getNextRequiredSteps = () => {
         const nextSteps: string[] = []
         for (let i = currentStep + 1; i < STEPS.length; i++) {
           if (getStepCompletionPercentage(i) < 100) {
             nextSteps.push(STEPS[i].title)
-            if (nextSteps.length >= 3) break // Limit to next 3 steps
+            if (nextSteps.length >= 3) break
           }
         }
         return nextSteps
       }
-
-      // Enhanced application context with deep state awareness
       ;(window as any).applicationContext = {
-        // Basic step information
         currentStep,
         stepTitle: STEPS[currentStep]?.title,
         stepDescription: STEPS[currentStep]?.description,
         stepId: STEPS[currentStep]?.id,
-
-        // Progress tracking
         completedSteps: currentStep,
         totalSteps: STEPS.length,
         progressPercentage: Math.round(((currentStep + 1) / STEPS.length) * 100),
         canProceed: canProceed(),
-
-        // Step completion analysis
         currentStepCompletion: getStepCompletionPercentage(currentStep),
         allStepCompletions: STEPS.map((_, index) => ({
           step: index,
           title: STEPS[index].title,
           completion: getStepCompletionPercentage(index),
         })),
-
-        // Validation and errors
         validationErrors: getValidationErrors(),
         hasValidationErrors: getValidationErrors().length > 0,
         nextRequiredSteps: getNextRequiredSteps(),
-
-        // Complete application data for context-aware responses
         applicationData: {
           benefitType: applicationData.benefitType,
           state: applicationData.state,
           personalInfo: applicationData.personalInfo,
-          householdSize: applicationData.householdMembers.length + 1, // +1 for applicant
+          householdSize: applicationData.householdMembers.length + 1,
           householdMembers: applicationData.householdMembers,
-
-          // Income summary
           hasEmployment: applicationData.incomeEmployment.employment?.length > 0,
           hasOtherIncome: applicationData.incomeEmployment.income?.length > 0,
           hasExpenses: applicationData.incomeEmployment.expenses?.length > 0,
           taxFilingStatus: applicationData.incomeEmployment.taxFilingStatus,
-
-          // Assets summary
           hasAssets: applicationData.assets.assets?.length > 0,
           assetCount: applicationData.assets.assets?.length || 0,
-
-          // Health information summary
           hasHealthInsurance: applicationData.healthDisability.healthInsurance?.length > 0,
           hasDisabilities: applicationData.healthDisability.disabilities?.hasDisabled,
           isPregnant: applicationData.healthDisability.pregnancyInfo?.isPregnant,
@@ -589,8 +543,6 @@ export default function BenefitsApplicationClient({
           needsNursingServices: applicationData.healthDisability.needsNursingServices,
           hasRecentMedicalBills: applicationData.healthDisability.medicalBills?.hasRecentBills,
         },
-
-        // User profile information
         userProfile: {
           name:
             `${applicationData.personalInfo.firstName} ${applicationData.personalInfo.lastName}`.trim() || "Applicant",
@@ -600,15 +552,11 @@ export default function BenefitsApplicationClient({
           language: applicationData.personalInfo.languagePreference,
           citizenship: applicationData.personalInfo.citizenshipStatus,
         },
-
-        // Document status (placeholder for future enhancement)
         documentStatus: {
-          uploaded: [], // Will be enhanced when document upload is implemented
-          required: [], // Will be enhanced based on application data
-          missing: [], // Will be enhanced based on requirements
+          uploaded: [],
+          required: [],
+          missing: [],
         },
-
-        // Application metadata
         metadata: {
           lastSaved: new Date().toISOString(),
           isLoading,
@@ -635,11 +583,10 @@ export default function BenefitsApplicationClient({
         try {
           const updatedData = { ...applicationData, ...updates }
           if (updatedData.benefitType && updatedData.benefitType !== "") {
-            console.log("📝 Form changed, auto-saving...")
             await saveApplicationProgress(updatedData, currentStep, applicationId)
           }
         } catch (error) {
-          console.error("❌ Form change save error:", error)
+          console.error("Form change save error:", error)
         }
       }, 3000)
     }
@@ -659,11 +606,11 @@ export default function BenefitsApplicationClient({
       setSwipeDirection("left")
 
       try {
-        console.log("➡️ Moving to next step, saving progress...")
-        const result = await saveApplicationProgress(applicationData, currentStep + 1, applicationId)
-        console.log("💾 Save result:", result)
+        if (applicationData.benefitType && applicationData.benefitType !== "") {
+          const result = await saveApplicationProgress(applicationData, currentStep + 1, applicationId)
+        }
       } catch (error) {
-        console.error("❌ Auto-save error:", error)
+        console.error("Step change save error:", error)
       }
 
       setTimeout(() => {
@@ -682,11 +629,11 @@ export default function BenefitsApplicationClient({
       setSwipeDirection("right")
 
       try {
-        console.log("⬅️ Moving to previous step, saving progress...")
-        const result = await saveApplicationProgress(applicationData, currentStep - 1, applicationId)
-        console.log("💾 Save result:", result)
+        if (applicationData.benefitType && applicationData.benefitType !== "") {
+          const result = await saveApplicationProgress(applicationData, currentStep - 1, applicationId)
+        }
       } catch (error) {
-        console.error("❌ Auto-save error:", error)
+        console.error("Step change save error:", error)
       }
 
       setTimeout(() => {
@@ -714,7 +661,6 @@ export default function BenefitsApplicationClient({
 
   const handleSubmit = async () => {
     console.log("Application submitted:", applicationData)
-    // The application state should remain intact until the user navigates away
   }
 
   const resetApplication = () => {
@@ -952,9 +898,6 @@ export default function BenefitsApplicationClient({
     submittedApplications.includes("both") ||
     (submittedApplications.includes("medicaid") && submittedApplications.includes("snap"))
 
-  console.log("🔍 Submitted applications:", submittedApplications)
-  console.log("🔍 All applications submitted?", allApplicationsSubmitted)
-
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX
     touchStartY.current = e.touches[0].clientY
@@ -968,13 +911,10 @@ export default function BenefitsApplicationClient({
     const deltaX = touchStartX.current - touchEndX
     const deltaY = touchStartY.current - touchEndY
 
-    // Only trigger swipe if horizontal movement is greater than vertical
     if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
       if (deltaX > 0 && currentStep < STEPS.length - 1 && canProceed()) {
-        // Swipe left - next step
         nextStep()
       } else if (deltaX < 0 && currentStep > 0) {
-        // Swipe right - previous step
         prevStep()
       }
     }
@@ -984,7 +924,6 @@ export default function BenefitsApplicationClient({
   }
 
   if (isLoading) {
-    console.log("[v0] ⏳ Component is loading...")
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
@@ -994,9 +933,6 @@ export default function BenefitsApplicationClient({
       </div>
     )
   }
-
-  console.log("[v0] 🎨 Rendering benefits application client")
-  console.log("[v0] 📊 Current state:", { currentStep, isLoading, isInitializing })
 
   return (
     <div className="min-h-screen bg-white">
