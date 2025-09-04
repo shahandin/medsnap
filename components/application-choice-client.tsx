@@ -28,6 +28,7 @@ export default function ApplicationChoiceClient() {
 
   const loadIncompleteApplications = async () => {
     try {
+      console.log("[v0] Loading incomplete applications...")
       const response = await fetch("/api/incomplete-applications")
 
       if (response.status === 401) {
@@ -40,12 +41,17 @@ export default function ApplicationChoiceClient() {
       }
 
       const data = await response.json()
+      console.log("[v0] API response data:", data)
 
       if (data.error) {
         throw new Error(data.error)
       }
 
-      setIncompleteApplications(data.applications || [])
+      const applications = data.applications || []
+      console.log("[v0] Setting incomplete applications:", applications)
+      console.log("[v0] Number of applications:", applications.length)
+
+      setIncompleteApplications(applications)
     } catch (error) {
       console.error("Error loading incomplete applications:", error)
       setError("Failed to load applications. Please try again.")
@@ -214,34 +220,37 @@ export default function ApplicationChoiceClient() {
             <CardContent>
               {incompleteApplications.length > 0 ? (
                 <div className="space-y-3">
-                  {incompleteApplications.map((app) => (
-                    <div
-                      key={app.id}
-                      className="p-4 border rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
-                      onClick={() => continueApplication(app.id)}
-                    >
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <div className="mb-3">
-                            <span
-                              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getBenefitTypeColor(app.application_data)}`}
-                            >
-                              {getBenefitType(app.application_data)}
-                            </span>
+                  {incompleteApplications.map((app) => {
+                    console.log("[v0] Rendering application:", app.id, getBenefitType(app.application_data))
+                    return (
+                      <div
+                        key={app.id}
+                        className="p-4 border rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+                        onClick={() => continueApplication(app.id)}
+                      >
+                        <div className="flex justify-between items-start">
+                          <div className="flex-1">
+                            <div className="mb-3">
+                              <span
+                                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getBenefitTypeColor(app.application_data)}`}
+                              >
+                                {getBenefitType(app.application_data)}
+                              </span>
+                            </div>
+                            <div className="space-y-1">
+                              <p className="text-sm text-gray-600">
+                                Last saved: {new Date(app.updated_at).toLocaleDateString()}
+                              </p>
+                              <p className="text-sm text-blue-600 font-medium">
+                                Current step: {getStepName(app.current_step)}
+                              </p>
+                            </div>
                           </div>
-                          <div className="space-y-1">
-                            <p className="text-sm text-gray-600">
-                              Last saved: {new Date(app.updated_at).toLocaleDateString()}
-                            </p>
-                            <p className="text-sm text-blue-600 font-medium">
-                              Current step: {getStepName(app.current_step)}
-                            </p>
-                          </div>
+                          <ArrowRight className="w-5 h-5 text-gray-400 mt-2" />
                         </div>
-                        <ArrowRight className="w-5 h-5 text-gray-400 mt-2" />
                       </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               ) : (
                 <div className="text-center py-4">

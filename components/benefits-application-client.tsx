@@ -278,35 +278,35 @@ export default function BenefitsApplicationClient({
             console.log("[v0] ⚠️ Specific application not found, starting fresh")
             console.log("[v0] 🔍 Query returned null/undefined data")
           }
-        }
-
-        console.log("[v0] 🔍 Loading any existing application progress...")
-        const { data: savedProgress, error } = await supabase
-          .from("application_progress")
-          .select("*")
-          .eq("user_id", user.id)
-          .order("updated_at", { ascending: false })
-          .limit(1)
-
-        if (error) {
-          console.error("[v0] ❌ Error loading application progress:", error)
-          setIsLoading(false)
-          return
-        }
-
-        if (savedProgress && savedProgress.length > 0) {
-          const progress = savedProgress[0]
-          console.log("[v0] ✅ Found saved progress, restoring...")
-          console.log("[v0] 📊 Saved progress data:", progress)
-
-          setApplicationData(progress.application_data)
-          setCurrentStep(progress.current_step)
-          setApplicationId(progress.id)
         } else {
-          console.log("[v0] ℹ️ No saved progress found, starting fresh")
-        }
+          console.log("[v0] 🔍 Loading any existing application progress...")
+          const { data: savedProgress, error } = await supabase
+            .from("application_progress")
+            .select("*")
+            .eq("user_id", user.id)
+            .order("updated_at", { ascending: false })
+            .limit(1)
 
-        setIsLoading(false)
+          if (error) {
+            console.error("[v0] ❌ Error loading application progress:", error)
+            setIsLoading(false)
+            return
+          }
+
+          if (savedProgress && savedProgress.length > 0) {
+            const progress = savedProgress[0]
+            console.log("[v0] ✅ Found saved progress, restoring...")
+            console.log("[v0] 📊 Saved progress data:", progress)
+
+            setApplicationData(progress.application_data)
+            setCurrentStep(progress.current_step)
+            setApplicationId(progress.id)
+          } else {
+            console.log("[v0] ℹ️ No saved progress found, starting fresh")
+          }
+
+          setIsLoading(false)
+        }
       } catch (error) {
         console.error("[v0] ❌ Error in loadSavedProgress:", error)
         setIsLoading(false)
