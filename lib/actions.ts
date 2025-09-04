@@ -14,7 +14,17 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
       return { success: false, error: "Not authenticated" }
     }
 
-    const benefitType = applicationData?.benefitType || applicationData?.benefitSelection?.selectedBenefits?.[0]
+    const benefitType =
+      applicationData?.benefitType ||
+      applicationData?.benefitSelection?.selectedBenefits?.[0] ||
+      (applicationData?.benefitSelection?.selectedBenefits?.includes("medicaid") &&
+      applicationData?.benefitSelection?.selectedBenefits?.includes("snap")
+        ? "both"
+        : applicationData?.benefitSelection?.selectedBenefits?.includes("medicaid")
+          ? "medicaid"
+          : applicationData?.benefitSelection?.selectedBenefits?.includes("snap")
+            ? "snap"
+            : null)
 
     // Map benefit types to application_type values
     let applicationType: string
@@ -41,7 +51,11 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
         .eq("user_id", user.id)
         .select()
 
-      if (!error && data && data[0]) {
+      if (error) {
+        return { success: false, error: `Failed to update progress: ${error.message}` }
+      }
+
+      if (data && data[0]) {
         return { success: true, applicationId: data[0].id }
       }
     } else {
@@ -53,6 +67,7 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
             application_type: applicationType,
             application_data: applicationData,
             current_step: currentStep,
+            created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
           },
           {
@@ -61,12 +76,16 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
         )
         .select()
 
-      if (!error && data && data[0]) {
+      if (error) {
+        return { success: false, error: `Failed to save progress: ${error.message}` }
+      }
+
+      if (data && data[0]) {
         return { success: true, applicationId: data[0].id }
       }
     }
 
-    return { success: false, error: "Failed to save progress" }
+    return { success: false, error: "Failed to save progress - no data returned" }
   } catch (error) {
     return { success: false, error: error instanceof Error ? error.message : "Unknown error" }
   }
