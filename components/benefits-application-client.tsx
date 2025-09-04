@@ -1142,7 +1142,7 @@ export default function BenefitsApplicationClient({
                     </p>
                     <div className="flex justify-center">
                       <Button
-                        onClick={() => router.push("/dashboard?tab=applications")}
+                        onClick={() => router.push("/account?tab=applications")}
                         className="flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 font-semibold text-lg"
                       >
                         <span>📋</span>
