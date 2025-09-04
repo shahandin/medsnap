@@ -18,10 +18,12 @@ export default function ApplicationChoiceClient() {
   const [incompleteApplications, setIncompleteApplications] = useState<IncompleteApplication[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [submittedApplications, setSubmittedApplications] = useState<string[]>([])
   const router = useRouter()
 
   useEffect(() => {
     loadIncompleteApplications()
+    loadSubmittedApplications()
   }, [])
 
   const loadIncompleteApplications = async () => {
@@ -55,6 +57,19 @@ export default function ApplicationChoiceClient() {
       setError("Failed to load applications. Please try again.")
     } finally {
       setLoading(false)
+    }
+  }
+
+  const loadSubmittedApplications = async () => {
+    try {
+      const response = await fetch("/api/submitted-applications")
+      if (response.ok) {
+        const data = await response.json()
+        const benefitTypes = data.applications?.map((app: any) => app.benefit_type) || []
+        setSubmittedApplications(benefitTypes)
+      }
+    } catch (error) {
+      console.error("Error loading submitted applications:", error)
     }
   }
 
@@ -125,6 +140,32 @@ export default function ApplicationChoiceClient() {
     return "bg-gray-100 text-gray-800"
   }
 
+  const getStartedBenefitTypes = () => {
+    const incompleteTypes = incompleteApplications.map((app) => {
+      const benefitType =
+        app.application_data?.benefitType || app.application_data?.benefitSelection?.selectedBenefits?.[0] || "unknown"
+      return benefitType
+    })
+
+    return [...new Set([...incompleteTypes, ...submittedApplications])]
+  }
+
+  const canStartNew = () => {
+    const startedTypes = getStartedBenefitTypes()
+
+    // If user has started or submitted "both", they can't start anything new
+    if (startedTypes.includes("both")) {
+      return false
+    }
+
+    // If user has started or submitted both "medicaid" and "snap", they can't start anything new
+    if (startedTypes.includes("medicaid") && startedTypes.includes("snap")) {
+      return false
+    }
+
+    return true
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
@@ -156,25 +197,25 @@ export default function ApplicationChoiceClient() {
         </div>
 
         <div className="grid gap-6 md:grid-cols-2">
-          {/* Start New Application */}
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={startNewApplication}>
-            <CardHeader className="text-center pb-4">
-              <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
-                <PlusCircle className="w-8 h-8 text-blue-600" />
-              </div>
-              <CardTitle className="text-xl">Start New Application</CardTitle>
-              <CardDescription>Begin a fresh benefits application from the beginning</CardDescription>
-            </CardHeader>
-            <CardContent className="text-center">
-              <Button className="w-full" size="lg">
-                Start New <ArrowRight className="ml-2 w-4 h-4" />
-              </Button>
-            </CardContent>
-          </Card>
+          {canStartNew() && (
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={startNewApplication}>
+              <CardHeader className="text-center pb-4">
+                <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+                  <PlusCircle className="w-8 h-8 text-blue-600" />
+                </div>
+                <CardTitle className="text-xl">Start New Application</CardTitle>
+                <CardDescription>Begin a fresh benefits application from the beginning</CardDescription>
+              </CardHeader>
+              <CardContent className="text-center">
+                <Button className="w-full" size="lg">
+                  Start New <ArrowRight className="ml-2 w-4 h-4" />
+                </Button>
+              </CardContent>
+            </Card>
+          )}
 
-          {/* Continue Existing Application */}
           <Card
-            className={`hover:shadow-lg transition-shadow ${incompleteApplications.length === 0 ? "opacity-50" : ""}`}
+            className={`hover:shadow-lg transition-shadow ${incompleteApplications.length === 0 ? "opacity-50" : ""} ${!canStartNew() ? "md:col-span-2" : ""}`}
           >
             <CardHeader className="text-center pb-4">
               <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">

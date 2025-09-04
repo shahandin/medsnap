@@ -14,6 +14,9 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
       return { success: false, error: "Not authenticated" }
     }
 
+    const benefitType =
+      applicationData?.benefitType || applicationData?.benefitSelection?.selectedBenefits?.[0] || "unknown"
+
     let response
     if (applicationId) {
       // Update existing specific application
@@ -31,18 +34,22 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
         return { success: true, applicationId }
       }
     } else {
-      // Check if user has any existing progress (for backward compatibility)
       const { data: existingRecords } = await supabase
         .from("application_progress")
-        .select("id")
+        .select("id, application_data")
         .eq("user_id", user.id)
-        .limit(1)
 
-      const hasExistingRecord = existingRecords && existingRecords.length > 0
+      // Find existing record for this benefit type
+      const existingRecord = existingRecords?.find((record) => {
+        const recordBenefitType =
+          record.application_data?.benefitType ||
+          record.application_data?.benefitSelection?.selectedBenefits?.[0] ||
+          "unknown"
+        return recordBenefitType === benefitType
+      })
 
-      if (hasExistingRecord) {
-        // Update the existing record
-        const existingId = existingRecords[0].id
+      if (existingRecord) {
+        // Update the existing record for this benefit type
         const { error } = await supabase
           .from("application_progress")
           .update({
@@ -50,13 +57,13 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
             current_step: currentStep,
             updated_at: new Date().toISOString(),
           })
-          .eq("id", existingId)
+          .eq("id", existingRecord.id)
 
         if (!error) {
-          return { success: true, applicationId: existingId }
+          return { success: true, applicationId: existingRecord.id }
         }
       } else {
-        // Create new record
+        // Create new record for this benefit type
         const { data, error } = await supabase
           .from("application_progress")
           .insert({
@@ -203,8 +210,22 @@ export async function submitApplication(applicationData: any, benefitType: strin
 
     const applicationId = submittedApplication[0].id
 
-    // Clear application progress
-    await supabase.from("application_progress").delete().eq("user_id", user.id)
+    const { data: progressRecords } = await supabase
+      .from("application_progress")
+      .select("id, application_data")
+      .eq("user_id", user.id)
+
+    if (progressRecords) {
+      for (const record of progressRecords) {
+        const recordBenefitType =
+          record.application_data?.benefitType ||
+          record.application_data?.benefitSelection?.selectedBenefits?.[0] ||
+          "unknown"
+        if (recordBenefitType === benefitType) {
+          await supabase.from("application_progress").delete().eq("id", record.id)
+        }
+      }
+    }
 
     return {
       success: true,
