@@ -28,14 +28,9 @@ export default function ApplicationChoiceClient() {
 
   const loadIncompleteApplications = async () => {
     try {
-      console.log("[v0] Client: Loading incomplete applications...")
-      console.log("[v0] Client: Current URL:", window.location.href)
-      console.log("[v0] Client: Checking authentication status...")
-
       const response = await fetch("/api/incomplete-applications")
 
       if (response.status === 401) {
-        console.log("[v0] Client: Unauthorized - user not signed in, redirecting to sign-up")
         router.push("/auth/sign-up")
         return
       }
@@ -50,10 +45,9 @@ export default function ApplicationChoiceClient() {
         throw new Error(data.error)
       }
 
-      console.log("[v0] Client: Found incomplete applications:", data.applications?.length || 0)
       setIncompleteApplications(data.applications || [])
     } catch (error) {
-      console.error("[v0] Client: Error loading incomplete applications:", error)
+      console.error("Error loading incomplete applications:", error)
       setError("Failed to load applications. Please try again.")
     } finally {
       setLoading(false)
@@ -72,12 +66,10 @@ export default function ApplicationChoiceClient() {
   }
 
   const startNewApplication = () => {
-    console.log("[v0] Starting new application")
     router.push("/application?fresh=true")
   }
 
   const continueApplication = (applicationId: string) => {
-    console.log("[v0] Continuing application:", applicationId)
     router.push(`/application?continue=${applicationId}`)
   }
 
@@ -110,7 +102,6 @@ export default function ApplicationChoiceClient() {
       }
     }
 
-    // Fallback to old logic for backward compatibility
     if (applicationData?.benefitSelection?.selectedBenefits) {
       const benefits = applicationData.benefitSelection.selectedBenefits
       if (benefits.length > 0) {
@@ -151,12 +142,10 @@ export default function ApplicationChoiceClient() {
   const canStartNew = () => {
     const startedTypes = getStartedBenefitTypes()
 
-    // If user has started or submitted "both", they can't start anything new
     if (startedTypes.includes("both")) {
       return false
     }
 
-    // If user has started or submitted both "medicaid" and "snap", they can't start anything new
     if (startedTypes.includes("medicaid") && startedTypes.includes("snap")) {
       return false
     }
