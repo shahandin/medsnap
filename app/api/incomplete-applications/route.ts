@@ -5,7 +5,6 @@ export const dynamic = "force-dynamic"
 
 export async function GET(request: NextRequest) {
   try {
-    console.log("[v0] API: Loading incomplete applications...")
     const supabase = createClient()
 
     // Get current user
@@ -15,7 +14,6 @@ export async function GET(request: NextRequest) {
     } = await supabase.auth.getUser()
 
     if (authError || !user) {
-      console.log("[v0] API: No user found or auth error:", authError)
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
@@ -27,14 +25,11 @@ export async function GET(request: NextRequest) {
       .order("updated_at", { ascending: false })
 
     if (error) {
-      console.error("[v0] API: Error loading incomplete applications:", error)
       return NextResponse.json({ error: "Database error" }, { status: 500 })
     }
 
-    console.log("[v0] API: Found incomplete applications:", data?.length || 0)
     return NextResponse.json({ applications: data || [] })
   } catch (error) {
-    console.error("[v0] API: Error in GET /api/incomplete-applications:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }

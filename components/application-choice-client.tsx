@@ -68,9 +68,7 @@ export default function ApplicationChoiceClient() {
         const benefitTypes = data.applications?.map((app: any) => app.benefit_type) || []
         setSubmittedApplications(benefitTypes)
       }
-    } catch (error) {
-      console.error("Error loading submitted applications:", error)
-    }
+    } catch (error) {}
   }
 
   const startNewApplication = () => {
