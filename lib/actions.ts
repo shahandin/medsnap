@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server"
 
 export async function saveApplicationProgress(applicationData: any, currentStep: number, applicationId?: string) {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const {
       data: { user },
       error: authError,
@@ -66,13 +66,57 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
             updated_at: new Date().toISOString(),
           },
           {
-            onConflict: "user_id,application_type",
+            ignoreDuplicates: false, // Update on conflict instead of ignoring
           },
         )
         .select()
 
       if (error) {
-        return { success: false, error: `Failed to save progress: ${error.message}` }
+        console.log("[v0] UPSERT failed, trying manual approach:", error.message)
+
+        // First try to find existing record
+        const { data: existing } = await supabase
+          .from("application_progress")
+          .select("id")
+          .eq("user_id", user.id)
+          .eq("application_type", applicationType)
+          .single()
+
+        if (existing) {
+          // Update existing record
+          const { data: updateData, error: updateError } = await supabase
+            .from("application_progress")
+            .update({
+              application_data: applicationData,
+              current_step: currentStep,
+              updated_at: new Date().toISOString(),
+            })
+            .eq("id", existing.id)
+            .select()
+
+          if (updateError) {
+            return { success: false, error: `Failed to update progress: ${updateError.message}` }
+          }
+          return { success: true, applicationId: updateData?.[0]?.id }
+        } else {
+          // Insert new record
+          const { data: insertData, error: insertError } = await supabase
+            .from("application_progress")
+            .insert({
+              user_id: user.id,
+              application_type: applicationType,
+              application_data: applicationData,
+              current_step: currentStep,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+            })
+            .select()
+
+          if (insertError) {
+            return { success: false, error: `Failed to insert progress: ${insertError.message}` }
+          }
+          return { success: true, applicationId: insertData?.[0]?.id }
+        }
       }
 
       if (data && data[0]) {
