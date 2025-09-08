@@ -18,6 +18,7 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
 
     // Only save if benefit type is selected (after Step 0)
     if (!benefitType || benefitType === "") {
+      console.log("[v0] 🚫 Save blocked: No benefit type selected")
       return { success: false, error: "No benefit type selected yet" }
     }
 
@@ -30,10 +31,20 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
     } else if (benefitType === "both") {
       applicationType = "both"
     } else {
+      console.log("[v0] 🚫 Invalid benefit type:", benefitType)
       return { success: false, error: "Invalid benefit type" }
     }
 
+    console.log("[v0] 💾 Starting save operation:", {
+      userId: user.id,
+      applicationType,
+      benefitType,
+      currentStep,
+      hasApplicationId: !!applicationId,
+    })
+
     if (applicationId) {
+      console.log("[v0] 🔄 Updating existing record:", applicationId)
       const { data, error } = await supabase
         .from("application_progress")
         .update({
@@ -47,11 +58,14 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
         .select()
 
       if (error) {
+        console.log("[v0] ❌ Update failed:", error)
         return { success: false, error: `Failed to update progress: ${error.message}` }
       }
 
+      console.log("[v0] ✅ Update successful:", data)
       return { success: true, applicationId: data?.[0]?.id }
     } else {
+      console.log("[v0] 🆕 Attempting UPSERT with constraint: user_id,application_type")
       const { data, error } = await supabase
         .from("application_progress")
         .upsert(
@@ -70,12 +84,15 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
         .select()
 
       if (error) {
+        console.log("[v0] ❌ UPSERT failed:", error)
         return { success: false, error: `Failed to save progress: ${error.message}` }
       }
 
+      console.log("[v0] ✅ UPSERT successful:", data)
       return { success: true, applicationId: data?.[0]?.id }
     }
   } catch (error) {
+    console.log("[v0] ❌ Save function crashed:", error)
     return { success: false, error: error instanceof Error ? error.message : "Unknown error" }
   }
 }
