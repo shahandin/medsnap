@@ -11,6 +11,7 @@ interface IncompleteApplication {
   current_step: number
   application_data: any
   updated_at: string
+  application_type?: string
   benefit_type?: string
 }
 
@@ -28,7 +29,6 @@ export default function ApplicationChoiceClient() {
 
   const loadIncompleteApplications = async () => {
     try {
-      console.log("[v0] Loading incomplete applications...")
       const response = await fetch("/api/incomplete-applications")
 
       if (response.status === 401) {
@@ -41,15 +41,12 @@ export default function ApplicationChoiceClient() {
       }
 
       const data = await response.json()
-      console.log("[v0] API response data:", data)
 
       if (data.error) {
         throw new Error(data.error)
       }
 
       const applications = data.applications || []
-      console.log("[v0] Setting incomplete applications:", applications)
-      console.log("[v0] Number of applications:", applications.length)
 
       setIncompleteApplications(applications)
     } catch (error) {
@@ -93,53 +90,47 @@ export default function ApplicationChoiceClient() {
     return stepNames[step] || `Step ${step + 1}`
   }
 
-  const getBenefitType = (applicationData: any) => {
-    if (applicationData?.benefitType) {
-      const benefitType = applicationData.benefitType
-      switch (benefitType) {
-        case "medicaid":
-          return "Medicaid Application"
-        case "snap":
-          return "SNAP Application"
-        case "both":
-          return "Medicaid & SNAP Application"
-        default:
-          return `${benefitType} Application`
-      }
-    }
+  const getBenefitType = (application: IncompleteApplication) => {
+    const benefitType =
+      application.application_type ||
+      application.application_data?.benefitType ||
+      application.application_data?.benefitSelection?.selectedBenefits?.[0]
 
-    if (applicationData?.benefitSelection?.selectedBenefits) {
-      const benefits = applicationData.benefitSelection.selectedBenefits
-      if (benefits.length > 0) {
-        return `${benefits.join(" & ")} Application`
-      }
+    switch (benefitType) {
+      case "medicaid":
+        return "Medicaid Application"
+      case "snap":
+        return "SNAP Application"
+      case "both":
+        return "Medicaid & SNAP Application"
+      default:
+        return "Benefits Application"
     }
-
-    return "Benefits Application"
   }
 
-  const getBenefitTypeColor = (applicationData: any) => {
-    if (applicationData?.benefitType) {
-      const benefitType = applicationData.benefitType
-      switch (benefitType) {
-        case "medicaid":
-          return "bg-green-100 text-green-800"
-        case "snap":
-          return "bg-blue-100 text-blue-800"
-        case "both":
-          return "bg-purple-100 text-purple-800"
-        default:
-          return "bg-gray-100 text-gray-800"
-      }
+  const getBenefitTypeColor = (application: IncompleteApplication) => {
+    const benefitType = application.application_type || application.application_data?.benefitType
+
+    switch (benefitType) {
+      case "medicaid":
+        return "bg-green-100 text-green-800"
+      case "snap":
+        return "bg-blue-100 text-blue-800"
+      case "both":
+        return "bg-purple-100 text-purple-800"
+      default:
+        return "bg-gray-100 text-gray-800"
     }
-    return "bg-gray-100 text-gray-800"
   }
 
   const getStartedBenefitTypes = () => {
     const incompleteTypes = incompleteApplications.map((app) => {
-      const benefitType =
-        app.application_data?.benefitType || app.application_data?.benefitSelection?.selectedBenefits?.[0] || "unknown"
-      return benefitType
+      return (
+        app.application_type ||
+        app.application_data?.benefitType ||
+        app.application_data?.benefitSelection?.selectedBenefits?.[0] ||
+        "unknown"
+      )
     })
 
     return [...new Set([...incompleteTypes, ...submittedApplications])]
@@ -221,7 +212,6 @@ export default function ApplicationChoiceClient() {
               {incompleteApplications.length > 0 ? (
                 <div className="space-y-3">
                   {incompleteApplications.map((app) => {
-                    console.log("[v0] Rendering application:", app.id, getBenefitType(app.application_data))
                     return (
                       <div
                         key={app.id}
@@ -232,9 +222,9 @@ export default function ApplicationChoiceClient() {
                           <div className="flex-1">
                             <div className="mb-3">
                               <span
-                                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getBenefitTypeColor(app.application_data)}`}
+                                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getBenefitTypeColor(app)}`}
                               >
-                                {getBenefitType(app.application_data)}
+                                {getBenefitType(app)}
                               </span>
                             </div>
                             <div className="space-y-1">
