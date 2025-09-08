@@ -50,9 +50,7 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
         return { success: false, error: `Failed to update progress: ${error.message}` }
       }
 
-      if (data && data[0]) {
-        return { success: true, applicationId: data[0].id }
-      }
+      return { success: true, applicationId: data?.[0]?.id }
     } else {
       const { data, error } = await supabase
         .from("application_progress")
@@ -66,65 +64,17 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
             updated_at: new Date().toISOString(),
           },
           {
-            ignoreDuplicates: false, // Update on conflict instead of ignoring
+            onConflict: "user_id,application_type",
           },
         )
         .select()
 
       if (error) {
-        console.log("[v0] UPSERT failed, trying manual approach:", error.message)
-
-        // First try to find existing record
-        const { data: existing } = await supabase
-          .from("application_progress")
-          .select("id")
-          .eq("user_id", user.id)
-          .eq("application_type", applicationType)
-          .single()
-
-        if (existing) {
-          // Update existing record
-          const { data: updateData, error: updateError } = await supabase
-            .from("application_progress")
-            .update({
-              application_data: applicationData,
-              current_step: currentStep,
-              updated_at: new Date().toISOString(),
-            })
-            .eq("id", existing.id)
-            .select()
-
-          if (updateError) {
-            return { success: false, error: `Failed to update progress: ${updateError.message}` }
-          }
-          return { success: true, applicationId: updateData?.[0]?.id }
-        } else {
-          // Insert new record
-          const { data: insertData, error: insertError } = await supabase
-            .from("application_progress")
-            .insert({
-              user_id: user.id,
-              application_type: applicationType,
-              application_data: applicationData,
-              current_step: currentStep,
-              created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString(),
-            })
-            .select()
-
-          if (insertError) {
-            return { success: false, error: `Failed to insert progress: ${insertError.message}` }
-          }
-          return { success: true, applicationId: insertData?.[0]?.id }
-        }
+        return { success: false, error: `Failed to save progress: ${error.message}` }
       }
 
-      if (data && data[0]) {
-        return { success: true, applicationId: data[0].id }
-      }
+      return { success: true, applicationId: data?.[0]?.id }
     }
-
-    return { success: false, error: "Failed to save progress - no data returned" }
   } catch (error) {
     return { success: false, error: error instanceof Error ? error.message : "Unknown error" }
   }
