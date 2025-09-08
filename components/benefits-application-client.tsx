@@ -316,7 +316,7 @@ export default function BenefitsApplicationClient({
   useEffect(() => {
     const autoSave = async () => {
       if (
-        currentStep > 0 &&
+        currentStep >= 0 &&
         applicationData.benefitType &&
         applicationData.benefitType !== "" &&
         !isLoading &&
@@ -339,7 +339,7 @@ export default function BenefitsApplicationClient({
 
   useEffect(() => {
     const handleBeforeUnload = async (event: BeforeUnloadEvent) => {
-      if (!isInitializing && currentStep > 0 && applicationData.benefitType) {
+      if (!isInitializing && currentStep >= 0 && applicationData.benefitType) {
         try {
           console.log("Page unloading, saving progress...")
           const data = JSON.stringify({
@@ -366,7 +366,7 @@ export default function BenefitsApplicationClient({
 
   useEffect(() => {
     const handleVisibilityChange = async () => {
-      if (document.hidden && !isLoading && !isInitializing && currentStep > 0 && applicationData.benefitType) {
+      if (document.hidden && !isLoading && !isInitializing && currentStep >= 0 && applicationData.benefitType) {
         try {
           console.log("Page hidden, saving progress...")
           await saveApplicationProgress(applicationData, currentStep, applicationId)
@@ -588,7 +588,7 @@ export default function BenefitsApplicationClient({
       debounceTimerRef.current = setTimeout(async () => {
         try {
           const updatedData = { ...applicationData, ...updates }
-          if (currentStep > 0 && updatedData.benefitType && updatedData.benefitType !== "") {
+          if (currentStep >= 0 && updatedData.benefitType && updatedData.benefitType !== "") {
             await saveApplicationProgress(updatedData, currentStep, applicationId)
           }
         } catch (error) {
