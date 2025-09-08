@@ -16,16 +16,8 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
 
     const benefitType = applicationData?.benefitType || ""
 
-    console.log("[v0] Save Progress Debug:", {
-      benefitType,
-      currentStep,
-      applicationId,
-      hasApplicationData: !!applicationData,
-    })
-
     // Only save if benefit type is selected (after Step 0)
     if (!benefitType || benefitType === "") {
-      console.log("[v0] Skipping save - no benefit type selected yet")
       return { success: false, error: "No benefit type selected yet" }
     }
 
@@ -38,11 +30,8 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
     } else if (benefitType === "both") {
       applicationType = "both"
     } else {
-      console.log("[v0] Invalid benefit type:", benefitType)
       return { success: false, error: "Invalid benefit type" }
     }
-
-    console.log("[v0] Mapped application type:", applicationType)
 
     if (applicationId) {
       const { data, error } = await supabase
@@ -65,12 +54,6 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
         return { success: true, applicationId: data[0].id }
       }
     } else {
-      console.log("[v0] Attempting UPSERT with:", {
-        user_id: user.id,
-        application_type: applicationType,
-        current_step: currentStep,
-      })
-
       const { data, error } = await supabase
         .from("application_progress")
         .upsert(
@@ -89,11 +72,8 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
         .select()
 
       if (error) {
-        console.log("[v0] UPSERT failed:", error)
         return { success: false, error: `Failed to save progress: ${error.message}` }
       }
-
-      console.log("[v0] UPSERT successful:", data)
 
       if (data && data[0]) {
         return { success: true, applicationId: data[0].id }
@@ -102,7 +82,6 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
 
     return { success: false, error: "Failed to save progress - no data returned" }
   } catch (error) {
-    console.log("[v0] Save progress exception:", error)
     return { success: false, error: error instanceof Error ? error.message : "Unknown error" }
   }
 }
