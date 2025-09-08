@@ -14,7 +14,7 @@ import { IncomeEmploymentForm } from "@/components/income-employment-form"
 import { AssetsForm } from "@/components/assets-form"
 import { HealthDisabilityForm } from "@/components/health-disability-form"
 import { ReviewSubmission } from "@/components/review-submission"
-import { saveApplicationProgress, clearApplicationProgress } from "@/lib/actions"
+import { saveApplicationProgress } from "@/lib/actions"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter, useSearchParams } from "next/navigation"
 
@@ -152,12 +152,7 @@ export default function BenefitsApplicationClient({
         if (startFresh) {
           setIsInitializing(true)
 
-          try {
-            await clearApplicationProgress()
-          } catch (clearError) {
-            console.error("Error clearing application progress:", clearError)
-            console.log("Continuing despite clear error")
-          }
+          // Users can now have multiple incomplete applications of different types
 
           const initialData = {
             benefitType: "",

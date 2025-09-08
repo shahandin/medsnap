@@ -145,7 +145,7 @@ export async function loadApplicationProgress(applicationId?: string) {
   }
 }
 
-export async function clearApplicationProgress(applicationId?: string) {
+export async function clearApplicationProgress(applicationId?: string, applicationType?: string) {
   try {
     const supabase = createClient()
     const {
@@ -157,7 +157,23 @@ export async function clearApplicationProgress(applicationId?: string) {
       return { success: false, error: "Not authenticated" }
     }
 
-    const { error } = await supabase.from("application_progress").delete().eq("user_id", user.id)
+    let query = supabase.from("application_progress").delete().eq("user_id", user.id)
+
+    // If specific applicationId provided, only delete that record
+    if (applicationId) {
+      query = query.eq("id", applicationId)
+    }
+    // If specific application type provided, only delete records of that type
+    else if (applicationType) {
+      query = query.eq("application_type", applicationType)
+    }
+    // If neither provided, don't delete anything (preserve existing applications)
+    else {
+      console.log("[v0] No specific criteria provided, skipping clear operation")
+      return { success: true }
+    }
+
+    const { error } = await query
 
     if (!error) {
       return { success: true }
