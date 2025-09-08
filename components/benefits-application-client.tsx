@@ -310,6 +310,19 @@ export default function BenefitsApplicationClient({
 
   useEffect(() => {
     const autoSave = async () => {
+      console.log("[v0] 🔍 Auto-save check:", {
+        currentStep,
+        benefitType: applicationData.benefitType,
+        isLoading,
+        isInitializing,
+        conditionsMet:
+          currentStep >= 0 &&
+          applicationData.benefitType &&
+          applicationData.benefitType !== "" &&
+          !isLoading &&
+          !isInitializing,
+      })
+
       if (
         currentStep >= 0 &&
         applicationData.benefitType &&
@@ -317,14 +330,18 @@ export default function BenefitsApplicationClient({
         !isLoading &&
         !isInitializing
       ) {
+        console.log("[v0] 💾 Auto-save triggered - calling saveApplicationProgress")
         try {
           const result = await saveApplicationProgress(applicationData, currentStep, applicationId)
+          console.log("[v0] ✅ Auto-save result:", result)
           if (result.success && result.applicationId && !applicationId) {
             setApplicationId(result.applicationId)
           }
         } catch (error) {
-          console.error("Auto-save error:", error)
+          console.error("[v0] ❌ Auto-save error:", error)
         }
+      } else {
+        console.log("[v0] ⏭️ Auto-save skipped - conditions not met")
       }
     }
 
@@ -573,6 +590,7 @@ export default function BenefitsApplicationClient({
   }, [currentStep, applicationData, isLoading, isSaving, isInitializing, submittedApplications])
 
   const updateApplicationData = (updates: any) => {
+    console.log("[v0] 📝 updateApplicationData called with:", updates)
     setApplicationData((prev) => ({ ...prev, ...updates }))
 
     if (!isInitializing) {
@@ -583,11 +601,20 @@ export default function BenefitsApplicationClient({
       debounceTimerRef.current = setTimeout(async () => {
         try {
           const updatedData = { ...applicationData, ...updates }
+          console.log("[v0] 🔄 Debounced save check:", {
+            currentStep,
+            benefitType: updatedData.benefitType,
+            conditionsMet: currentStep >= 0 && updatedData.benefitType && updatedData.benefitType !== "",
+          })
+
           if (currentStep >= 0 && updatedData.benefitType && updatedData.benefitType !== "") {
+            console.log("[v0] 💾 Debounced save triggered")
             await saveApplicationProgress(updatedData, currentStep, applicationId)
+          } else {
+            console.log("[v0] ⏭️ Debounced save skipped")
           }
         } catch (error) {
-          console.error("Form change save error:", error)
+          console.error("[v0] ❌ Form change save error:", error)
         }
       }, 3000)
     }
