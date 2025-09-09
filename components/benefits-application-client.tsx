@@ -220,15 +220,6 @@ export default function BenefitsApplicationClient({
         }
 
         if (continueId) {
-          console.log("Loading specific application to continue:", continueId)
-          console.log("User ID:", user.id)
-          console.log(
-            "Database query: SELECT * FROM application_progress WHERE id =",
-            continueId,
-            "AND user_id =",
-            user.id,
-          )
-
           const { data: specificApp, error: specificError } = await supabase
             .from("application_progress")
             .select("*")
@@ -236,35 +227,20 @@ export default function BenefitsApplicationClient({
             .eq("user_id", user.id)
             .single()
 
-          console.log("Database query result:", { data: specificApp, error: specificError })
-
           if (specificError) {
             console.error("Error loading specific application:", specificError)
-            console.log("Error details:", JSON.stringify(specificError, null, 2))
             setIsLoading(false)
             return
           }
 
           if (specificApp) {
-            console.log("Found specific application to continue:", specificApp)
-            console.log("Application data being loaded:", JSON.stringify(specificApp.application_data, null, 2))
-            console.log("Current step being set to:", specificApp.current_step)
-            console.log("Application ID being set to:", specificApp.id)
-
             setApplicationData(specificApp.application_data)
             setCurrentStep(specificApp.current_step)
             setApplicationId(specificApp.id)
-
-            console.log("State updated successfully")
-            console.log("Final application data:", JSON.stringify(specificApp.application_data, null, 2))
             setIsLoading(false)
             return
-          } else {
-            console.log("Specific application not found, starting fresh")
-            console.log("Query returned null/undefined data")
           }
         } else {
-          console.log("Loading any existing application progress...")
           const { data: savedProgress, error } = await supabase
             .from("application_progress")
             .select("*")
@@ -280,9 +256,6 @@ export default function BenefitsApplicationClient({
 
           if (savedProgress && savedProgress.length > 0) {
             const progress = savedProgress[0]
-            console.log("Found saved progress, restoring...")
-            console.log("Saved progress data:", progress)
-
             setApplicationData(progress.application_data)
             setCurrentStep(progress.current_step)
             setApplicationId(progress.id)
@@ -310,19 +283,6 @@ export default function BenefitsApplicationClient({
 
   useEffect(() => {
     const autoSave = async () => {
-      console.log("[v0] 🔍 Auto-save check:", {
-        currentStep,
-        benefitType: applicationData.benefitType,
-        isLoading,
-        isInitializing,
-        conditionsMet:
-          currentStep >= 0 &&
-          applicationData.benefitType &&
-          applicationData.benefitType !== "" &&
-          !isLoading &&
-          !isInitializing,
-      })
-
       if (
         currentStep >= 0 &&
         applicationData.benefitType &&
@@ -330,18 +290,14 @@ export default function BenefitsApplicationClient({
         !isLoading &&
         !isInitializing
       ) {
-        console.log("[v0] 💾 Auto-save triggered - calling saveApplicationProgress")
         try {
           const result = await saveApplicationProgress(applicationData, currentStep, applicationId)
-          console.log("[v0] ✅ Auto-save result:", result)
           if (result.success && result.applicationId && !applicationId) {
             setApplicationId(result.applicationId)
           }
         } catch (error) {
-          console.error("[v0] ❌ Auto-save error:", error)
+          console.error("Auto-save error:", error)
         }
-      } else {
-        console.log("[v0] ⏭️ Auto-save skipped - conditions not met")
       }
     }
 
@@ -590,7 +546,6 @@ export default function BenefitsApplicationClient({
   }, [currentStep, applicationData, isLoading, isSaving, isInitializing, submittedApplications])
 
   const updateApplicationData = (updates: any) => {
-    console.log("[v0] 📝 updateApplicationData called with:", updates)
     setApplicationData((prev) => ({ ...prev, ...updates }))
 
     if (!isInitializing) {
@@ -601,20 +556,11 @@ export default function BenefitsApplicationClient({
       debounceTimerRef.current = setTimeout(async () => {
         try {
           const updatedData = { ...applicationData, ...updates }
-          console.log("[v0] 🔄 Debounced save check:", {
-            currentStep,
-            benefitType: updatedData.benefitType,
-            conditionsMet: currentStep >= 0 && updatedData.benefitType && updatedData.benefitType !== "",
-          })
-
           if (currentStep >= 0 && updatedData.benefitType && updatedData.benefitType !== "") {
-            console.log("[v0] 💾 Debounced save triggered")
             await saveApplicationProgress(updatedData, currentStep, applicationId)
-          } else {
-            console.log("[v0] ⏭️ Debounced save skipped")
           }
         } catch (error) {
-          console.error("[v0] ❌ Form change save error:", error)
+          console.error("Form change save error:", error)
         }
       }, 3000)
     }
