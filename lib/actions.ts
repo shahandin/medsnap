@@ -1,6 +1,9 @@
 "use server"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
+import { encryptApplicationData, decryptApplicationData } from "@/lib/hipaa-encryption"
+import { logApplicationDataAccess, identifyPHIFields } from "@/lib/hipaa-audit"
+import { headers } from "next/headers"
 
 export async function saveApplicationProgress(applicationData: any, currentStep: number, applicationId?: string) {
   try {
@@ -33,11 +36,23 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
       return { success: false, error: "Invalid benefit type" }
     }
 
+    const encryptedApplicationData = encryptApplicationData(applicationData)
+
+    const phiFields = identifyPHIFields(applicationData)
+    const headersList = headers()
+    const request = {
+      headers: {
+        get: (name: string) => headersList.get(name),
+      },
+      url: "/api/save-progress",
+      method: "POST",
+    } as Request
+
     if (applicationId) {
       const { data, error } = await supabase
         .from("application_progress")
         .update({
-          application_data: applicationData,
+          application_data: encryptedApplicationData, // Store encrypted data
           current_step: currentStep,
           application_type: applicationType,
           updated_at: new Date().toISOString(),
@@ -46,7 +61,13 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
         .eq("user_id", user.id)
         .select()
 
+      await logApplicationDataAccess(user.id, "UPDATE", applicationId, phiFields, request)
+
       if (error) {
+        await logApplicationDataAccess(user.id, "UPDATE", applicationId, phiFields, {
+          ...request,
+          headers: { ...request.headers, error: error.message },
+        } as Request)
         return { success: false, error: `Failed to update progress: ${error.message}` }
       }
 
@@ -58,7 +79,7 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
           {
             user_id: user.id,
             application_type: applicationType,
-            application_data: applicationData,
+            application_data: encryptedApplicationData, // Store encrypted data
             current_step: currentStep,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
@@ -69,7 +90,14 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
         )
         .select()
 
+      const actionType = data?.[0] ? "CREATE" : "UPDATE"
+      await logApplicationDataAccess(user.id, actionType, data?.[0]?.id, phiFields, request)
+
       if (error) {
+        await logApplicationDataAccess(user.id, actionType, undefined, phiFields, {
+          ...request,
+          headers: { ...request.headers, error: error.message },
+        } as Request)
         return { success: false, error: `Failed to save progress: ${error.message}` }
       }
 
@@ -103,9 +131,23 @@ export async function loadApplicationProgress(applicationId?: string) {
     const { data, error } = await query.limit(1)
 
     if (!error && data && data.length > 0) {
+      const decryptedApplicationData = decryptApplicationData(data[0].application_data)
+
+      const phiFields = identifyPHIFields(decryptedApplicationData)
+      const headersList = headers()
+      const request = {
+        headers: {
+          get: (name: string) => headersList.get(name),
+        },
+        url: "/api/load-progress",
+        method: "GET",
+      } as Request
+
+      await logApplicationDataAccess(user.id, "READ", data[0].id, phiFields, request)
+
       return {
         data: {
-          applicationData: data[0].application_data,
+          applicationData: decryptedApplicationData, // Return decrypted data
           currentStep: data[0].current_step,
           applicationId: data[0].id,
         },
@@ -194,12 +236,14 @@ export async function submitApplication(applicationData: any, benefitType: strin
       }
     }
 
+    const encryptedApplicationData = encryptApplicationData(applicationData)
+
     const { data: submittedApplication, error: submitError } = await supabase
       .from("applications")
       .insert({
         user_id: user.id,
         benefit_type: benefitType,
-        application_data: applicationData,
+        application_data: encryptedApplicationData, // Store encrypted data
         status: "submitted",
         submitted_at: new Date().toISOString(),
         created_at: new Date().toISOString(),
@@ -215,6 +259,18 @@ export async function submitApplication(applicationData: any, benefitType: strin
     }
 
     const applicationId = submittedApplication[0].id
+
+    const phiFields = identifyPHIFields(applicationData)
+    const headersList = headers()
+    const request = {
+      headers: {
+        get: (name: string) => headersList.get(name),
+      },
+      url: "/api/submit-application",
+      method: "POST",
+    } as Request
+
+    await logApplicationDataAccess(user.id, "CREATE", applicationId, phiFields, request)
 
     const { error: cleanupError } = await supabase
       .from("application_progress")
