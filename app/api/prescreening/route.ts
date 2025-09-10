@@ -53,7 +53,11 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
+    console.log("[v0] Checking prescreening for user:", user.id)
+
     const { data, error } = await supabase.from("prescreening_completion").select("*").eq("user_id", user.id).single()
+
+    console.log("[v0] Database query result:", { data, error })
 
     if (error && error.code !== "PGRST116") {
       // PGRST116 is "not found"
@@ -61,10 +65,14 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Failed to check prescreening" }, { status: 500 })
     }
 
-    return NextResponse.json({
+    const result = {
       completed: !!data,
       data: data || null,
-    })
+    }
+
+    console.log("[v0] Returning prescreening status:", result)
+
+    return NextResponse.json(result)
   } catch (error) {
     console.error("Error in prescreening GET API:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })

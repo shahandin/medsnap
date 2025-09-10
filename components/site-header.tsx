@@ -29,16 +29,21 @@ export function SiteHeader({ user }: SiteHeaderProps) {
     e.preventDefault()
 
     try {
+      console.log("[v0] Checking prescreening status...")
       const response = await fetch("/api/prescreening")
       const result = await response.json()
 
+      console.log("[v0] Prescreening API response:", result)
+
       if (result.completed) {
+        console.log("[v0] User has completed prescreening, redirecting to application-choice")
         router.push("/application-choice")
       } else {
+        console.log("[v0] User has not completed prescreening, redirecting to prescreening")
         router.push("/prescreening")
       }
     } catch (error) {
-      console.error("Error checking prescreening status:", error)
+      console.error("[v0] Error checking prescreening status:", error)
       // Fallback to prescreening if there's an error
       router.push("/prescreening")
     }
