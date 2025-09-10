@@ -1,7 +1,9 @@
 "use client"
 
+import type React from "react"
+
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { useEffect, useState } from "react"
@@ -17,10 +19,30 @@ interface SiteHeaderProps {
 
 export function SiteHeader({ user }: SiteHeaderProps) {
   const pathname = usePathname()
+  const router = useRouter()
   const [userInitials, setUserInitials] = useState("")
   const [showNotifications, setShowNotifications] = useState(false)
   const [hasUnreadNotifications, setHasUnreadNotifications] = useState(true) // Mock data - would come from API
   const [showMobileMenu, setShowMobileMenu] = useState(false)
+
+  const handleApplyForBenefits = async (e: React.MouseEvent) => {
+    e.preventDefault()
+
+    try {
+      const response = await fetch("/api/prescreening")
+      const result = await response.json()
+
+      if (result.completed) {
+        router.push("/application-choice")
+      } else {
+        router.push("/prescreening")
+      }
+    } catch (error) {
+      console.error("Error checking prescreening status:", error)
+      // Fallback to prescreening if there's an error
+      router.push("/prescreening")
+    }
+  }
 
   useEffect(() => {
     const getUserInitials = async () => {
@@ -71,7 +93,7 @@ export function SiteHeader({ user }: SiteHeaderProps) {
   const publicNavigation = [{ name: "About", href: "/about" }]
 
   const authenticatedNavigation = [
-    { name: "Apply for Benefits", href: "/prescreening" },
+    { name: "Apply for Benefits", href: "#", onClick: handleApplyForBenefits }, // Modified to use click handler instead of direct href
     { name: "Dashboard", href: "/account" },
     { name: "About", href: "/about" },
   ]
@@ -94,21 +116,41 @@ export function SiteHeader({ user }: SiteHeaderProps) {
           </Link>
 
           <nav className="hidden md:flex items-center space-x-8">
-            {navigation.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                className={cn(
-                  "text-sm font-medium transition-all duration-200 hover:text-primary relative py-2 px-1",
-                  pathname === item.href ? "text-primary font-semibold" : "text-muted-foreground hover:text-foreground",
-                )}
-              >
-                {item.name}
-                {pathname === item.href && (
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full" />
-                )}
-              </Link>
-            ))}
+            {navigation.map((item) =>
+              item.onClick ? (
+                <button
+                  key={item.name}
+                  onClick={item.onClick}
+                  className={cn(
+                    "text-sm font-medium transition-all duration-200 hover:text-primary relative py-2 px-1",
+                    pathname === item.href
+                      ? "text-primary font-semibold"
+                      : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  {item.name}
+                  {pathname === item.href && (
+                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full" />
+                  )}
+                </button>
+              ) : (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={cn(
+                    "text-sm font-medium transition-all duration-200 hover:text-primary relative py-2 px-1",
+                    pathname === item.href
+                      ? "text-primary font-semibold"
+                      : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  {item.name}
+                  {pathname === item.href && (
+                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full" />
+                  )}
+                </Link>
+              ),
+            )}
           </nav>
 
           <button
@@ -177,21 +219,39 @@ export function SiteHeader({ user }: SiteHeaderProps) {
       {showMobileMenu && (
         <div className="md:hidden border-t border-border/50 bg-background/95 backdrop-blur-sm">
           <nav className="container px-4 py-4 space-y-2">
-            {navigation.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                onClick={() => setShowMobileMenu(false)}
-                className={cn(
-                  "block px-4 py-3 text-base font-medium rounded-lg transition-all duration-200",
-                  pathname === item.href
-                    ? "text-primary bg-primary/10 font-semibold"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted",
-                )}
-              >
-                {item.name}
-              </Link>
-            ))}
+            {navigation.map((item) =>
+              item.onClick ? (
+                <button
+                  key={item.name}
+                  onClick={(e) => {
+                    item.onClick(e)
+                    setShowMobileMenu(false)
+                  }}
+                  className={cn(
+                    "block w-full text-left px-4 py-3 text-base font-medium rounded-lg transition-all duration-200",
+                    pathname === item.href
+                      ? "text-primary bg-primary/10 font-semibold"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted",
+                  )}
+                >
+                  {item.name}
+                </button>
+              ) : (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  onClick={() => setShowMobileMenu(false)}
+                  className={cn(
+                    "block px-4 py-3 text-base font-medium rounded-lg transition-all duration-200",
+                    pathname === item.href
+                      ? "text-primary bg-primary/10 font-semibold"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted",
+                  )}
+                >
+                  {item.name}
+                </Link>
+              ),
+            )}
           </nav>
         </div>
       )}
