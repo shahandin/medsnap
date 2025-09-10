@@ -127,7 +127,7 @@ export function SiteHeader({ user }: SiteHeaderProps) {
                   key={item.name}
                   onClick={item.onClick}
                   className={cn(
-                    "text-sm font-medium transition-all duration-200 hover:text-primary relative py-2 px-1",
+                    "text-sm font-medium transition-all duration-200 hover:text-primary relative py-2 px-3 rounded-lg cursor-pointer hover:bg-muted/50 hover:shadow-sm",
                     pathname === item.href
                       ? "text-primary font-semibold"
                       : "text-muted-foreground hover:text-foreground",
@@ -143,7 +143,7 @@ export function SiteHeader({ user }: SiteHeaderProps) {
                   key={item.name}
                   href={item.href}
                   className={cn(
-                    "text-sm font-medium transition-all duration-200 hover:text-primary relative py-2 px-1",
+                    "text-sm font-medium transition-all duration-200 hover:text-primary relative py-2 px-3 rounded-lg cursor-pointer hover:bg-muted/50 hover:shadow-sm",
                     pathname === item.href
                       ? "text-primary font-semibold"
                       : "text-muted-foreground hover:text-foreground",
@@ -233,7 +233,7 @@ export function SiteHeader({ user }: SiteHeaderProps) {
                     setShowMobileMenu(false)
                   }}
                   className={cn(
-                    "block w-full text-left px-4 py-3 text-base font-medium rounded-lg transition-all duration-200",
+                    "block w-full text-left px-4 py-3 text-base font-medium rounded-lg transition-all duration-200 cursor-pointer hover:shadow-sm",
                     pathname === item.href
                       ? "text-primary bg-primary/10 font-semibold"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted",
@@ -247,7 +247,7 @@ export function SiteHeader({ user }: SiteHeaderProps) {
                   href={item.href}
                   onClick={() => setShowMobileMenu(false)}
                   className={cn(
-                    "block px-4 py-3 text-base font-medium rounded-lg transition-all duration-200",
+                    "block px-4 py-3 text-base font-medium rounded-lg transition-all duration-200 cursor-pointer hover:shadow-sm",
                     pathname === item.href
                       ? "text-primary bg-primary/10 font-semibold"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted",
