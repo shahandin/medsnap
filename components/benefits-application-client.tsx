@@ -182,9 +182,18 @@ export default function BenefitsApplicationClient({
 
   useEffect(() => {
     const autoSave = async () => {
+      console.log("[v0] Auto-save check:", {
+        benefitType: applicationData.benefitType,
+        currentStep,
+        isLoading,
+        shouldSave: applicationData.benefitType && applicationData.benefitType !== "" && currentStep > 0 && !isLoading,
+      })
+
       if (applicationData.benefitType && applicationData.benefitType !== "" && currentStep > 0 && !isLoading) {
+        console.log("[v0] Triggering auto-save...")
         try {
           const result = await saveApplicationProgress(applicationData, currentStep, applicationId)
+          console.log("[v0] Auto-save result:", result)
           if (result.success && result.applicationId && !applicationId) {
             setApplicationId(result.applicationId)
           }
@@ -192,6 +201,7 @@ export default function BenefitsApplicationClient({
           console.error("Auto-save failed:", error)
         }
       } else {
+        console.log("[v0] Auto-save skipped - conditions not met")
       }
     }
 

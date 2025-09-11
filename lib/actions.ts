@@ -6,6 +6,13 @@ import { logApplicationDataAccess, identifyPHIFields } from "@/lib/hipaa-audit"
 import { headers } from "next/headers"
 
 export async function saveApplicationProgress(applicationData: any, currentStep: number, applicationId?: string) {
+  console.log("[v0] saveApplicationProgress called with:", {
+    hasApplicationData: !!applicationData,
+    currentStep,
+    applicationId,
+    benefitType: applicationData?.benefitType,
+  })
+
   try {
     const supabase = await createClient()
     const {
@@ -13,14 +20,19 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
       error: authError,
     } = await supabase.auth.getUser()
 
+    console.log("[v0] Auth check:", { hasUser: !!user, authError })
+
     if (authError || !user) {
+      console.log("[v0] Authentication failed")
       return { success: false, error: "Not authenticated" }
     }
 
     const benefitType = applicationData?.benefitType || ""
+    console.log("[v0] Benefit type:", benefitType)
 
     // Only save if benefit type is selected (after Step 0)
     if (!benefitType || benefitType === "") {
+      console.log("[v0] No benefit type selected, skipping save")
       return { success: false, error: "No benefit type selected yet" }
     }
 
@@ -33,14 +45,20 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
     } else if (benefitType === "both") {
       applicationType = "both"
     } else {
+      console.log("[v0] Invalid benefit type:", benefitType)
       return { success: false, error: "Invalid benefit type" }
     }
 
+    console.log("[v0] Application type mapped to:", applicationType)
+
     if (!process.env.PHI_ENCRYPTION_KEY) {
+      console.log("[v0] Missing PHI_ENCRYPTION_KEY")
       throw new Error("PHI_ENCRYPTION_KEY environment variable is required for HIPAA compliance")
     }
 
+    console.log("[v0] Starting encryption...")
     const dataToStore = encryptApplicationData(applicationData)
+    console.log("[v0] Encryption completed, data length:", dataToStore?.length || 0)
 
     const phiFields = identifyPHIFields(applicationData)
     const headersList = headers()
@@ -53,6 +71,7 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
     } as Request
 
     if (applicationId) {
+      console.log("[v0] Updating existing application:", applicationId)
       const { data, error } = await supabase
         .from("application_progress")
         .update({
@@ -65,9 +84,12 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
         .eq("user_id", user.id)
         .select()
 
+      console.log("[v0] Update result:", { hasData: !!data, error })
+
       await logApplicationDataAccess(user.id, "UPDATE", applicationId, phiFields, request)
 
       if (error) {
+        console.log("[v0] Update failed:", error.message)
         await logApplicationDataAccess(user.id, "UPDATE", applicationId, phiFields, {
           ...request,
           headers: { ...request.headers, error: error.message },
@@ -75,8 +97,10 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
         return { success: false, error: `Failed to update progress: ${error.message}` }
       }
 
+      console.log("[v0] Update successful")
       return { success: true, applicationId: data?.[0]?.id }
     } else {
+      console.log("[v0] Creating new application record")
       const { data, error } = await supabase
         .from("application_progress")
         .upsert(
@@ -94,10 +118,13 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
         )
         .select()
 
+      console.log("[v0] Upsert result:", { hasData: !!data, dataLength: data?.length, error })
+
       const actionType = data?.[0] ? "CREATE" : "UPDATE"
       await logApplicationDataAccess(user.id, actionType, data?.[0]?.id, phiFields, request)
 
       if (error) {
+        console.log("[v0] Upsert failed:", error.message)
         await logApplicationDataAccess(user.id, actionType, undefined, phiFields, {
           ...request,
           headers: { ...request.headers, error: error.message },
@@ -105,9 +132,11 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
         return { success: false, error: `Failed to save progress: ${error.message}` }
       }
 
+      console.log("[v0] Upsert successful, applicationId:", data?.[0]?.id)
       return { success: true, applicationId: data?.[0]?.id }
     }
   } catch (error) {
+    console.log("[v0] saveApplicationProgress error:", error)
     return { success: false, error: error instanceof Error ? error.message : "Unknown error" }
   }
 }
