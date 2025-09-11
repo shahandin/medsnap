@@ -191,6 +191,15 @@ export default function BenefitsApplicationClient({
 
       if (applicationData.benefitType && applicationData.benefitType !== "" && currentStep > 0 && !isLoading) {
         console.log("[v0] Triggering auto-save...")
+        console.log("[v0] Application data being saved:", {
+          dataSize: JSON.stringify(applicationData).length,
+          benefitType: applicationData.benefitType,
+          state: applicationData.state,
+          personalInfoComplete: Object.keys(applicationData.personalInfo).length,
+          householdMembersCount: applicationData.householdMembers.length,
+          hasPersonalInfo: !!applicationData.personalInfo.firstName,
+          fullDataStructure: applicationData,
+        })
         try {
           const result = await saveApplicationProgress(applicationData, currentStep, applicationId)
           console.log("[v0] Auto-save result:", result)
