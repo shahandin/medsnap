@@ -1,6 +1,7 @@
 "use client"
 
 import type React from "react"
+import { loadApplicationProgress } from "@/lib/actions" // Import the missing function
 
 import { useState, useRef, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -109,6 +110,7 @@ export default function BenefitsApplicationClient({
   })
   const stepParam = searchParams.get("step")
   const [applicationId, setApplicationId] = useState<string | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
     if (stepParam && !isLoading) {
@@ -124,116 +126,158 @@ export default function BenefitsApplicationClient({
 
   useEffect(() => {
     const loadSavedProgress = async () => {
-      try {
-        setIsLoading(true)
+      if (startFresh) {
+        return
+      }
 
+      try {
         const supabase = createClient()
         const {
           data: { user },
         } = await supabase.auth.getUser()
-
         if (!user) {
-          setIsLoading(false)
           return
         }
 
-        const { data: submittedApps, error: submittedError } = await supabase
-          .from("applications")
-          .select("benefit_type")
-          .eq("user_id", user.id)
-
-        if (submittedError) {
-          console.error("Error loading submitted applications:", submittedError)
-        } else {
-          const submittedTypes = submittedApps?.map((app) => app.benefit_type) || []
-          setSubmittedApplications(submittedTypes)
-        }
-
-        if (startFresh) {
-          setIsInitializing(true)
-
-          // Users can now have multiple incomplete applications of different types
-
-          const initialData = {
-            benefitType: "",
-            state: "",
-            personalInfo: {
-              applyingFor: "",
-              firstName: "",
-              lastName: "",
-              dateOfBirth: "",
-              languagePreference: "",
-              address: {
-                street: "",
-                city: "",
-                state: "",
-                zipCode: "",
-              },
-              phone: "",
-              email: "",
-              citizenshipStatus: "",
-              socialSecurityNumber: "",
-            },
-            householdMembers: [],
-            householdQuestions: {
-              appliedWithDifferentInfo: "",
-              appliedWithDifferentInfoMembers: [],
-              appliedInOtherState: "",
-              appliedInOtherStateMembers: [],
-              receivedBenefitsBefore: "",
-              receivedBenefitsBeforeMembers: [],
-              receivingSNAPThisMonth: "",
-              receivingSNAPThisMonthMembers: [],
-              disqualifiedFromBenefits: "",
-              disqualifiedFromBenefitsMembers: [],
-              wantSomeoneElseToReceiveSNAP: "",
-              wantSomeoneElseToReceiveSNAPMembers: [],
-            },
-            incomeEmployment: {
-              employment: [],
-              income: [],
-              expenses: [],
-              taxFilingStatus: "",
-            },
-            assets: {
-              assets: [],
-            },
-            healthDisability: {
-              healthInsurance: [],
-              disabilities: { hasDisabled: "" },
-              pregnancyInfo: { isPregnant: "" },
-              medicalConditions: { hasChronicConditions: "" },
-              medicalBills: { hasRecentBills: false },
-              needsNursingServices: "",
-            },
-            additionalInfo: {
-              additionalInfo: "",
-            },
-          }
-
-          setApplicationData(initialData)
-          setCurrentStep(0)
-          setApplicationId(null)
-          setIsInitializing(false)
-          setIsLoading(false)
-          return
-        }
-
+        let result
         if (continueId) {
-          const { data: specificApp, error: specificError } = await supabase
-            .from("application_progress")
-            .select("*")
-            .eq("id", continueId)
-            .eq("user_id", user.id)
-            .single()
+          // Load specific application by ID
+          result = await loadApplicationProgress(continueId)
+        } else {
+          // Load most recent application for this user
+          result = await loadApplicationProgress()
+        }
 
-          if (specificError) {
-            console.error("Error loading specific application:", specificError)
-            setIsLoading(false)
-            return
-          }
+        if (result?.data) {
+          const { applicationData: loadedData, currentStep: loadedStep, applicationId: loadedId } = result.data
 
-          if (specificApp) {
+          if (continueId) {
+            // Loading specific application
+            const applications = await supabase
+              .from("application_progress")
+              .select("*")
+              .eq("id", continueId)
+              .eq("user_id", user.id)
+
+            if (applications.data && applications.data.length > 0) {
+              const specificApp = applications.data[0]
+
+              const loadedData = specificApp.application_data || {}
+
+              const defaultData = {
+                benefitType: "",
+                state: "",
+                personalInfo: {
+                  applyingFor: "",
+                  firstName: "",
+                  lastName: "",
+                  dateOfBirth: "",
+                  languagePreference: "",
+                  address: {
+                    street: "",
+                    city: "",
+                    state: "",
+                    zipCode: "",
+                  },
+                  phone: "",
+                  email: "",
+                  citizenshipStatus: "",
+                  socialSecurityNumber: "",
+                },
+                householdMembers: [],
+                householdQuestions: {
+                  appliedWithDifferentInfo: "",
+                  appliedWithDifferentInfoMembers: [],
+                  appliedInOtherState: "",
+                  appliedInOtherStateMembers: [],
+                  receivedBenefitsBefore: "",
+                  receivedBenefitsBeforeMembers: [],
+                  receivingSNAPThisMonth: "",
+                  receivingSNAPThisMonthMembers: [],
+                  disqualifiedFromBenefits: "",
+                  disqualifiedFromBenefitsMembers: [],
+                  wantSomeoneElseToReceiveSNAP: "",
+                  wantSomeoneElseToReceiveSNAPMembers: [],
+                },
+                incomeEmployment: {
+                  employment: [],
+                  income: [],
+                  expenses: [],
+                  taxFilingStatus: "",
+                },
+                assets: {
+                  assets: [],
+                },
+                healthDisability: {
+                  healthInsurance: [],
+                  disabilities: { hasDisabled: "" },
+                  pregnancyInfo: { isPregnant: "" },
+                  medicalConditions: { hasChronicConditions: "" },
+                  medicalBills: { hasRecentBills: false },
+                  needsNursingServices: "",
+                },
+                additionalInfo: {
+                  additionalInfo: "",
+                },
+              }
+
+              // Safely merge loaded data with defaults
+              const mergedData = {
+                ...defaultData,
+                ...loadedData,
+                personalInfo: {
+                  ...defaultData.personalInfo,
+                  ...(loadedData.personalInfo || {}),
+                  address: {
+                    ...defaultData.personalInfo.address,
+                    ...(loadedData.personalInfo?.address || {}),
+                  },
+                },
+                householdQuestions: {
+                  ...defaultData.householdQuestions,
+                  ...(loadedData.householdQuestions || {}),
+                },
+                incomeEmployment: {
+                  ...defaultData.incomeEmployment,
+                  ...(loadedData.incomeEmployment || {}),
+                },
+                assets: {
+                  ...defaultData.assets,
+                  ...(loadedData.assets || {}),
+                },
+                healthDisability: {
+                  ...defaultData.healthDisability,
+                  ...(loadedData.healthDisability || {}),
+                  disabilities: {
+                    ...defaultData.healthDisability.disabilities,
+                    ...(loadedData.healthDisability?.disabilities || {}),
+                  },
+                  pregnancyInfo: {
+                    ...defaultData.healthDisability.pregnancyInfo,
+                    ...(loadedData.healthDisability?.pregnancyInfo || {}),
+                  },
+                  medicalConditions: {
+                    ...defaultData.healthDisability.medicalConditions,
+                    ...(loadedData.healthDisability?.medicalConditions || {}),
+                  },
+                  medicalBills: {
+                    ...defaultData.healthDisability.medicalBills,
+                    ...(loadedData.healthDisability?.medicalBills || {}),
+                  },
+                },
+                additionalInfo: {
+                  ...defaultData.additionalInfo,
+                  ...(loadedData.additionalInfo || {}),
+                },
+              }
+
+              setApplicationData(mergedData)
+              setCurrentStep(specificApp.current_step)
+              setApplicationId(specificApp.id)
+              setIsLoading(false)
+              return
+            }
+          } else {
             const defaultData = {
               benefitType: "",
               state: "",
@@ -291,8 +335,6 @@ export default function BenefitsApplicationClient({
               },
             }
 
-            // Safely merge loaded data with defaults
-            const loadedData = specificApp.application_data || {}
             const mergedData = {
               ...defaultData,
               ...loadedData,
@@ -343,176 +385,33 @@ export default function BenefitsApplicationClient({
             }
 
             setApplicationData(mergedData)
-            setCurrentStep(specificApp.current_step)
-            setApplicationId(specificApp.id)
-            setIsLoading(false)
-            return
+            setCurrentStep(loadedStep)
+            setApplicationId(loadedId)
           }
         } else {
-          const { data: savedProgress, error } = await supabase
-            .from("application_progress")
-            .select("*")
-            .eq("user_id", user.id)
-            .order("updated_at", { ascending: false })
-            .limit(1)
-
-          if (error) {
-            console.error("Error loading application progress:", error)
-            setIsLoading(false)
-            return
-          }
-
-          if (savedProgress && savedProgress.length > 0) {
-            const progress = savedProgress[0]
-            const defaultData = {
-              benefitType: "",
-              state: "",
-              personalInfo: {
-                applyingFor: "",
-                firstName: "",
-                lastName: "",
-                dateOfBirth: "",
-                languagePreference: "",
-                address: {
-                  street: "",
-                  city: "",
-                  state: "",
-                  zipCode: "",
-                },
-                phone: "",
-                email: "",
-                citizenshipStatus: "",
-                socialSecurityNumber: "",
-              },
-              householdMembers: [],
-              householdQuestions: {
-                appliedWithDifferentInfo: "",
-                appliedWithDifferentInfoMembers: [],
-                appliedInOtherState: "",
-                appliedInOtherStateMembers: [],
-                receivedBenefitsBefore: "",
-                receivedBenefitsBeforeMembers: [],
-                receivingSNAPThisMonth: "",
-                receivingSNAPThisMonthMembers: [],
-                disqualifiedFromBenefits: "",
-                disqualifiedFromBenefitsMembers: [],
-                wantSomeoneElseToReceiveSNAP: "",
-                wantSomeoneElseToReceiveSNAPMembers: [],
-              },
-              incomeEmployment: {
-                employment: [],
-                income: [],
-                expenses: [],
-                taxFilingStatus: "",
-              },
-              assets: {
-                assets: [],
-              },
-              healthDisability: {
-                healthInsurance: [],
-                disabilities: { hasDisabled: "" },
-                pregnancyInfo: { isPregnant: "" },
-                medicalConditions: { hasChronicConditions: "" },
-                medicalBills: { hasRecentBills: false },
-                needsNursingServices: "",
-              },
-              additionalInfo: {
-                additionalInfo: "",
-              },
-            }
-
-            const loadedData = progress.application_data || {}
-            const mergedData = {
-              ...defaultData,
-              ...loadedData,
-              personalInfo: {
-                ...defaultData.personalInfo,
-                ...(loadedData.personalInfo || {}),
-                address: {
-                  ...defaultData.personalInfo.address,
-                  ...(loadedData.personalInfo?.address || {}),
-                },
-              },
-              householdQuestions: {
-                ...defaultData.householdQuestions,
-                ...(loadedData.householdQuestions || {}),
-              },
-              incomeEmployment: {
-                ...defaultData.incomeEmployment,
-                ...(loadedData.incomeEmployment || {}),
-              },
-              assets: {
-                ...defaultData.assets,
-                ...(loadedData.assets || {}),
-              },
-              healthDisability: {
-                ...defaultData.healthDisability,
-                ...(loadedData.healthDisability || {}),
-                disabilities: {
-                  ...defaultData.healthDisability.disabilities,
-                  ...(loadedData.healthDisability?.disabilities || {}),
-                },
-                pregnancyInfo: {
-                  ...defaultData.healthDisability.pregnancyInfo,
-                  ...(loadedData.healthDisability?.pregnancyInfo || {}),
-                },
-                medicalConditions: {
-                  ...defaultData.healthDisability.medicalConditions,
-                  ...(loadedData.healthDisability?.medicalConditions || {}),
-                },
-                medicalBills: {
-                  ...defaultData.healthDisability.medicalBills,
-                  ...(loadedData.healthDisability?.medicalBills || {}),
-                },
-              },
-              additionalInfo: {
-                ...defaultData.additionalInfo,
-                ...(loadedData.additionalInfo || {}),
-              },
-            }
-
-            setApplicationData(mergedData)
-            setCurrentStep(progress.current_step)
-            setApplicationId(progress.id)
-          } else {
-            console.log("No saved progress found, starting fresh")
-          }
-
-          setIsLoading(false)
         }
       } catch (error) {
-        console.error("Error in loadSavedProgress:", error)
+        console.error("Error loading saved progress:", error)
+      } finally {
         setIsLoading(false)
       }
     }
 
-    try {
-      console.log("Calling loadSavedProgress...")
-      console.log("useEffect triggered with startFresh:", startFresh, "continueId:", continueId)
-      loadSavedProgress()
-    } catch (error) {
-      console.error("Critical error calling loadSavedProgress:", error)
-      setIsLoading(false)
-    }
+    loadSavedProgress()
   }, [startFresh, continueId])
 
   useEffect(() => {
     const autoSave = async () => {
-      if (
-        currentStep >= 0 &&
-        applicationData.benefitType &&
-        applicationData.benefitType !== "" &&
-        !isLoading &&
-        !isInitializing
-      ) {
+      if (applicationData.benefitType && applicationData.benefitType !== "" && currentStep > 0 && !isLoading) {
         try {
           const result = await saveApplicationProgress(applicationData, currentStep, applicationId)
           if (result.success && result.applicationId && !applicationId) {
             setApplicationId(result.applicationId)
           }
         } catch (error) {
-          console.error("Auto-save error:", error)
+          console.error("Auto-save failed:", error)
         }
+      } else {
       }
     }
 
@@ -521,47 +420,28 @@ export default function BenefitsApplicationClient({
   }, [applicationData, currentStep, isLoading, isInitializing, applicationId])
 
   useEffect(() => {
-    const handleBeforeUnload = async (event: BeforeUnloadEvent) => {
-      if (!isInitializing && currentStep >= 0 && applicationData.benefitType) {
-        try {
-          console.log("Page unloading, saving progress...")
-          const data = JSON.stringify({
-            applicationData,
-            currentStep,
-          })
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (applicationData.benefitType && applicationData.benefitType !== "" && currentStep > 0) {
+        saveApplicationProgress(applicationData, currentStep, applicationId)
+        e.preventDefault()
+        e.returnValue = ""
+      }
+    }
 
-          if (navigator.sendBeacon) {
-            const formData = new FormData()
-            formData.append("data", data)
-            navigator.sendBeacon("/api/save-progress", formData)
-          } else {
-            await saveApplicationProgress(applicationData, currentStep, applicationId)
-          }
-        } catch (error) {
-          console.error("Error saving on unload:", error)
-        }
+    const handleVisibilityChange = () => {
+      if (document.hidden && applicationData.benefitType && applicationData.benefitType !== "" && currentStep > 0) {
+        saveApplicationProgress(applicationData, currentStep, applicationId)
       }
     }
 
     window.addEventListener("beforeunload", handleBeforeUnload)
-    return () => window.removeEventListener("beforeunload", handleBeforeUnload)
-  }, [applicationData, currentStep, isInitializing, applicationId])
-
-  useEffect(() => {
-    const handleVisibilityChange = async () => {
-      if (document.hidden && !isLoading && !isInitializing && currentStep >= 0 && applicationData.benefitType) {
-        try {
-          console.log("Page hidden, saving progress...")
-          await saveApplicationProgress(applicationData, currentStep, applicationId)
-        } catch (error) {
-          console.error("Error saving on visibility change:", error)
-        }
-      }
-    }
-
     document.addEventListener("visibilitychange", handleVisibilityChange)
-    return () => document.removeEventListener("visibilitychange", handleVisibilityChange)
-  }, [applicationData, currentStep, isLoading, isInitializing, applicationId])
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload)
+      document.removeEventListener("visibilitychange", handleVisibilityChange)
+    }
+  }, [applicationData, currentStep, applicationId])
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -849,6 +729,7 @@ export default function BenefitsApplicationClient({
   }
 
   const handleSubmit = async () => {
+    setIsSubmitting(true)
     console.log("Application submitted:", applicationData)
   }
 

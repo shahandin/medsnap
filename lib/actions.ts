@@ -36,7 +36,11 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
       return { success: false, error: "Invalid benefit type" }
     }
 
-    const encryptedApplicationData = encryptApplicationData(applicationData)
+    if (!process.env.PHI_ENCRYPTION_KEY) {
+      throw new Error("PHI_ENCRYPTION_KEY environment variable is required for HIPAA compliance")
+    }
+
+    const dataToStore = encryptApplicationData(applicationData)
 
     const phiFields = identifyPHIFields(applicationData)
     const headersList = headers()
@@ -52,7 +56,7 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
       const { data, error } = await supabase
         .from("application_progress")
         .update({
-          application_data: encryptedApplicationData, // Store encrypted data
+          application_data: dataToStore, // Use validated data
           current_step: currentStep,
           application_type: applicationType,
           updated_at: new Date().toISOString(),
@@ -79,7 +83,7 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
           {
             user_id: user.id,
             application_type: applicationType,
-            application_data: encryptedApplicationData, // Store encrypted data
+            application_data: dataToStore, // Use validated data
             current_step: currentStep,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
@@ -133,14 +137,13 @@ export async function loadApplicationProgress(applicationId?: string) {
     if (!error && data && data.length > 0) {
       let applicationData
 
+      if (!process.env.PHI_ENCRYPTION_KEY) {
+        throw new Error("PHI_ENCRYPTION_KEY environment variable is required for HIPAA compliance")
+      }
+
       if (typeof data[0].application_data === "string") {
         // Data is encrypted, decrypt it
-        try {
-          applicationData = decryptApplicationData(data[0].application_data)
-        } catch (decryptionError) {
-          console.error("[v0] Decryption failed:", decryptionError)
-          return { data: null }
-        }
+        applicationData = decryptApplicationData(data[0].application_data)
       } else if (typeof data[0].application_data === "object" && data[0].application_data !== null) {
         // Data is unencrypted (legacy data), use as-is
         applicationData = data[0].application_data
