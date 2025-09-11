@@ -234,7 +234,115 @@ export default function BenefitsApplicationClient({
           }
 
           if (specificApp) {
-            setApplicationData(specificApp.application_data)
+            const defaultData = {
+              benefitType: "",
+              state: "",
+              personalInfo: {
+                applyingFor: "",
+                firstName: "",
+                lastName: "",
+                dateOfBirth: "",
+                languagePreference: "",
+                address: {
+                  street: "",
+                  city: "",
+                  state: "",
+                  zipCode: "",
+                },
+                phone: "",
+                email: "",
+                citizenshipStatus: "",
+                socialSecurityNumber: "",
+              },
+              householdMembers: [],
+              householdQuestions: {
+                appliedWithDifferentInfo: "",
+                appliedWithDifferentInfoMembers: [],
+                appliedInOtherState: "",
+                appliedInOtherStateMembers: [],
+                receivedBenefitsBefore: "",
+                receivedBenefitsBeforeMembers: [],
+                receivingSNAPThisMonth: "",
+                receivingSNAPThisMonthMembers: [],
+                disqualifiedFromBenefits: "",
+                disqualifiedFromBenefitsMembers: [],
+                wantSomeoneElseToReceiveSNAP: "",
+                wantSomeoneElseToReceiveSNAPMembers: [],
+              },
+              incomeEmployment: {
+                employment: [],
+                income: [],
+                expenses: [],
+                taxFilingStatus: "",
+              },
+              assets: {
+                assets: [],
+              },
+              healthDisability: {
+                healthInsurance: [],
+                disabilities: { hasDisabled: "" },
+                pregnancyInfo: { isPregnant: "" },
+                medicalConditions: { hasChronicConditions: "" },
+                medicalBills: { hasRecentBills: false },
+                needsNursingServices: "",
+              },
+              additionalInfo: {
+                additionalInfo: "",
+              },
+            }
+
+            // Safely merge loaded data with defaults
+            const loadedData = specificApp.application_data || {}
+            const mergedData = {
+              ...defaultData,
+              ...loadedData,
+              personalInfo: {
+                ...defaultData.personalInfo,
+                ...(loadedData.personalInfo || {}),
+                address: {
+                  ...defaultData.personalInfo.address,
+                  ...(loadedData.personalInfo?.address || {}),
+                },
+              },
+              householdQuestions: {
+                ...defaultData.householdQuestions,
+                ...(loadedData.householdQuestions || {}),
+              },
+              incomeEmployment: {
+                ...defaultData.incomeEmployment,
+                ...(loadedData.incomeEmployment || {}),
+              },
+              assets: {
+                ...defaultData.assets,
+                ...(loadedData.assets || {}),
+              },
+              healthDisability: {
+                ...defaultData.healthDisability,
+                ...(loadedData.healthDisability || {}),
+                disabilities: {
+                  ...defaultData.healthDisability.disabilities,
+                  ...(loadedData.healthDisability?.disabilities || {}),
+                },
+                pregnancyInfo: {
+                  ...defaultData.healthDisability.pregnancyInfo,
+                  ...(loadedData.healthDisability?.pregnancyInfo || {}),
+                },
+                medicalConditions: {
+                  ...defaultData.healthDisability.medicalConditions,
+                  ...(loadedData.healthDisability?.medicalConditions || {}),
+                },
+                medicalBills: {
+                  ...defaultData.healthDisability.medicalBills,
+                  ...(loadedData.healthDisability?.medicalBills || {}),
+                },
+              },
+              additionalInfo: {
+                ...defaultData.additionalInfo,
+                ...(loadedData.additionalInfo || {}),
+              },
+            }
+
+            setApplicationData(mergedData)
             setCurrentStep(specificApp.current_step)
             setApplicationId(specificApp.id)
             setIsLoading(false)
@@ -256,7 +364,114 @@ export default function BenefitsApplicationClient({
 
           if (savedProgress && savedProgress.length > 0) {
             const progress = savedProgress[0]
-            setApplicationData(progress.application_data)
+            const defaultData = {
+              benefitType: "",
+              state: "",
+              personalInfo: {
+                applyingFor: "",
+                firstName: "",
+                lastName: "",
+                dateOfBirth: "",
+                languagePreference: "",
+                address: {
+                  street: "",
+                  city: "",
+                  state: "",
+                  zipCode: "",
+                },
+                phone: "",
+                email: "",
+                citizenshipStatus: "",
+                socialSecurityNumber: "",
+              },
+              householdMembers: [],
+              householdQuestions: {
+                appliedWithDifferentInfo: "",
+                appliedWithDifferentInfoMembers: [],
+                appliedInOtherState: "",
+                appliedInOtherStateMembers: [],
+                receivedBenefitsBefore: "",
+                receivedBenefitsBeforeMembers: [],
+                receivingSNAPThisMonth: "",
+                receivingSNAPThisMonthMembers: [],
+                disqualifiedFromBenefits: "",
+                disqualifiedFromBenefitsMembers: [],
+                wantSomeoneElseToReceiveSNAP: "",
+                wantSomeoneElseToReceiveSNAPMembers: [],
+              },
+              incomeEmployment: {
+                employment: [],
+                income: [],
+                expenses: [],
+                taxFilingStatus: "",
+              },
+              assets: {
+                assets: [],
+              },
+              healthDisability: {
+                healthInsurance: [],
+                disabilities: { hasDisabled: "" },
+                pregnancyInfo: { isPregnant: "" },
+                medicalConditions: { hasChronicConditions: "" },
+                medicalBills: { hasRecentBills: false },
+                needsNursingServices: "",
+              },
+              additionalInfo: {
+                additionalInfo: "",
+              },
+            }
+
+            const loadedData = progress.application_data || {}
+            const mergedData = {
+              ...defaultData,
+              ...loadedData,
+              personalInfo: {
+                ...defaultData.personalInfo,
+                ...(loadedData.personalInfo || {}),
+                address: {
+                  ...defaultData.personalInfo.address,
+                  ...(loadedData.personalInfo?.address || {}),
+                },
+              },
+              householdQuestions: {
+                ...defaultData.householdQuestions,
+                ...(loadedData.householdQuestions || {}),
+              },
+              incomeEmployment: {
+                ...defaultData.incomeEmployment,
+                ...(loadedData.incomeEmployment || {}),
+              },
+              assets: {
+                ...defaultData.assets,
+                ...(loadedData.assets || {}),
+              },
+              healthDisability: {
+                ...defaultData.healthDisability,
+                ...(loadedData.healthDisability || {}),
+                disabilities: {
+                  ...defaultData.healthDisability.disabilities,
+                  ...(loadedData.healthDisability?.disabilities || {}),
+                },
+                pregnancyInfo: {
+                  ...defaultData.healthDisability.pregnancyInfo,
+                  ...(loadedData.healthDisability?.pregnancyInfo || {}),
+                },
+                medicalConditions: {
+                  ...defaultData.healthDisability.medicalConditions,
+                  ...(loadedData.healthDisability?.medicalConditions || {}),
+                },
+                medicalBills: {
+                  ...defaultData.healthDisability.medicalBills,
+                  ...(loadedData.healthDisability?.medicalBills || {}),
+                },
+              },
+              additionalInfo: {
+                ...defaultData.additionalInfo,
+                ...(loadedData.additionalInfo || {}),
+              },
+            }
+
+            setApplicationData(mergedData)
             setCurrentStep(progress.current_step)
             setApplicationId(progress.id)
           } else {

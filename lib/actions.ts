@@ -131,24 +131,22 @@ export async function loadApplicationProgress(applicationId?: string) {
     const { data, error } = await query.limit(1)
 
     if (!error && data && data.length > 0) {
-      console.log("[v0] Raw application_data from database:", data[0].application_data)
-      console.log("[v0] Type of application_data:", typeof data[0].application_data)
-      console.log("[v0] PHI_ENCRYPTION_KEY available:", !!process.env.PHI_ENCRYPTION_KEY)
+      let applicationData
 
-      let decryptedApplicationData
-      try {
-        decryptedApplicationData = decryptApplicationData(data[0].application_data)
-        console.log("[v0] Decryption successful, result:", decryptedApplicationData)
-      } catch (decryptionError) {
-        console.error("[v0] Decryption failed:", decryptionError)
-        console.log("[v0] Attempting to use raw data as fallback")
-        if (typeof data[0].application_data === "object") {
-          console.log("[v0] Data appears to be unencrypted, using as-is")
-          decryptedApplicationData = data[0].application_data
-        } else {
-          console.log("[v0] Data is not an object, returning null")
+      if (typeof data[0].application_data === "string") {
+        // Data is encrypted, decrypt it
+        try {
+          applicationData = decryptApplicationData(data[0].application_data)
+        } catch (decryptionError) {
+          console.error("[v0] Decryption failed:", decryptionError)
           return { data: null }
         }
+      } else if (typeof data[0].application_data === "object" && data[0].application_data !== null) {
+        // Data is unencrypted (legacy data), use as-is
+        applicationData = data[0].application_data
+      } else {
+        // Data is null or invalid
+        return { data: null }
       }
 
       const defaultApplicationData = {
@@ -210,34 +208,34 @@ export async function loadApplicationProgress(applicationId?: string) {
 
       const safeApplicationData = {
         ...defaultApplicationData,
-        ...decryptedApplicationData,
+        ...applicationData,
         personalInfo: {
           ...defaultApplicationData.personalInfo,
-          ...decryptedApplicationData?.personalInfo,
+          ...applicationData?.personalInfo,
           address: {
             ...defaultApplicationData.personalInfo.address,
-            ...decryptedApplicationData?.personalInfo?.address,
+            ...applicationData?.personalInfo?.address,
           },
         },
         householdQuestions: {
           ...defaultApplicationData.householdQuestions,
-          ...decryptedApplicationData?.householdQuestions,
+          ...applicationData?.householdQuestions,
         },
         incomeEmployment: {
           ...defaultApplicationData.incomeEmployment,
-          ...decryptedApplicationData?.incomeEmployment,
+          ...applicationData?.incomeEmployment,
         },
         assets: {
           ...defaultApplicationData.assets,
-          ...decryptedApplicationData?.assets,
+          ...applicationData?.assets,
         },
         healthDisability: {
           ...defaultApplicationData.healthDisability,
-          ...decryptedApplicationData?.healthDisability,
+          ...applicationData?.healthDisability,
         },
         additionalInfo: {
           ...defaultApplicationData.additionalInfo,
-          ...decryptedApplicationData?.additionalInfo,
+          ...applicationData?.additionalInfo,
         },
       }
 

@@ -1,5 +1,3 @@
-import { crypto } from "crypto"
-
 const ENCRYPTION_KEY = process.env.PHI_ENCRYPTION_KEY || "default-key-for-development-only"
 const ALGORITHM = "AES-GCM"
 
@@ -9,8 +7,13 @@ export interface EncryptedField {
 }
 
 async function getKey(): Promise<CryptoKey> {
+  const cryptoAPI = globalThis.crypto
+  if (!cryptoAPI) {
+    throw new Error("Web Crypto API not available")
+  }
+
   const keyMaterial = new TextEncoder().encode(ENCRYPTION_KEY)
-  const key = await crypto.subtle.importKey(
+  const key = await cryptoAPI.subtle.importKey(
     "raw",
     keyMaterial.slice(0, 32), // Ensure 32 bytes for AES-256
     { name: ALGORITHM },
@@ -26,11 +29,16 @@ export async function encryptPHI(data: string): Promise<EncryptedField> {
     throw new Error("PHI encryption must only happen server-side")
   }
 
+  const cryptoAPI = globalThis.crypto
+  if (!cryptoAPI) {
+    throw new Error("Web Crypto API not available")
+  }
+
   const key = await getKey()
-  const iv = crypto.getRandomValues(new Uint8Array(12)) // 12 bytes for GCM
+  const iv = cryptoAPI.getRandomValues(new Uint8Array(12)) // 12 bytes for GCM
   const encodedData = new TextEncoder().encode(data)
 
-  const encrypted = await crypto.subtle.encrypt({ name: ALGORITHM, iv }, key, encodedData)
+  const encrypted = await cryptoAPI.subtle.encrypt({ name: ALGORITHM, iv }, key, encodedData)
 
   return {
     encrypted: Array.from(new Uint8Array(encrypted))
@@ -48,13 +56,18 @@ export async function decryptPHI(encryptedField: EncryptedField): Promise<string
     throw new Error("PHI decryption must only happen server-side")
   }
 
+  const cryptoAPI = globalThis.crypto
+  if (!cryptoAPI) {
+    throw new Error("Web Crypto API not available")
+  }
+
   const key = await getKey()
   const iv = new Uint8Array(encryptedField.iv.match(/.{2}/g)?.map((byte) => Number.parseInt(byte, 16)) || [])
   const encryptedData = new Uint8Array(
     encryptedField.encrypted.match(/.{2}/g)?.map((byte) => Number.parseInt(byte, 16)) || [],
   )
 
-  const decrypted = await crypto.subtle.decrypt({ name: ALGORITHM, iv }, key, encryptedData)
+  const decrypted = await cryptoAPI.subtle.decrypt({ name: ALGORITHM, iv }, key, encryptedData)
 
   return new TextDecoder().decode(decrypted)
 }
