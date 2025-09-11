@@ -90,45 +90,61 @@ const PHI_FIELDS = [
 ]
 
 export async function encryptApplicationData(applicationData: any): Promise<any> {
-  const encrypted = { ...applicationData }
+  try {
+    const encrypted = { ...applicationData }
 
-  // Encrypt personal information
-  if (encrypted.personalInfo) {
-    encrypted.personalInfo = await encryptPHIObject(encrypted.personalInfo)
+    // Encrypt personal information
+    if (encrypted.personalInfo) {
+      encrypted.personalInfo = await encryptPHIObject(encrypted.personalInfo)
+    }
+
+    // Encrypt health/disability information
+    if (encrypted.healthDisability) {
+      encrypted.healthDisability = await encryptPHIObject(encrypted.healthDisability)
+    }
+
+    if (encrypted.householdMembers && Array.isArray(encrypted.householdMembers)) {
+      encrypted.householdMembers = await Promise.all(encrypted.householdMembers.map(encryptPHIObject))
+    }
+
+    if (encrypted.householdInfo?.members) {
+      encrypted.householdInfo.members = await Promise.all(encrypted.householdInfo.members.map(encryptPHIObject))
+    }
+
+    return encrypted
+  } catch (error) {
+    console.error("[v0] Encryption failed:", error)
+    throw new Error(`Encryption failed: ${error.message}`)
   }
-
-  // Encrypt health/disability information
-  if (encrypted.healthDisability) {
-    encrypted.healthDisability = await encryptPHIObject(encrypted.healthDisability)
-  }
-
-  // Encrypt household member data
-  if (encrypted.householdInfo?.members) {
-    encrypted.householdInfo.members = await Promise.all(encrypted.householdInfo.members.map(encryptPHIObject))
-  }
-
-  return encrypted
 }
 
 export async function decryptApplicationData(encryptedData: any): Promise<any> {
-  const decrypted = { ...encryptedData }
+  try {
+    const decrypted = { ...encryptedData }
 
-  // Decrypt personal information
-  if (decrypted.personalInfo) {
-    decrypted.personalInfo = await decryptPHIObject(decrypted.personalInfo)
+    // Decrypt personal information
+    if (decrypted.personalInfo) {
+      decrypted.personalInfo = await decryptPHIObject(decrypted.personalInfo)
+    }
+
+    // Decrypt health/disability information
+    if (decrypted.healthDisability) {
+      decrypted.healthDisability = await decryptPHIObject(decrypted.healthDisability)
+    }
+
+    if (decrypted.householdMembers && Array.isArray(decrypted.householdMembers)) {
+      decrypted.householdMembers = await Promise.all(decrypted.householdMembers.map(decryptPHIObject))
+    }
+
+    if (decrypted.householdInfo?.members) {
+      decrypted.householdInfo.members = await Promise.all(decrypted.householdInfo.members.map(decryptPHIObject))
+    }
+
+    return decrypted
+  } catch (error) {
+    console.error("[v0] Decryption failed:", error)
+    throw new Error(`Decryption failed: ${error.message}`)
   }
-
-  // Decrypt health/disability information
-  if (decrypted.healthDisability) {
-    decrypted.healthDisability = await decryptPHIObject(decrypted.healthDisability)
-  }
-
-  // Decrypt household member data
-  if (decrypted.householdInfo?.members) {
-    decrypted.householdInfo.members = await Promise.all(decrypted.householdInfo.members.map(decryptPHIObject))
-  }
-
-  return decrypted
 }
 
 async function encryptPHIObject(obj: any): Promise<any> {

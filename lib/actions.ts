@@ -83,8 +83,8 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
     }
 
     console.log("[v0] Starting encryption...")
-    const dataToStore = encryptApplicationData(applicationData)
-    console.log("[v0] Encryption completed, data length:", dataToStore?.length || 0)
+    const dataToStore = await encryptApplicationData(applicationData)
+    console.log("[v0] Encryption completed, data length:", JSON.stringify(dataToStore).length)
 
     if (applicationId) {
       console.log("[v0] Updating existing application:", applicationId)
@@ -407,7 +407,7 @@ export async function submitApplication(applicationData: any, benefitType: strin
       }
     }
 
-    const encryptedApplicationData = encryptApplicationData(applicationData)
+    const encryptedApplicationData = await encryptApplicationData(applicationData)
 
     const { data: submittedApplication, error: submitError } = await supabase
       .from("applications")
