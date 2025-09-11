@@ -4,7 +4,7 @@ export function SiteFooter() {
   return (
     <footer className="border-t bg-muted/50">
       <div className="container py-8 md:py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
               <div className="h-6 w-6 rounded-full bg-primary flex items-center justify-center">
@@ -42,22 +42,6 @@ export function SiteFooter() {
               <li>
                 <Link href="/contact" className="text-muted-foreground hover:text-primary">
                   Contact Us
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          <div className="space-y-4">
-            <h4 className="font-semibold">Legal</h4>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <Link href="/privacy" className="text-muted-foreground hover:text-primary">
-                  Privacy Policy
-                </Link>
-              </li>
-              <li>
-                <Link href="/terms" className="text-muted-foreground hover:text-primary">
-                  Terms of Service
                 </Link>
               </li>
             </ul>
