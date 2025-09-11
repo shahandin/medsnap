@@ -126,32 +126,48 @@ export default function BenefitsApplicationClient({
 
   useEffect(() => {
     const loadSavedProgress = async () => {
+      console.log("[v0] Starting loadSavedProgress, startFresh:", startFresh, "continueId:", continueId)
+
       if (startFresh) {
+        console.log("[v0] Starting fresh, setting loading to false")
+        setIsLoading(false)
         return
       }
 
       try {
+        console.log("[v0] Getting user...")
         const supabase = createClient()
         const {
           data: { user },
         } = await supabase.auth.getUser()
+
         if (!user) {
+          console.log("[v0] No user found, setting loading to false")
+          setIsLoading(false)
           return
         }
 
+        console.log("[v0] User found:", user.id)
+
         let result
         if (continueId) {
+          console.log("[v0] Loading specific application:", continueId)
           // Load specific application by ID
           result = await loadApplicationProgress(continueId)
         } else {
+          console.log("[v0] Loading most recent application")
           // Load most recent application for this user
           result = await loadApplicationProgress()
         }
 
+        console.log("[v0] loadApplicationProgress result:", result)
+
         if (result?.data) {
+          console.log("[v0] Found saved data, processing...")
           const { applicationData: loadedData, currentStep: loadedStep, applicationId: loadedId } = result.data
 
           if (continueId) {
+            console.log("[v0] Processing specific application data")
             // Loading specific application
             const applications = await supabase
               .from("application_progress")
@@ -160,6 +176,7 @@ export default function BenefitsApplicationClient({
               .eq("user_id", user.id)
 
             if (applications.data && applications.data.length > 0) {
+              console.log("[v0] Found specific application, setting data and loading to false")
               const specificApp = applications.data[0]
 
               const loadedData = specificApp.application_data || {}
@@ -276,8 +293,13 @@ export default function BenefitsApplicationClient({
               setApplicationId(specificApp.id)
               setIsLoading(false)
               return
+            } else {
+              console.log("[v0] No specific application found, setting loading to false")
+              setIsLoading(false)
+              return
             }
           } else {
+            console.log("[v0] Processing general application data")
             const defaultData = {
               benefitType: "",
               state: "",
@@ -387,12 +409,14 @@ export default function BenefitsApplicationClient({
             setApplicationData(mergedData)
             setCurrentStep(loadedStep)
             setApplicationId(loadedId)
+            setIsLoading(false)
           }
         } else {
+          console.log("[v0] No saved data found, setting loading to false")
+          setIsLoading(false)
         }
       } catch (error) {
-        console.error("Error loading saved progress:", error)
-      } finally {
+        console.error("[v0] Error loading saved progress:", error)
         setIsLoading(false)
       }
     }
