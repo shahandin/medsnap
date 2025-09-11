@@ -191,13 +191,28 @@ export default function BenefitsApplicationClient({
 
       if (applicationData.benefitType && applicationData.benefitType !== "" && currentStep > 0 && !isLoading) {
         console.log("[v0] Triggering auto-save...")
+        const hasPersonalInfo = !!(
+          applicationData.personalInfo.firstName?.trim() ||
+          applicationData.personalInfo.lastName?.trim() ||
+          applicationData.personalInfo.email?.trim() ||
+          applicationData.personalInfo.phone?.trim() ||
+          applicationData.personalInfo.address?.street?.trim()
+        )
+
         console.log("[v0] Application data being saved:", {
           dataSize: JSON.stringify(applicationData).length,
           benefitType: applicationData.benefitType,
           state: applicationData.state,
           personalInfoComplete: Object.keys(applicationData.personalInfo).length,
           householdMembersCount: applicationData.householdMembers.length,
-          hasPersonalInfo: !!applicationData.personalInfo.firstName,
+          hasPersonalInfo,
+          personalInfoFields: {
+            firstName: !!applicationData.personalInfo.firstName?.trim(),
+            lastName: !!applicationData.personalInfo.lastName?.trim(),
+            email: !!applicationData.personalInfo.email?.trim(),
+            phone: !!applicationData.personalInfo.phone?.trim(),
+            street: !!applicationData.personalInfo.address?.street?.trim(),
+          },
           fullDataStructure: applicationData,
         })
         try {
