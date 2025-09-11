@@ -2,8 +2,6 @@
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { encryptApplicationData, decryptApplicationData } from "@/lib/hipaa-encryption"
-import { logApplicationDataAccess, identifyPHIFields } from "@/lib/hipaa-audit"
-import { headers } from "next/headers"
 
 export async function saveApplicationProgress(applicationData: any, currentStep: number, applicationId?: string) {
   console.log("[v0] saveApplicationProgress called with:", {
@@ -88,16 +86,6 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
     const dataToStore = encryptApplicationData(applicationData)
     console.log("[v0] Encryption completed, data length:", dataToStore?.length || 0)
 
-    const phiFields = identifyPHIFields(applicationData)
-    const headersList = headers()
-    const request = {
-      headers: {
-        get: (name: string) => headersList.get(name),
-      },
-      url: "/api/save-progress",
-      method: "POST",
-    } as Request
-
     if (applicationId) {
       console.log("[v0] Updating existing application:", applicationId)
       const { data, error } = await supabase
@@ -114,14 +102,8 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
 
       console.log("[v0] Update result:", { hasData: !!data, error })
 
-      await logApplicationDataAccess(user.id, "UPDATE", applicationId, phiFields, request)
-
       if (error) {
         console.log("[v0] Update failed:", error.message)
-        await logApplicationDataAccess(user.id, "UPDATE", applicationId, phiFields, {
-          ...request,
-          headers: { ...request.headers, error: error.message },
-        } as Request)
         return { success: false, error: `Failed to update progress: ${error.message}` }
       }
 
@@ -148,15 +130,8 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
 
       console.log("[v0] Upsert result:", { hasData: !!data, dataLength: data?.length, error })
 
-      const actionType = data?.[0] ? "CREATE" : "UPDATE"
-      await logApplicationDataAccess(user.id, actionType, data?.[0]?.id, phiFields, request)
-
       if (error) {
         console.log("[v0] Upsert failed:", error.message)
-        await logApplicationDataAccess(user.id, actionType, undefined, phiFields, {
-          ...request,
-          headers: { ...request.headers, error: error.message },
-        } as Request)
         return { success: false, error: `Failed to save progress: ${error.message}` }
       }
 
@@ -299,18 +274,6 @@ export async function loadApplicationProgress(applicationId?: string) {
         },
       }
 
-      const phiFields = identifyPHIFields(safeApplicationData)
-      const headersList = headers()
-      const request = {
-        headers: {
-          get: (name: string) => headersList.get(name),
-        },
-        url: "/api/load-progress",
-        method: "GET",
-      } as Request
-
-      await logApplicationDataAccess(user.id, "READ", data[0].id, phiFields, request)
-
       return {
         data: {
           applicationData: safeApplicationData, // Return properly structured data
@@ -426,18 +389,6 @@ export async function submitApplication(applicationData: any, benefitType: strin
     }
 
     const applicationId = submittedApplication[0].id
-
-    const phiFields = identifyPHIFields(applicationData)
-    const headersList = headers()
-    const request = {
-      headers: {
-        get: (name: string) => headersList.get(name),
-      },
-      url: "/api/submit-application",
-      method: "POST",
-    } as Request
-
-    await logApplicationDataAccess(user.id, "CREATE", applicationId, phiFields, request)
 
     const { error: cleanupError } = await supabase
       .from("application_progress")
