@@ -152,271 +152,27 @@ export default function BenefitsApplicationClient({
         let result
         if (continueId) {
           console.log("[v0] Loading specific application:", continueId)
-          // Load specific application by ID
           result = await loadApplicationProgress(continueId)
         } else {
           console.log("[v0] Loading most recent application")
-          // Load most recent application for this user
           result = await loadApplicationProgress()
         }
 
         console.log("[v0] loadApplicationProgress result:", result)
 
         if (result?.data) {
-          console.log("[v0] Found saved data, processing...")
+          console.log("[v0] Found saved data, setting application state")
           const { applicationData: loadedData, currentStep: loadedStep, applicationId: loadedId } = result.data
 
-          if (continueId) {
-            console.log("[v0] Processing specific application data")
-            // Loading specific application
-            const applications = await supabase
-              .from("application_progress")
-              .select("*")
-              .eq("id", continueId)
-              .eq("user_id", user.id)
-
-            if (applications.data && applications.data.length > 0) {
-              console.log("[v0] Found specific application, setting data and loading to false")
-              const specificApp = applications.data[0]
-
-              const loadedData = specificApp.application_data || {}
-
-              const defaultData = {
-                benefitType: "",
-                state: "",
-                personalInfo: {
-                  applyingFor: "",
-                  firstName: "",
-                  lastName: "",
-                  dateOfBirth: "",
-                  languagePreference: "",
-                  address: {
-                    street: "",
-                    city: "",
-                    state: "",
-                    zipCode: "",
-                  },
-                  phone: "",
-                  email: "",
-                  citizenshipStatus: "",
-                  socialSecurityNumber: "",
-                },
-                householdMembers: [],
-                householdQuestions: {
-                  appliedWithDifferentInfo: "",
-                  appliedWithDifferentInfoMembers: [],
-                  appliedInOtherState: "",
-                  appliedInOtherStateMembers: [],
-                  receivedBenefitsBefore: "",
-                  receivedBenefitsBeforeMembers: [],
-                  receivingSNAPThisMonth: "",
-                  receivingSNAPThisMonthMembers: [],
-                  disqualifiedFromBenefits: "",
-                  disqualifiedFromBenefitsMembers: [],
-                  wantSomeoneElseToReceiveSNAP: "",
-                  wantSomeoneElseToReceiveSNAPMembers: [],
-                },
-                incomeEmployment: {
-                  employment: [],
-                  income: [],
-                  expenses: [],
-                  taxFilingStatus: "",
-                },
-                assets: {
-                  assets: [],
-                },
-                healthDisability: {
-                  healthInsurance: [],
-                  disabilities: { hasDisabled: "" },
-                  pregnancyInfo: { isPregnant: "" },
-                  medicalConditions: { hasChronicConditions: "" },
-                  medicalBills: { hasRecentBills: false },
-                  needsNursingServices: "",
-                },
-                additionalInfo: {
-                  additionalInfo: "",
-                },
-              }
-
-              // Safely merge loaded data with defaults
-              const mergedData = {
-                ...defaultData,
-                ...loadedData,
-                personalInfo: {
-                  ...defaultData.personalInfo,
-                  ...(loadedData.personalInfo || {}),
-                  address: {
-                    ...defaultData.personalInfo.address,
-                    ...(loadedData.personalInfo?.address || {}),
-                  },
-                },
-                householdQuestions: {
-                  ...defaultData.householdQuestions,
-                  ...(loadedData.householdQuestions || {}),
-                },
-                incomeEmployment: {
-                  ...defaultData.incomeEmployment,
-                  ...(loadedData.incomeEmployment || {}),
-                },
-                assets: {
-                  ...defaultData.assets,
-                  ...(loadedData.assets || {}),
-                },
-                healthDisability: {
-                  ...defaultData.healthDisability,
-                  ...(loadedData.healthDisability || {}),
-                  disabilities: {
-                    ...defaultData.healthDisability.disabilities,
-                    ...(loadedData.healthDisability?.disabilities || {}),
-                  },
-                  pregnancyInfo: {
-                    ...defaultData.healthDisability.pregnancyInfo,
-                    ...(loadedData.healthDisability?.pregnancyInfo || {}),
-                  },
-                  medicalConditions: {
-                    ...defaultData.healthDisability.medicalConditions,
-                    ...(loadedData.healthDisability?.medicalConditions || {}),
-                  },
-                  medicalBills: {
-                    ...defaultData.healthDisability.medicalBills,
-                    ...(loadedData.healthDisability?.medicalBills || {}),
-                  },
-                },
-                additionalInfo: {
-                  ...defaultData.additionalInfo,
-                  ...(loadedData.additionalInfo || {}),
-                },
-              }
-
-              setApplicationData(mergedData)
-              setCurrentStep(specificApp.current_step)
-              setApplicationId(specificApp.id)
-              setIsLoading(false)
-              return
-            } else {
-              console.log("[v0] No specific application found, setting loading to false")
-              setIsLoading(false)
-              return
-            }
-          } else {
-            console.log("[v0] Processing general application data")
-            const defaultData = {
-              benefitType: "",
-              state: "",
-              personalInfo: {
-                applyingFor: "",
-                firstName: "",
-                lastName: "",
-                dateOfBirth: "",
-                languagePreference: "",
-                address: {
-                  street: "",
-                  city: "",
-                  state: "",
-                  zipCode: "",
-                },
-                phone: "",
-                email: "",
-                citizenshipStatus: "",
-                socialSecurityNumber: "",
-              },
-              householdMembers: [],
-              householdQuestions: {
-                appliedWithDifferentInfo: "",
-                appliedWithDifferentInfoMembers: [],
-                appliedInOtherState: "",
-                appliedInOtherStateMembers: [],
-                receivedBenefitsBefore: "",
-                receivedBenefitsBeforeMembers: [],
-                receivingSNAPThisMonth: "",
-                receivingSNAPThisMonthMembers: [],
-                disqualifiedFromBenefits: "",
-                disqualifiedFromBenefitsMembers: [],
-                wantSomeoneElseToReceiveSNAP: "",
-                wantSomeoneElseToReceiveSNAPMembers: [],
-              },
-              incomeEmployment: {
-                employment: [],
-                income: [],
-                expenses: [],
-                taxFilingStatus: "",
-              },
-              assets: {
-                assets: [],
-              },
-              healthDisability: {
-                healthInsurance: [],
-                disabilities: { hasDisabled: "" },
-                pregnancyInfo: { isPregnant: "" },
-                medicalConditions: { hasChronicConditions: "" },
-                medicalBills: { hasRecentBills: false },
-                needsNursingServices: "",
-              },
-              additionalInfo: {
-                additionalInfo: "",
-              },
-            }
-
-            const mergedData = {
-              ...defaultData,
-              ...loadedData,
-              personalInfo: {
-                ...defaultData.personalInfo,
-                ...(loadedData.personalInfo || {}),
-                address: {
-                  ...defaultData.personalInfo.address,
-                  ...(loadedData.personalInfo?.address || {}),
-                },
-              },
-              householdQuestions: {
-                ...defaultData.householdQuestions,
-                ...(loadedData.householdQuestions || {}),
-              },
-              incomeEmployment: {
-                ...defaultData.incomeEmployment,
-                ...(loadedData.incomeEmployment || {}),
-              },
-              assets: {
-                ...defaultData.assets,
-                ...(loadedData.assets || {}),
-              },
-              healthDisability: {
-                ...defaultData.healthDisability,
-                ...(loadedData.healthDisability || {}),
-                disabilities: {
-                  ...defaultData.healthDisability.disabilities,
-                  ...(loadedData.healthDisability?.disabilities || {}),
-                },
-                pregnancyInfo: {
-                  ...defaultData.healthDisability.pregnancyInfo,
-                  ...(loadedData.healthDisability?.pregnancyInfo || {}),
-                },
-                medicalConditions: {
-                  ...defaultData.healthDisability.medicalConditions,
-                  ...(loadedData.healthDisability?.medicalConditions || {}),
-                },
-                medicalBills: {
-                  ...defaultData.healthDisability.medicalBills,
-                  ...(loadedData.healthDisability?.medicalBills || {}),
-                },
-              },
-              additionalInfo: {
-                ...defaultData.additionalInfo,
-                ...(loadedData.additionalInfo || {}),
-              },
-            }
-
-            setApplicationData(mergedData)
-            setCurrentStep(loadedStep)
-            setApplicationId(loadedId)
-            setIsLoading(false)
-          }
+          setApplicationData(loadedData)
+          setCurrentStep(loadedStep)
+          setApplicationId(loadedId)
         } else {
-          console.log("[v0] No saved data found, setting loading to false")
-          setIsLoading(false)
+          console.log("[v0] No saved data found")
         }
       } catch (error) {
         console.error("[v0] Error loading saved progress:", error)
+      } finally {
         setIsLoading(false)
       }
     }
@@ -1143,7 +899,7 @@ export default function BenefitsApplicationClient({
                 <Button
                   onClick={nextStep}
                   disabled={currentStep === STEPS.length - 1 || !canProceed()}
-                  className="flex items-center justify-center gap-3 px-8 py-4 text-base font-bold bg-gradient-to-r from-primary via-primary to-primary/90 hover:from-primary/90 hover:via-primary/85 hover:to-primary/80 text-white rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed min-h-[56px] sm:min-h-[52px] touch-manipulation active:scale-95 hover:scale-[1.02]"
+                  className="flex items-center justify-center gap-3 px-8 py-4 text-base font-bold bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:via-primary/85 hover:to-primary/80 text-white rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed min-h-[56px] sm:min-h-[52px] touch-manipulation active:scale-95 hover:scale-[1.02]"
                 >
                   Next
                   <span className="text-lg">→</span>
