@@ -191,7 +191,7 @@ export async function loadApplicationProgress(applicationId?: string) {
       if (typeof data[0].application_data === "string") {
         // Data is encrypted, decrypt it
         console.log("[v0] Decrypting application data...")
-        applicationData = decryptApplicationData(data[0].application_data)
+        applicationData = await decryptApplicationData(data[0].application_data)
         console.log("[v0] Decrypted data:", {
           hasData: !!applicationData,
           benefitType: applicationData?.benefitType,
