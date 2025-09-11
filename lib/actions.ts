@@ -13,6 +13,13 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
     benefitType: applicationData?.benefitType,
   })
 
+  console.log("[v0] Application data details:", {
+    applicationDataType: typeof applicationData,
+    applicationDataKeys: applicationData ? Object.keys(applicationData) : [],
+    applicationDataStringified: JSON.stringify(applicationData, null, 2),
+    applicationDataLength: applicationData ? JSON.stringify(applicationData).length : 0,
+  })
+
   console.log("[v0] Comprehensive environment check:", {
     hasPHIKey: !!process.env.PHI_ENCRYPTION_KEY,
     keyLength: process.env.PHI_ENCRYPTION_KEY?.length || 0,

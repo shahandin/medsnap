@@ -194,11 +194,24 @@ export default function BenefitsApplicationClient({
         try {
           const result = await saveApplicationProgress(applicationData, currentStep, applicationId)
           console.log("[v0] Auto-save result:", result)
+          console.log("[v0] Server response details:", {
+            success: result.success,
+            error: result.error,
+            applicationId: result.applicationId,
+            hasResult: !!result,
+            resultType: typeof result,
+            resultKeys: Object.keys(result || {}),
+          })
           if (result.success && result.applicationId && !applicationId) {
             setApplicationId(result.applicationId)
           }
         } catch (error) {
           console.error("Auto-save failed:", error)
+          console.log("[v0] Auto-save error details:", {
+            errorMessage: error instanceof Error ? error.message : "Unknown error",
+            errorType: typeof error,
+            errorStack: error instanceof Error ? error.stack : "No stack trace",
+          })
         }
       } else {
         console.log("[v0] Auto-save skipped - conditions not met")
