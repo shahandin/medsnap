@@ -164,6 +164,61 @@ export default function BenefitsApplicationClient({
           console.log("[v0] Found saved data, setting application state")
           const { applicationData: loadedData, currentStep: loadedStep, applicationId: loadedId } = result.data
 
+          console.log("[v0] Validating loaded data:", {
+            hasLoadedData: !!loadedData,
+            loadedDataType: typeof loadedData,
+            loadedDataKeys: loadedData ? Object.keys(loadedData) : [],
+            isValidObject: loadedData && typeof loadedData === "object" && !Array.isArray(loadedData),
+          })
+
+          const checkForEncryptedObjects = (obj: any, path = ""): string[] => {
+            const encryptedPaths: string[] = []
+            if (obj && typeof obj === "object" && !Array.isArray(obj)) {
+              if ("iv" in obj && "encrypted" in obj) {
+                encryptedPaths.push(path || "root")
+              }
+              for (const [key, value] of Object.entries(obj)) {
+                if (value && typeof value === "object") {
+                  encryptedPaths.push(...checkForEncryptedObjects(value, path ? `${path}.${key}` : key))
+                }
+              }
+            }
+            return encryptedPaths
+          }
+
+          const encryptedPaths = checkForEncryptedObjects(loadedData)
+          if (encryptedPaths.length > 0) {
+            console.error("[v0] CLIENT: Found encrypted objects in loaded data at paths:", encryptedPaths)
+            console.error("[v0] CLIENT: This will cause React rendering errors!")
+            console.error(
+              "[v0] CLIENT: Encrypted object sample:",
+              JSON.stringify(loadedData, null, 2).substring(0, 500),
+            )
+            // Don't set the state if we find encrypted objects
+            setIsLoading(false)
+            return
+          }
+
+          const validateField = (field: any, fieldName: string) => {
+            if (field && typeof field === "object" && ("iv" in field || "encrypted" in field)) {
+              console.error(`[v0] CLIENT: Field ${fieldName} contains encrypted data:`, field)
+              return false
+            }
+            return true
+          }
+
+          const isValid =
+            validateField(loadedData.personalInfo, "personalInfo") &&
+            validateField(loadedData.householdMembers, "householdMembers") &&
+            validateField(loadedData.state, "state")
+
+          if (!isValid) {
+            console.error("[v0] CLIENT: Loaded data contains encrypted fields, not setting state")
+            setIsLoading(false)
+            return
+          }
+
+          console.log("[v0] CLIENT: Data validation passed, setting application state")
           setApplicationData(loadedData)
           setCurrentStep(loadedStep)
           setApplicationId(loadedId)
@@ -172,6 +227,11 @@ export default function BenefitsApplicationClient({
         }
       } catch (error) {
         console.error("[v0] Error loading saved progress:", error)
+        console.error("[v0] CLIENT: Load error details:", {
+          errorMessage: error instanceof Error ? error.message : "Unknown error",
+          errorType: typeof error,
+          errorStack: error instanceof Error ? error.stack : "No stack trace",
+        })
       } finally {
         setIsLoading(false)
       }

@@ -177,6 +177,15 @@ export async function loadApplicationProgress(applicationId?: string) {
       error,
       rawApplicationData: data?.[0]?.application_data ? "present" : "missing",
       applicationType: data?.[0]?.application_type,
+      rawDataType: typeof data?.[0]?.application_data,
+      rawDataKeys:
+        data?.[0]?.application_data && typeof data?.[0]?.application_data === "object"
+          ? Object.keys(data[0].application_data)
+          : "not an object",
+      rawDataSample:
+        data?.[0]?.application_data && typeof data?.[0]?.application_data === "object"
+          ? JSON.stringify(data[0].application_data).substring(0, 200) + "..."
+          : data?.[0]?.application_data,
     })
 
     if (!error && data && data.length > 0) {
@@ -189,22 +198,84 @@ export async function loadApplicationProgress(applicationId?: string) {
       console.log("[v0] Processing application data, type:", typeof data[0].application_data)
 
       if (typeof data[0].application_data === "string") {
-        // Data is encrypted, decrypt it
         console.log("[v0] Decrypting application data...")
-        applicationData = await decryptApplicationData(data[0].application_data)
-        console.log("[v0] Decrypted data:", {
-          hasData: !!applicationData,
-          benefitType: applicationData?.benefitType,
-          dataKeys: applicationData ? Object.keys(applicationData) : [],
-        })
+        try {
+          applicationData = await decryptApplicationData(data[0].application_data)
+          console.log("[v0] Decryption successful:", {
+            hasData: !!applicationData,
+            dataType: typeof applicationData,
+            benefitType: applicationData?.benefitType,
+            dataKeys: applicationData ? Object.keys(applicationData) : [],
+            isValidObject: applicationData && typeof applicationData === "object" && !Array.isArray(applicationData),
+          })
+        } catch (decryptError) {
+          console.error("[v0] Decryption failed:", decryptError)
+          console.log("[v0] Decryption error details:", {
+            errorMessage: decryptError instanceof Error ? decryptError.message : "Unknown error",
+            errorType: typeof decryptError,
+            inputDataType: typeof data[0].application_data,
+            inputDataLength: data[0].application_data?.length,
+          })
+          return { data: null }
+        }
       } else if (typeof data[0].application_data === "object" && data[0].application_data !== null) {
-        // Data is unencrypted (legacy data), use as-is
-        console.log("[v0] Using unencrypted legacy data")
-        applicationData = data[0].application_data
+        console.log("[v0] Processing object data - checking for encrypted fields...")
+        const rawData = data[0].application_data
+        console.log("[v0] Object data analysis:", {
+          hasIvField: "iv" in rawData,
+          hasEncryptedField: "encrypted" in rawData,
+          objectKeys: Object.keys(rawData),
+          isEncryptedObject: "iv" in rawData && "encrypted" in rawData,
+        })
+
+        if ("iv" in rawData && "encrypted" in rawData) {
+          console.log("[v0] Found encrypted object in database, attempting to decrypt...")
+          try {
+            applicationData = await decryptApplicationData(rawData)
+            console.log("[v0] Successfully decrypted object data:", {
+              hasData: !!applicationData,
+              dataType: typeof applicationData,
+              benefitType: applicationData?.benefitType,
+            })
+          } catch (decryptError) {
+            console.error("[v0] Failed to decrypt object data:", decryptError)
+            return { data: null }
+          }
+        } else {
+          console.log("[v0] Using unencrypted legacy data")
+          applicationData = rawData
+        }
       } else {
-        // Data is null or invalid
         console.log("[v0] Application data is null or invalid")
         return { data: null }
+      }
+
+      if (!applicationData || typeof applicationData !== "object" || Array.isArray(applicationData)) {
+        console.error("[v0] Invalid application data after processing:", {
+          hasData: !!applicationData,
+          dataType: typeof applicationData,
+          isArray: Array.isArray(applicationData),
+        })
+        return { data: null }
+      }
+
+      const checkForEncryptedObjects = (obj: any, path = ""): string[] => {
+        const encryptedPaths: string[] = []
+        if (obj && typeof obj === "object" && !Array.isArray(obj)) {
+          if ("iv" in obj && "encrypted" in obj) {
+            encryptedPaths.push(path || "root")
+          }
+          for (const [key, value] of Object.entries(obj)) {
+            encryptedPaths.push(...checkForEncryptedObjects(value, path ? `${path}.${key}` : key))
+          }
+        }
+        return encryptedPaths
+      }
+
+      const encryptedPaths = checkForEncryptedObjects(applicationData)
+      if (encryptedPaths.length > 0) {
+        console.error("[v0] Found encrypted objects in decrypted data at paths:", encryptedPaths)
+        console.log("[v0] This will cause React rendering errors!")
       }
 
       const benefitTypeFromData = applicationData?.benefitType
@@ -316,7 +387,7 @@ export async function loadApplicationProgress(applicationId?: string) {
 
       return {
         data: {
-          applicationData: safeApplicationData, // Return properly structured data
+          applicationData: safeApplicationData,
           currentStep: data[0].current_step,
           applicationId: data[0].id,
         },
@@ -345,16 +416,11 @@ export async function clearApplicationProgress(applicationId?: string, applicati
 
     let query = supabase.from("application_progress").delete().eq("user_id", user.id)
 
-    // If specific applicationId provided, only delete that record
     if (applicationId) {
       query = query.eq("id", applicationId)
-    }
-    // If specific application type provided, only delete records of that type
-    else if (applicationType) {
+    } else if (applicationType) {
       query = query.eq("application_type", applicationType)
-    }
-    // If neither provided, don't delete anything (preserve existing applications)
-    else {
+    } else {
       console.log("[v0] No specific criteria provided, skipping clear operation")
       return { success: true }
     }
@@ -414,7 +480,7 @@ export async function submitApplication(applicationData: any, benefitType: strin
       .insert({
         user_id: user.id,
         benefit_type: benefitType,
-        application_data: encryptedApplicationData, // Store encrypted data
+        application_data: encryptedApplicationData,
         status: "submitted",
         submitted_at: new Date().toISOString(),
         created_at: new Date().toISOString(),
