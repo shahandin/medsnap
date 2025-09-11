@@ -13,11 +13,25 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
     benefitType: applicationData?.benefitType,
   })
 
-  console.log("[v0] Environment check:", {
+  console.log("[v0] Comprehensive environment check:", {
     hasPHIKey: !!process.env.PHI_ENCRYPTION_KEY,
     keyLength: process.env.PHI_ENCRYPTION_KEY?.length || 0,
+    keyPreview: process.env.PHI_ENCRYPTION_KEY ? process.env.PHI_ENCRYPTION_KEY.substring(0, 8) + "..." : "undefined",
     allEnvKeys: Object.keys(process.env).filter((key) => key.includes("PHI") || key.includes("ENCRYPTION")),
     nodeEnv: process.env.NODE_ENV,
+    vercelEnv: process.env.VERCEL_ENV,
+    totalEnvVars: Object.keys(process.env).length,
+    // Check if any Supabase env vars are working
+    hasSupabaseUrl: !!process.env.SUPABASE_URL,
+    hasSupabaseKey: !!process.env.SUPABASE_ANON_KEY,
+    // Check all env vars starting with common prefixes
+    envVarsStartingWithP: Object.keys(process.env).filter((key) => key.startsWith("P")),
+    envVarsContainingKey: Object.keys(process.env).filter((key) => key.toLowerCase().includes("key")),
+    // Raw access attempt
+    rawPHIKey: process.env["PHI_ENCRYPTION_KEY"],
+    // Alternative access methods
+    altAccess1: process.env.PHI_ENCRYPTION_KEY,
+    altAccess2: globalThis.process?.env?.PHI_ENCRYPTION_KEY,
   })
 
   try {
