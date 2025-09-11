@@ -2,8 +2,10 @@
 
 import type React from "react"
 import { loadApplicationProgress } from "@/lib/actions" // Import the missing function
-
-import { useState, useRef, useEffect } from "react"
+import { saveApplicationProgress } from "@/lib/actions"
+import { createClient } from "@/lib/supabase/client"
+import { useRouter, useSearchParams } from "next/navigation"
+import { useCallback, useState, useRef, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { BenefitSelection } from "@/components/benefit-selection"
@@ -15,9 +17,6 @@ import { IncomeEmploymentForm } from "@/components/income-employment-form"
 import { AssetsForm } from "@/components/assets-form"
 import { HealthDisabilityForm } from "@/components/health-disability-form"
 import { ReviewSubmission } from "@/components/review-submission"
-import { saveApplicationProgress } from "@/lib/actions"
-import { createClient } from "@/lib/supabase/client"
-import { useRouter, useSearchParams } from "next/navigation"
 
 const STEPS = [
   { id: "benefits", title: "Benefit Selection", description: "Choose which benefits to apply for" },
@@ -112,6 +111,64 @@ export default function BenefitsApplicationClient({
   const [applicationId, setApplicationId] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
+  const loadSavedProgress = useCallback(async (startFresh = false, continueId?: string) => {
+    if (startFresh) {
+      setIsLoading(false)
+      return
+    }
+
+    try {
+      const supabase = createClient()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+
+      if (!user) {
+        setIsLoading(false)
+        return
+      }
+
+      let result
+      if (continueId) {
+        result = await loadApplicationProgress(continueId)
+      } else {
+        result = await loadApplicationProgress()
+      }
+
+      if (result?.data) {
+        const { applicationData: loadedData, currentStep: loadedStep, applicationId: loadedId } = result.data
+
+        const checkForEncryptedObjects = (obj: any): boolean => {
+          if (obj && typeof obj === "object" && !Array.isArray(obj)) {
+            if ("iv" in obj && "encrypted" in obj) {
+              return true
+            }
+            for (const value of Object.values(obj)) {
+              if (value && typeof value === "object" && checkForEncryptedObjects(value)) {
+                return true
+              }
+            }
+          }
+          return false
+        }
+
+        if (checkForEncryptedObjects(loadedData)) {
+          console.error("[v0] CLIENT: Found encrypted objects in loaded data")
+          setIsLoading(false)
+          return
+        }
+
+        setApplicationData(loadedData)
+        setCurrentStep(loadedStep)
+        setApplicationId(loadedId)
+      }
+    } catch (error) {
+      console.error("[v0] Error loading saved progress:", error)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [])
+
   useEffect(() => {
     if (stepParam && !isLoading) {
       const stepNumber = Number.parseInt(stepParam)
@@ -125,186 +182,24 @@ export default function BenefitsApplicationClient({
   }, [stepParam, isLoading])
 
   useEffect(() => {
-    const loadSavedProgress = async () => {
-      console.log("[v0] Starting loadSavedProgress, startFresh:", startFresh, "continueId:", continueId)
-
-      if (startFresh) {
-        console.log("[v0] Starting fresh, setting loading to false")
-        setIsLoading(false)
-        return
-      }
-
-      try {
-        console.log("[v0] Getting user...")
-        const supabase = createClient()
-        const {
-          data: { user },
-        } = await supabase.auth.getUser()
-
-        if (!user) {
-          console.log("[v0] No user found, setting loading to false")
-          setIsLoading(false)
-          return
-        }
-
-        console.log("[v0] User found:", user.id)
-
-        let result
-        if (continueId) {
-          console.log("[v0] Loading specific application:", continueId)
-          result = await loadApplicationProgress(continueId)
-        } else {
-          console.log("[v0] Loading most recent application")
-          result = await loadApplicationProgress()
-        }
-
-        console.log("[v0] loadApplicationProgress result:", result)
-
-        if (result?.data) {
-          console.log("[v0] Found saved data, setting application state")
-          const { applicationData: loadedData, currentStep: loadedStep, applicationId: loadedId } = result.data
-
-          console.log("[v0] Validating loaded data:", {
-            hasLoadedData: !!loadedData,
-            loadedDataType: typeof loadedData,
-            loadedDataKeys: loadedData ? Object.keys(loadedData) : [],
-            isValidObject: loadedData && typeof loadedData === "object" && !Array.isArray(loadedData),
-          })
-
-          const checkForEncryptedObjects = (obj: any, path = ""): string[] => {
-            const encryptedPaths: string[] = []
-            if (obj && typeof obj === "object" && !Array.isArray(obj)) {
-              if ("iv" in obj && "encrypted" in obj) {
-                encryptedPaths.push(path || "root")
-              }
-              for (const [key, value] of Object.entries(obj)) {
-                if (value && typeof value === "object") {
-                  encryptedPaths.push(...checkForEncryptedObjects(value, path ? `${path}.${key}` : key))
-                }
-              }
-            }
-            return encryptedPaths
-          }
-
-          const encryptedPaths = checkForEncryptedObjects(loadedData)
-          if (encryptedPaths.length > 0) {
-            console.error("[v0] CLIENT: Found encrypted objects in loaded data at paths:", encryptedPaths)
-            console.error("[v0] CLIENT: This will cause React rendering errors!")
-            console.error(
-              "[v0] CLIENT: Encrypted object sample:",
-              JSON.stringify(loadedData, null, 2).substring(0, 500),
-            )
-            // Don't set the state if we find encrypted objects
-            setIsLoading(false)
-            return
-          }
-
-          const validateField = (field: any, fieldName: string) => {
-            if (field && typeof field === "object" && ("iv" in field || "encrypted" in field)) {
-              console.error(`[v0] CLIENT: Field ${fieldName} contains encrypted data:`, field)
-              return false
-            }
-            return true
-          }
-
-          const isValid =
-            validateField(loadedData.personalInfo, "personalInfo") &&
-            validateField(loadedData.householdMembers, "householdMembers") &&
-            validateField(loadedData.state, "state")
-
-          if (!isValid) {
-            console.error("[v0] CLIENT: Loaded data contains encrypted fields, not setting state")
-            setIsLoading(false)
-            return
-          }
-
-          console.log("[v0] CLIENT: Data validation passed, setting application state")
-          setApplicationData(loadedData)
-          setCurrentStep(loadedStep)
-          setApplicationId(loadedId)
-        } else {
-          console.log("[v0] No saved data found")
-        }
-      } catch (error) {
-        console.error("[v0] Error loading saved progress:", error)
-        console.error("[v0] CLIENT: Load error details:", {
-          errorMessage: error instanceof Error ? error.message : "Unknown error",
-          errorType: typeof error,
-          errorStack: error instanceof Error ? error.stack : "No stack trace",
-        })
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    loadSavedProgress()
-  }, [startFresh, continueId])
+    loadSavedProgress(startFresh, continueId)
+  }, [startFresh, continueId, loadSavedProgress])
 
   useEffect(() => {
-    const autoSave = async () => {
-      console.log("[v0] Auto-save check:", {
-        benefitType: applicationData.benefitType,
-        currentStep,
-        isLoading,
-        shouldSave: applicationData.benefitType && applicationData.benefitType !== "" && currentStep > 0 && !isLoading,
-      })
-
-      if (applicationData.benefitType && applicationData.benefitType !== "" && currentStep > 0 && !isLoading) {
-        console.log("[v0] Triggering auto-save...")
-        const hasPersonalInfo = !!(
-          applicationData.personalInfo.firstName?.trim() ||
-          applicationData.personalInfo.lastName?.trim() ||
-          applicationData.personalInfo.email?.trim() ||
-          applicationData.personalInfo.phone?.trim() ||
-          applicationData.personalInfo.address?.street?.trim()
-        )
-
-        console.log("[v0] Application data being saved:", {
-          dataSize: JSON.stringify(applicationData).length,
-          benefitType: applicationData.benefitType,
-          state: applicationData.state,
-          personalInfoComplete: Object.keys(applicationData.personalInfo).length,
-          householdMembersCount: applicationData.householdMembers.length,
-          hasPersonalInfo,
-          personalInfoFields: {
-            firstName: !!applicationData.personalInfo.firstName?.trim(),
-            lastName: !!applicationData.personalInfo.lastName?.trim(),
-            email: !!applicationData.personalInfo.email?.trim(),
-            phone: !!applicationData.personalInfo.phone?.trim(),
-            street: !!applicationData.personalInfo.address?.street?.trim(),
-          },
-          fullDataStructure: applicationData,
-        })
+    if (applicationData.benefitType && applicationData.benefitType !== "" && currentStep > 0 && !isLoading) {
+      const saveData = async () => {
         try {
           const result = await saveApplicationProgress(applicationData, currentStep, applicationId)
-          console.log("[v0] Auto-save result:", result)
-          console.log("[v0] Server response details:", {
-            success: result.success,
-            error: result.error,
-            applicationId: result.applicationId,
-            hasResult: !!result,
-            resultType: typeof result,
-            resultKeys: Object.keys(result || {}),
-          })
           if (result.success && result.applicationId && !applicationId) {
             setApplicationId(result.applicationId)
           }
         } catch (error) {
-          console.error("Auto-save failed:", error)
-          console.log("[v0] Auto-save error details:", {
-            errorMessage: error instanceof Error ? error.message : "Unknown error",
-            errorType: typeof error,
-            errorStack: error instanceof Error ? error.stack : "No stack trace",
-          })
+          console.error("Form change save error:", error)
         }
-      } else {
-        console.log("[v0] Auto-save skipped - conditions not met")
       }
+      saveData()
     }
-
-    const timeoutId = setTimeout(autoSave, 2000)
-    return () => clearTimeout(timeoutId)
-  }, [applicationData, currentStep, isLoading, isInitializing, applicationId])
+  }, [applicationData, currentStep, isLoading, applicationId])
 
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
@@ -527,158 +422,51 @@ export default function BenefitsApplicationClient({
     }
   }, [currentStep, applicationData, isLoading, isSaving, isInitializing, submittedApplications])
 
-  const updateApplicationData = (updates: any) => {
-    setApplicationData((prev) => ({ ...prev, ...updates }))
-
-    if (!isInitializing) {
-      if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current)
-      }
-
-      debounceTimerRef.current = setTimeout(async () => {
-        try {
-          const updatedData = { ...applicationData, ...updates }
-          if (currentStep >= 0 && updatedData.benefitType && updatedData.benefitType !== "") {
-            await saveApplicationProgress(updatedData, currentStep, applicationId)
-          }
-        } catch (error) {
-          console.error("Form change save error:", error)
+  const handleFormChange = async (newData: any) => {
+    setApplicationData(newData)
+    if (newData.benefitType && newData.benefitType !== "" && currentStep > 0) {
+      try {
+        const result = await saveApplicationProgress(newData, currentStep, applicationId)
+        if (result.success && result.applicationId && !applicationId) {
+          setApplicationId(result.applicationId)
         }
-      }, 3000)
+      } catch (error) {
+        console.error("Form change save error:", error)
+      }
     }
   }
 
-  useEffect(() => {
-    ;(window as any).updateApplicationData = updateApplicationData
-
-    return () => {
-      delete (window as any).updateApplicationData
-    }
-  }, [])
-
-  const nextStep = async () => {
-    if (currentStep < STEPS.length - 1) {
-      setIsTransitioning(true)
-      setSwipeDirection("left")
-
+  const handleStepChange = async (step: number) => {
+    setCurrentStep(step)
+    if (applicationData.benefitType && applicationData.benefitType !== "") {
       try {
-        if (applicationData.benefitType && applicationData.benefitType !== "") {
-          const result = await saveApplicationProgress(applicationData, currentStep + 1, applicationId)
+        const result = await saveApplicationProgress(applicationData, step, applicationId)
+        if (result.success && result.applicationId && !applicationId) {
+          setApplicationId(result.applicationId)
         }
       } catch (error) {
         console.error("Step change save error:", error)
       }
-
-      setTimeout(() => {
-        setCurrentStep(currentStep + 1)
-        setTimeout(() => {
-          setIsTransitioning(false)
-          setSwipeDirection(null)
-        }, 150)
-      }, 150)
     }
   }
 
-  const prevStep = async () => {
-    if (currentStep > 0) {
-      setIsTransitioning(true)
-      setSwipeDirection("right")
-
+  const handleNextStep = async () => {
+    const nextStep = currentStep + 1
+    setCurrentStep(nextStep)
+    if (applicationData.benefitType && applicationData.benefitType !== "") {
       try {
-        if (applicationData.benefitType && applicationData.benefitType !== "") {
-          const result = await saveApplicationProgress(applicationData, currentStep - 1, applicationId)
+        const result = await saveApplicationProgress(applicationData, nextStep, applicationId)
+        if (result.success && result.applicationId && !applicationId) {
+          setApplicationId(result.applicationId)
         }
       } catch (error) {
         console.error("Step change save error:", error)
       }
-
-      setTimeout(() => {
-        setCurrentStep(currentStep - 1)
-        setTimeout(() => {
-          setIsTransitioning(false)
-          setSwipeDirection(null)
-        }, 150)
-      }, 150)
     }
   }
 
-  const goToStep = (step: number) => {
-    setIsTransitioning(true)
-    setSwipeDirection(step > currentStep ? "left" : "right")
-
-    setTimeout(() => {
-      setCurrentStep(step)
-      setTimeout(() => {
-        setIsTransitioning(false)
-        setSwipeDirection(null)
-      }, 150)
-    }, 150)
-  }
-
-  const handleSubmit = async () => {
-    setIsSubmitting(true)
-    console.log("Application submitted:", applicationData)
-  }
-
-  const resetApplication = () => {
-    setApplicationData({
-      benefitType: "",
-      state: "",
-      personalInfo: {
-        applyingFor: "",
-        firstName: "",
-        lastName: "",
-        dateOfBirth: "",
-        languagePreference: "",
-        address: {
-          street: "",
-          city: "",
-          state: "",
-          zipCode: "",
-        },
-        phone: "",
-        email: "",
-        citizenshipStatus: "",
-        socialSecurityNumber: "",
-      },
-      householdMembers: [],
-      householdQuestions: {
-        appliedWithDifferentInfo: "",
-        appliedWithDifferentInfoMembers: [],
-        appliedInOtherState: "",
-        appliedInOtherStateMembers: [],
-        receivedBenefitsBefore: "",
-        receivedBenefitsBeforeMembers: [],
-        receivingSNAPThisMonth: "",
-        receivingSNAPThisMonthMembers: [],
-        disqualifiedFromBenefits: "",
-        disqualifiedFromBenefitsMembers: [],
-        wantSomeoneElseToReceiveSNAP: "",
-        wantSomeoneElseToReceiveSNAPMembers: [],
-      },
-      incomeEmployment: {
-        employment: [],
-        income: [],
-        expenses: [],
-        taxFilingStatus: "",
-      },
-      assets: {
-        assets: [],
-      },
-      healthDisability: {
-        healthInsurance: [],
-        disabilities: { hasDisabled: "" },
-        pregnancyInfo: { isPregnant: "" },
-        medicalConditions: { hasChronicConditions: "" },
-        medicalBills: { hasRecentBills: false },
-        needsNursingServices: "",
-      },
-      additionalInfo: {
-        additionalInfo: "",
-      },
-    })
-    setCurrentStep(0)
-    setApplicationId(null)
+  const handleSubmit = async (applicationData: any) => {
+    // Application submission logic here
   }
 
   const canProceed = () => {
@@ -759,7 +547,7 @@ export default function BenefitsApplicationClient({
         return (
           <BenefitSelection
             selectedBenefits={applicationData.benefitType}
-            onBenefitSelect={(benefitType) => updateApplicationData({ benefitType })}
+            onBenefitSelect={(benefitType) => handleFormChange({ ...applicationData, benefitType })}
             submittedApplications={submittedApplications}
           />
         )
@@ -768,7 +556,8 @@ export default function BenefitsApplicationClient({
           <StateSelection
             selectedState={applicationData.state}
             onStateSelect={(state) => {
-              updateApplicationData({
+              handleFormChange({
+                ...applicationData,
                 state,
                 personalInfo: {
                   ...applicationData.personalInfo,
@@ -786,14 +575,14 @@ export default function BenefitsApplicationClient({
           <PersonalInformationForm
             ref={personalInfoRef}
             personalInfo={applicationData.personalInfo}
-            onUpdate={(personalInfo) => updateApplicationData({ personalInfo })}
+            onUpdate={(personalInfo) => handleFormChange({ ...applicationData, personalInfo })}
           />
         )
       case 3:
         return (
           <HouseholdManagement
             householdMembers={applicationData.householdMembers}
-            onUpdate={(householdMembers) => updateApplicationData({ householdMembers })}
+            onUpdate={(householdMembers) => handleFormChange({ ...applicationData, householdMembers })}
           />
         )
       case 4:
@@ -805,7 +594,7 @@ export default function BenefitsApplicationClient({
             applicantName={
               `${applicationData.personalInfo.firstName} ${applicationData.personalInfo.lastName}`.trim() || "Applicant"
             }
-            onUpdate={(householdQuestions) => updateApplicationData({ householdQuestions })}
+            onUpdate={(householdQuestions) => handleFormChange({ ...applicationData, householdQuestions })}
           />
         )
       case 5:
@@ -816,7 +605,7 @@ export default function BenefitsApplicationClient({
             applicantName={
               `${applicationData.personalInfo.firstName} ${applicationData.personalInfo.lastName}`.trim() || "Applicant"
             }
-            onUpdate={(incomeEmployment) => updateApplicationData({ incomeEmployment })}
+            onUpdate={(incomeEmployment) => handleFormChange({ ...applicationData, incomeEmployment })}
           />
         )
       case 6:
@@ -827,7 +616,7 @@ export default function BenefitsApplicationClient({
             applicantName={
               `${applicationData.personalInfo.firstName} ${applicationData.personalInfo.lastName}`.trim() || "Applicant"
             }
-            onUpdate={(assets) => updateApplicationData({ assets })}
+            onUpdate={(assets) => handleFormChange({ ...applicationData, assets })}
           />
         )
       case 7:
@@ -839,11 +628,11 @@ export default function BenefitsApplicationClient({
               `${applicationData.personalInfo.firstName} ${applicationData.personalInfo.lastName}`.trim() || "Applicant"
             }
             benefitType={applicationData.benefitType}
-            onUpdate={(healthDisability) => updateApplicationData({ healthDisability })}
+            onUpdate={(healthDisability) => handleFormChange({ ...applicationData, healthDisability })}
           />
         )
       case 8:
-        return <ReviewSubmission applicationData={applicationData} onSubmit={handleSubmit} onEdit={goToStep} />
+        return <ReviewSubmission applicationData={applicationData} onSubmit={handleSubmit} onEdit={handleStepChange} />
       default:
         return null
     }
@@ -870,9 +659,9 @@ export default function BenefitsApplicationClient({
 
     if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
       if (deltaX > 0 && currentStep < STEPS.length - 1 && canProceed()) {
-        nextStep()
+        handleNextStep()
       } else if (deltaX < 0 && currentStep > 0) {
-        prevStep()
+        handleStepChange(currentStep - 1)
       }
     }
 
@@ -928,7 +717,7 @@ export default function BenefitsApplicationClient({
                                 ? "bg-gradient-to-br from-secondary via-secondary to-secondary/80 text-white hover:shadow-secondary/25 ring-4 ring-primary/20 animate-pulse"
                                 : "bg-white text-gray-600 hover:bg-gray-50 border-2 border-gray-200 hover:border-gray-300"
                           }`}
-                          onClick={() => goToStep(index)}
+                          onClick={() => handleStepChange(index)}
                         >
                           {index < currentStep ? "✓" : index + 1}
                         </div>
@@ -937,7 +726,7 @@ export default function BenefitsApplicationClient({
                             className={`text-sm font-semibold cursor-pointer hover:text-primary transition-all duration-200 ${
                               index <= currentStep ? "text-gray-900" : "text-gray-500"
                             }`}
-                            onClick={() => goToStep(index)}
+                            onClick={() => handleStepChange(index)}
                           >
                             {step.title}
                           </div>
@@ -996,7 +785,7 @@ export default function BenefitsApplicationClient({
               <div className="flex flex-col sm:flex-row justify-between gap-4 sm:gap-0 mt-8 sm:mt-12">
                 <Button
                   variant="outline"
-                  onClick={prevStep}
+                  onClick={() => handleStepChange(currentStep - 1)}
                   disabled={currentStep === 0}
                   className="flex items-center justify-center gap-3 px-6 py-4 text-base font-semibold border-2 border-gray-300 hover:border-primary/50 rounded-2xl bg-white hover:bg-gray-50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed min-h-[56px] sm:min-h-[52px] touch-manipulation active:scale-95 shadow-md hover:shadow-lg"
                 >
@@ -1004,7 +793,7 @@ export default function BenefitsApplicationClient({
                   Previous
                 </Button>
                 <Button
-                  onClick={nextStep}
+                  onClick={handleNextStep}
                   disabled={currentStep === STEPS.length - 1 || !canProceed()}
                   className="flex items-center justify-center gap-3 px-8 py-4 text-base font-bold bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:via-primary/85 hover:to-primary/80 text-white rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed min-h-[56px] sm:min-h-[52px] touch-manipulation active:scale-95 hover:scale-[1.02]"
                 >
