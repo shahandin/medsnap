@@ -146,6 +146,8 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
 
 export async function loadApplicationProgress(applicationId?: string) {
   try {
+    console.log("[v0] loadApplicationProgress called with applicationId:", applicationId)
+
     const supabase = createClient()
     const {
       data: { user },
@@ -153,8 +155,11 @@ export async function loadApplicationProgress(applicationId?: string) {
     } = await supabase.auth.getUser()
 
     if (authError || !user) {
+      console.log("[v0] Auth failed in loadApplicationProgress")
       return { data: null }
     }
+
+    console.log("[v0] User authenticated, querying database...")
 
     let query = supabase.from("application_progress").select("*")
 
@@ -166,6 +171,14 @@ export async function loadApplicationProgress(applicationId?: string) {
 
     const { data, error } = await query.limit(1)
 
+    console.log("[v0] Database query result:", {
+      hasData: !!data,
+      dataLength: data?.length,
+      error,
+      rawApplicationData: data?.[0]?.application_data ? "present" : "missing",
+      applicationType: data?.[0]?.application_type,
+    })
+
     if (!error && data && data.length > 0) {
       let applicationData
 
@@ -173,16 +186,36 @@ export async function loadApplicationProgress(applicationId?: string) {
         throw new Error("PHI_ENCRYPTION_KEY environment variable is required for HIPAA compliance")
       }
 
+      console.log("[v0] Processing application data, type:", typeof data[0].application_data)
+
       if (typeof data[0].application_data === "string") {
         // Data is encrypted, decrypt it
+        console.log("[v0] Decrypting application data...")
         applicationData = decryptApplicationData(data[0].application_data)
+        console.log("[v0] Decrypted data:", {
+          hasData: !!applicationData,
+          benefitType: applicationData?.benefitType,
+          dataKeys: applicationData ? Object.keys(applicationData) : [],
+        })
       } else if (typeof data[0].application_data === "object" && data[0].application_data !== null) {
         // Data is unencrypted (legacy data), use as-is
+        console.log("[v0] Using unencrypted legacy data")
         applicationData = data[0].application_data
       } else {
         // Data is null or invalid
+        console.log("[v0] Application data is null or invalid")
         return { data: null }
       }
+
+      const benefitTypeFromData = applicationData?.benefitType
+      const benefitTypeFromDB = data[0].application_type
+      const finalBenefitType = benefitTypeFromData || benefitTypeFromDB || ""
+
+      console.log("[v0] Benefit type resolution:", {
+        fromData: benefitTypeFromData,
+        fromDB: benefitTypeFromDB,
+        final: finalBenefitType,
+      })
 
       const defaultApplicationData = {
         benefitType: "",
@@ -244,6 +277,7 @@ export async function loadApplicationProgress(applicationId?: string) {
       const safeApplicationData = {
         ...defaultApplicationData,
         ...applicationData,
+        benefitType: finalBenefitType,
         personalInfo: {
           ...defaultApplicationData.personalInfo,
           ...applicationData?.personalInfo,
@@ -274,6 +308,12 @@ export async function loadApplicationProgress(applicationId?: string) {
         },
       }
 
+      console.log("[v0] Final safe application data:", {
+        benefitType: safeApplicationData.benefitType,
+        currentStep: data[0].current_step,
+        applicationId: data[0].id,
+      })
+
       return {
         data: {
           applicationData: safeApplicationData, // Return properly structured data
@@ -283,9 +323,10 @@ export async function loadApplicationProgress(applicationId?: string) {
       }
     }
 
+    console.log("[v0] No application data found")
     return { data: null }
   } catch (error) {
-    console.error("Load application progress error:", error)
+    console.error("[v0] Load application progress error:", error)
     return { data: null }
   }
 }
