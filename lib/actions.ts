@@ -13,6 +13,13 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
     benefitType: applicationData?.benefitType,
   })
 
+  console.log("[v0] Environment check:", {
+    hasPHIKey: !!process.env.PHI_ENCRYPTION_KEY,
+    keyLength: process.env.PHI_ENCRYPTION_KEY?.length || 0,
+    allEnvKeys: Object.keys(process.env).filter((key) => key.includes("PHI") || key.includes("ENCRYPTION")),
+    nodeEnv: process.env.NODE_ENV,
+  })
+
   try {
     const supabase = await createClient()
     const {
