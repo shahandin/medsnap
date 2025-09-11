@@ -131,9 +131,117 @@ export async function loadApplicationProgress(applicationId?: string) {
     const { data, error } = await query.limit(1)
 
     if (!error && data && data.length > 0) {
-      const decryptedApplicationData = decryptApplicationData(data[0].application_data)
+      console.log("[v0] Raw application_data from database:", data[0].application_data)
+      console.log("[v0] Type of application_data:", typeof data[0].application_data)
+      console.log("[v0] PHI_ENCRYPTION_KEY available:", !!process.env.PHI_ENCRYPTION_KEY)
 
-      const phiFields = identifyPHIFields(decryptedApplicationData)
+      let decryptedApplicationData
+      try {
+        decryptedApplicationData = decryptApplicationData(data[0].application_data)
+        console.log("[v0] Decryption successful, result:", decryptedApplicationData)
+      } catch (decryptionError) {
+        console.error("[v0] Decryption failed:", decryptionError)
+        console.log("[v0] Attempting to use raw data as fallback")
+        if (typeof data[0].application_data === "object") {
+          console.log("[v0] Data appears to be unencrypted, using as-is")
+          decryptedApplicationData = data[0].application_data
+        } else {
+          console.log("[v0] Data is not an object, returning null")
+          return { data: null }
+        }
+      }
+
+      const defaultApplicationData = {
+        benefitType: "",
+        state: "",
+        personalInfo: {
+          applyingFor: "",
+          firstName: "",
+          lastName: "",
+          dateOfBirth: "",
+          languagePreference: "",
+          address: {
+            street: "",
+            city: "",
+            state: "",
+            zipCode: "",
+          },
+          phone: "",
+          email: "",
+          citizenshipStatus: "",
+          socialSecurityNumber: "",
+        },
+        householdMembers: [],
+        householdQuestions: {
+          appliedWithDifferentInfo: "",
+          appliedWithDifferentInfoMembers: [],
+          appliedInOtherState: "",
+          appliedInOtherStateMembers: [],
+          receivedBenefitsBefore: "",
+          receivedBenefitsBeforeMembers: [],
+          receivingSNAPThisMonth: "",
+          receivingSNAPThisMonthMembers: [],
+          disqualifiedFromBenefits: "",
+          disqualifiedFromBenefitsMembers: [],
+          wantSomeoneElseToReceiveSNAP: "",
+          wantSomeoneElseToReceiveSNAPMembers: [],
+        },
+        incomeEmployment: {
+          employment: [],
+          income: [],
+          expenses: [],
+          taxFilingStatus: "",
+        },
+        assets: {
+          assets: [],
+        },
+        healthDisability: {
+          healthInsurance: [],
+          disabilities: { hasDisabled: "" },
+          pregnancyInfo: { isPregnant: "" },
+          medicalConditions: { hasChronicConditions: "" },
+          medicalBills: { hasRecentBills: false },
+          needsNursingServices: "",
+        },
+        additionalInfo: {
+          additionalInfo: "",
+        },
+      }
+
+      const safeApplicationData = {
+        ...defaultApplicationData,
+        ...decryptedApplicationData,
+        personalInfo: {
+          ...defaultApplicationData.personalInfo,
+          ...decryptedApplicationData?.personalInfo,
+          address: {
+            ...defaultApplicationData.personalInfo.address,
+            ...decryptedApplicationData?.personalInfo?.address,
+          },
+        },
+        householdQuestions: {
+          ...defaultApplicationData.householdQuestions,
+          ...decryptedApplicationData?.householdQuestions,
+        },
+        incomeEmployment: {
+          ...defaultApplicationData.incomeEmployment,
+          ...decryptedApplicationData?.incomeEmployment,
+        },
+        assets: {
+          ...defaultApplicationData.assets,
+          ...decryptedApplicationData?.assets,
+        },
+        healthDisability: {
+          ...defaultApplicationData.healthDisability,
+          ...decryptedApplicationData?.healthDisability,
+        },
+        additionalInfo: {
+          ...defaultApplicationData.additionalInfo,
+          ...decryptedApplicationData?.additionalInfo,
+        },
+      }
+
+      const phiFields = identifyPHIFields(safeApplicationData)
       const headersList = headers()
       const request = {
         headers: {
@@ -147,7 +255,7 @@ export async function loadApplicationProgress(applicationId?: string) {
 
       return {
         data: {
-          applicationData: decryptedApplicationData, // Return decrypted data
+          applicationData: safeApplicationData, // Return properly structured data
           currentStep: data[0].current_step,
           applicationId: data[0].id,
         },
@@ -156,6 +264,7 @@ export async function loadApplicationProgress(applicationId?: string) {
 
     return { data: null }
   } catch (error) {
+    console.error("Load application progress error:", error)
     return { data: null }
   }
 }
