@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { Shield } from "lucide-react"
 
 export function SiteFooter() {
   return (
@@ -65,12 +66,26 @@ export function SiteFooter() {
                   Accessibility
                 </Link>
               </li>
+              <li>
+                <div className="flex items-center space-x-1 text-muted-foreground">
+                  <Shield className="h-3 w-3" />
+                  <span className="text-xs font-medium">HIPAA Compliant</span>
+                </div>
+              </li>
             </ul>
           </div>
         </div>
 
-        <div className="mt-8 pt-8 border-t text-center text-sm text-muted-foreground">
-          <p>&copy; 2024 Benefit Bridge. All rights reserved.</p>
+        <div className="mt-8 pt-8 border-t">
+          <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2 px-3 py-1 bg-green-50 border border-green-200 rounded-full">
+                <Shield className="h-4 w-4 text-green-600" />
+                <span className="text-xs font-medium text-green-700">HIPAA Compliant Platform</span>
+              </div>
+            </div>
+            <p className="text-sm text-muted-foreground">&copy; 2024 Benefit Bridge. All rights reserved.</p>
+          </div>
         </div>
       </div>
     </footer>
