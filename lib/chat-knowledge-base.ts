@@ -213,14 +213,42 @@ export const BENEFITS_KNOWLEDGE_BASE = {
     snap: {
       description: "Food assistance program (formerly known as food stamps)",
       basicRequirements: [
-        "Meet income and asset limits",
+        "Meet income and asset limits for your household size",
         "Be a U.S. citizen or qualified immigrant",
         "Meet work requirements (if applicable)",
+        "Provide Social Security Number for all household members",
+        "Not be disqualified for certain violations",
       ],
-      incomeGuidelines: "Generally 130% of Federal Poverty Level",
-      assetLimits: "$2,000 for most households, $3,000 for elderly/disabled",
+      incomeGuidelines: "Gross monthly income must be at or below 130% of Federal Poverty Level",
+      netIncomeLimit: "Net monthly income must be at or below 100% of Federal Poverty Level",
+      assetLimits: "$2,000 for most households, $3,000 for households with elderly (60+) or disabled members",
       workRequirements:
-        "Able-bodied adults 18-49 without dependents must work or participate in training 20+ hours per week",
+        "Able-bodied adults 18-49 without dependents must work or participate in training 20+ hours per week, or be in an approved education/training program",
+      detailedEligibility: {
+        income: {
+          "1 person": { gross: "$1,580", net: "$1,215" },
+          "2 people": { gross: "$2,137", net: "$1,644" },
+          "3 people": { gross: "$2,694", net: "$2,073" },
+          "4 people": { gross: "$3,250", net: "$2,500" },
+          "5 people": { gross: "$3,807", net: "$2,929" },
+          "6 people": { gross: "$4,364", net: "$3,358" },
+          "7 people": { gross: "$4,921", net: "$3,787" },
+          "8 people": { gross: "$5,478", net: "$4,214" },
+        },
+        deductions: [
+          "Standard deduction ($198 for most households)",
+          "Earned income deduction (20% of earned income)",
+          "Dependent care deduction (actual costs up to limits)",
+          "Medical expenses for elderly/disabled (over $35/month)",
+          "Excess shelter costs (over 50% of income after other deductions)",
+        ],
+        disqualifications: [
+          "Intentional program violations",
+          "Fleeing felons or parole/probation violators",
+          "Drug-related felony convictions (varies by state)",
+          "Failure to comply with work requirements",
+        ],
+      },
     },
   },
 

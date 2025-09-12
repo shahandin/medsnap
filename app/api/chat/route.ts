@@ -575,28 +575,28 @@ export async function POST(request: NextRequest) {
     const systemPrompt = `You are a helpful benefits assistant for a government benefits platform. 
 
 CORE PRINCIPLES:
-- Answer only what the user asks - no unsolicited advice or proactive suggestions
-- When users want to navigate somewhere, take them there immediately
-- Be direct and concise in your responses
-- Don't provide information the user didn't request
+- Answer questions directly and completely
+- Provide specific eligibility information when asked
+- Be helpful and informative without being overwhelming
+- Use the knowledge base to provide accurate information
+
+SNAP ELIGIBILITY QUICK REFERENCE:
+- Income: Gross monthly income ≤ 130% of Federal Poverty Level
+- Assets: $2,000 limit ($3,000 if household has elderly/disabled member)
+- Work: Able-bodied adults 18-49 without dependents must work 20+ hours/week
+- Citizenship: Must be U.S. citizen or qualified immigrant
+- Household size affects income limits
 
 RESPONSE GUIDELINES:
-- For questions: Answer directly and briefly
-- For navigation requests: Navigate immediately without extra explanation
-- Don't suggest additional steps unless specifically asked
-- Don't provide error resolution unless the user asks about errors
-- Don't give progress summaries unless requested
+- For eligibility questions: Provide specific requirements and income limits
+- For navigation requests: Navigate immediately 
+- For document questions: List required documents clearly
+- Be direct and helpful - don't ask for more details unless truly needed
 
-PLATFORM INFORMATION (only provide when asked):
+PLATFORM INFORMATION:
 - Serves all 50 US states with state-specific requirements
 - Offers Medicaid and SNAP benefit applications
-- Processing times: SNAP (30 days), Medicaid (45-90 days)
-- Required documents: ID, Social Security cards, income proof, bank statements, housing costs
-
-NAVIGATION BEHAVIOR:
-- When users ask to go somewhere, take them there immediately
-- Don't ask for confirmation unless the request is unclear
-- Be honest about what you can and cannot do`
+- Processing times: SNAP (30 days), Medicaid (45-90 days)`
 
     let conversationContext = ""
     if (enhancedConversationHistory && enhancedConversationHistory.length > 0) {
@@ -620,17 +620,48 @@ NAVIGATION BEHAVIOR:
 
     let cleanedResponse = fullText
 
+    // Remove obvious template variables and placeholders
     cleanedResponse = cleanedResponse.replace(/\[State Name\]/gi, "your state")
-    cleanedResponse = cleanedResponse.replace(/\[.*?\]/g, "")
-    cleanedResponse = cleanedResponse.replace(/\{.*?\}/g, "")
+    cleanedResponse = cleanedResponse.replace(/\[Your State\]/gi, "your state")
+    cleanedResponse = cleanedResponse.replace(/\[INSERT_.*?\]/gi, "")
 
-    // Clean up spacing and ensure we have content
-    cleanedResponse = cleanedResponse.replace(/\s+/g, " ").trim()
+    // Remove empty template variables
+    cleanedResponse = cleanedResponse.replace(/\{\s*\}/g, "")
+    cleanedResponse = cleanedResponse.replace(/\$\{.*?\}/g, "")
+
+    // Remove system instructions and internal directions (but preserve legitimate parenthetical content)
+    cleanedResponse = cleanedResponse.replace(
+      /\s*$$[^)]*(?:assistant navigates|internal instruction|system prompt|stage direction)[^)]*$$/gi,
+      "",
+    )
+
+    // Remove assistant action descriptions
+    cleanedResponse = cleanedResponse.replace(/$$The assistant .*?$$/gi, "")
+
+    // Remove navigation instructions that aren't meant for users
+    cleanedResponse = cleanedResponse.replace(
+      /\.\.\.*\s*(?:I'll|I will|Let me) (?:navigate|guide|direct|take) (?:you|the user).*?(?=\.|$)/gi,
+      "",
+    )
+
+    // Clean up spacing and formatting
+    cleanedResponse = cleanedResponse
+      .replace(/\.{3,}/g, "")
+      .replace(/\s+/g, " ")
+      .trim()
+
+    // Remove empty parentheses or brackets left behind
+    cleanedResponse = cleanedResponse.replace(/$$\s*$$/g, "").replace(/\[\s*\]/g, "")
 
     if (!cleanedResponse || cleanedResponse.length < 10) {
       cleanedResponse =
-        "I understand your question. Let me help you with that. Could you please provide a bit more detail about what specific information you're looking for?"
+        "I'm having trouble generating a response right now. Could you try rephrasing your question about benefits?"
     }
+
+    cleanedResponse = cleanedResponse.replace(
+      /\s*$$[^)]*(?:assistant navigates|user to|internal instruction|system prompt)[^)]*$$/gi,
+      "",
+    )
 
     cleanedResponse = cleanedResponse.replace(/\[State Name\]/gi, "your state")
     cleanedResponse = cleanedResponse.replace(/\[.*?\]/g, "")
