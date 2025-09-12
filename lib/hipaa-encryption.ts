@@ -91,26 +91,36 @@ const PHI_FIELDS = [
 
 export async function encryptApplicationData(applicationData: any): Promise<any> {
   try {
+    console.log("[v0] ENCRYPT DEBUG - Starting encryption process")
     const encrypted = { ...applicationData }
 
     // Encrypt personal information
     if (encrypted.personalInfo) {
+      console.log("[v0] ENCRYPT DEBUG - Personal info before:", encrypted.personalInfo)
       encrypted.personalInfo = await encryptPHIObject(encrypted.personalInfo)
+      console.log("[v0] ENCRYPT DEBUG - Personal info after:", encrypted.personalInfo)
     }
 
     // Encrypt health/disability information
     if (encrypted.healthDisability) {
+      console.log("[v0] ENCRYPT DEBUG - Health disability info before:", encrypted.healthDisability)
       encrypted.healthDisability = await encryptPHIObject(encrypted.healthDisability)
+      console.log("[v0] ENCRYPT DEBUG - Health disability info after:", encrypted.healthDisability)
     }
 
     if (encrypted.householdMembers && Array.isArray(encrypted.householdMembers)) {
+      console.log("[v0] ENCRYPT DEBUG - Household members before:", encrypted.householdMembers)
       encrypted.householdMembers = await Promise.all(encrypted.householdMembers.map(encryptPHIObject))
+      console.log("[v0] ENCRYPT DEBUG - Household members after:", encrypted.householdMembers)
     }
 
     if (encrypted.householdInfo?.members) {
+      console.log("[v0] ENCRYPT DEBUG - Household info members before:", encrypted.householdInfo.members)
       encrypted.householdInfo.members = await Promise.all(encrypted.householdInfo.members.map(encryptPHIObject))
+      console.log("[v0] ENCRYPT DEBUG - Household info members after:", encrypted.householdInfo.members)
     }
 
+    console.log("[v0] ENCRYPT DEBUG - Final encrypted result:", encrypted)
     return encrypted
   } catch (error) {
     console.error("[v0] Encryption failed:", error)
@@ -148,19 +158,32 @@ export async function decryptApplicationData(encryptedData: any): Promise<any> {
 }
 
 async function encryptPHIObject(obj: any): Promise<any> {
+  console.log("[v0] ENCRYPT PHI DEBUG - Input object:", obj)
   const encrypted = { ...obj }
 
   for (const key of Object.keys(encrypted)) {
+    const value = encrypted[key]
+    console.log(
+      `[v0] ENCRYPT PHI DEBUG - Processing key: ${key}, value: "${value}", type: ${typeof value}, length: ${typeof value === "string" ? value.length : "N/A"}`,
+    )
+
     if (typeof encrypted[key] === "string" && encrypted[key].length > 0) {
-      // Encrypt string fields that contain PHI
       if (isPHIField(key) || containsPHI(encrypted[key])) {
+        console.log(`[v0] ENCRYPT PHI DEBUG - Encrypting field: ${key}`)
         encrypted[key] = await encryptPHI(encrypted[key])
+        console.log(`[v0] ENCRYPT PHI DEBUG - Encrypted result for ${key}:`, encrypted[key])
+      } else {
+        console.log(`[v0] ENCRYPT PHI DEBUG - Skipping non-PHI field: ${key}`)
       }
     } else if (typeof encrypted[key] === "object" && encrypted[key] !== null) {
+      console.log(`[v0] ENCRYPT PHI DEBUG - Recursing into object: ${key}`)
       encrypted[key] = await encryptPHIObject(encrypted[key])
+    } else {
+      console.log(`[v0] ENCRYPT PHI DEBUG - Skipping empty/invalid field: ${key}`)
     }
   }
 
+  console.log("[v0] ENCRYPT PHI DEBUG - Final object:", encrypted)
   return encrypted
 }
 

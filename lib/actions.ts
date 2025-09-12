@@ -101,6 +101,23 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
         applicationId: data?.[0]?.id,
       })
 
+      if (!error && data?.[0]) {
+        const { data: verifyData, error: verifyError } = await supabase
+          .from("application_progress")
+          .select("application_data, current_step")
+          .eq("id", data[0].id)
+          .single()
+
+        console.log("[v0] SAVE DEBUG - Database verification after update:", {
+          verifySuccess: !verifyError,
+          verifyError: verifyError?.message,
+          hasDataInDB: !!verifyData?.application_data,
+          currentStepInDB: verifyData?.current_step,
+          dataTypeInDB: typeof verifyData?.application_data,
+          hasEncryptedFieldsInDB: hasEncryptedFields(verifyData?.application_data),
+        })
+      }
+
       if (error) {
         return { success: false, error: `Failed to update progress: ${error.message}` }
       }
@@ -130,6 +147,23 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
         dataReturned: !!data?.[0],
         applicationId: data?.[0]?.id,
       })
+
+      if (!error && data?.[0]) {
+        const { data: verifyData, error: verifyError } = await supabase
+          .from("application_progress")
+          .select("application_data, current_step")
+          .eq("id", data[0].id)
+          .single()
+
+        console.log("[v0] SAVE DEBUG - Database verification after upsert:", {
+          verifySuccess: !verifyError,
+          verifyError: verifyError?.message,
+          hasDataInDB: !!verifyData?.application_data,
+          currentStepInDB: verifyData?.current_step,
+          dataTypeInDB: typeof verifyData?.application_data,
+          hasEncryptedFieldsInDB: hasEncryptedFields(verifyData?.application_data),
+        })
+      }
 
       if (error) {
         return { success: false, error: `Failed to save progress: ${error.message}` }
