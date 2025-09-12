@@ -12,7 +12,6 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import Link from "next/link"
 import {
   FileText,
   Clock,
@@ -26,15 +25,15 @@ import {
   DollarSign,
   Home,
   Shield,
-  Sparkles,
   TrendingUp,
   ArrowLeft,
   Send,
   Menu,
 } from "lucide-react"
-import { loadApplicationProgress, signOut } from "@/lib/actions"
+import { signOut } from "@/lib/actions"
 import { useSearchParams } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
+import Link from "next/link"
 
 interface AccountDashboardClientProps {
   user: {
@@ -237,10 +236,10 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
 
       try {
         console.log("[v0] Loading data for authenticated user:", user.email)
-        const progressResult = await loadApplicationProgress()
-        if (progressResult.data) {
-          // Handle both single application and array of applications
-          setApplicationProgress(Array.isArray(progressResult.data) ? progressResult.data : [progressResult.data])
+        const { loadAllUserApplications } = await import("@/lib/actions")
+        const progressResult = await loadAllUserApplications()
+        if (progressResult.data && progressResult.data.length > 0) {
+          setApplicationProgress(progressResult.data)
         }
 
         // Load submitted applications
@@ -250,7 +249,7 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
           setSubmittedApplications(applicationsResult.data)
         }
       } catch (error) {
-        console.error("Error loading data:", error)
+        console.error("[v0] Error loading data:", error)
       } finally {
         setIsLoading(false)
       }
@@ -813,11 +812,12 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
                               )
                             })}
                           </div>
+
                           <Button
                             asChild
                             className="w-full h-14 md:h-10 text-lg md:text-sm font-semibold rounded-2xl md:rounded-lg shadow-lg md:shadow-none"
                           >
-                            <Link href="/application">Continue Application</Link>
+                            <Link href="/application-choice">Continue Application</Link>
                           </Button>
                         </>
                       )}
@@ -838,20 +838,18 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
                                 <Progress value={appProgressPercentage} className="h-3 md:h-2 rounded-full" />
                               </div>
                               <div className="space-y-4 md:space-y-3 text-base md:text-sm text-gray-600">
-                                <p className="flex items-center gap-3 md:gap-2">
+                                <p className="flex items-center gap-2">
                                   <Clock className="w-5 h-5 md:w-4 md:h-4 flex-shrink-0 text-primary" />
-                                  <span className="break-words leading-relaxed">
-                                    Current Step: {getStepTitle(app.current_step)}
-                                  </span>
+                                  <span>Current Step: {getStepTitle(app.current_step)}</span>
                                 </p>
-                                <p className="flex items-center gap-3 md:gap-2">
+                                <p className="flex items-center gap-2">
                                   <Calendar className="w-5 h-5 md:w-4 md:h-4 flex-shrink-0 text-primary" />
                                   <span>Last Updated: {new Date(app.updated_at).toLocaleDateString()}</span>
                                 </p>
                                 {app.application_data?.benefitType && (
-                                  <p className="flex items-center gap-3 md:gap-2">
+                                  <p className="flex items-center gap-2">
                                     <FileText className="w-5 h-5 md:w-4 md:h-4 flex-shrink-0 text-primary" />
-                                    <span>Application Type: {app.application_data.benefitType}</span>
+                                    <span>Type: {app.application_data.benefitType}</span>
                                   </p>
                                 )}
                               </div>
@@ -859,45 +857,45 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
                           )
                         })
                       ) : (
-                        <>
+                        <div className="space-y-4">
                           <div>
                             <div className="flex justify-between text-base md:text-sm font-semibold mb-3 md:mb-2">
                               <span>Progress</span>
-                              <span>{Math.round(progressPercentage)}% Complete</span>
+                              <span>{progressPercentage}% Complete</span>
                             </div>
                             <Progress value={progressPercentage} className="h-3 md:h-2 rounded-full" />
                           </div>
                           <div className="space-y-4 md:space-y-3 text-base md:text-sm text-gray-600">
-                            <p className="flex items-center gap-3 md:gap-2">
+                            <p className="flex items-center gap-2">
                               <Clock className="w-5 h-5 md:w-4 md:h-4 flex-shrink-0 text-primary" />
-                              <span className="break-words leading-relaxed">
-                                Current Step: {getStepTitle(applicationProgress.current_step)}
-                              </span>
+                              <span>Current Step: {getStepTitle(applicationProgress.current_step)}</span>
                             </p>
-                            <p className="flex items-center gap-3 md:gap-2">
+                            <p className="flex items-center gap-2">
                               <Calendar className="w-5 h-5 md:w-4 md:h-4 flex-shrink-0 text-primary" />
                               <span>Last Updated: {new Date(applicationProgress.updated_at).toLocaleDateString()}</span>
                             </p>
                             {applicationProgress.application_data?.benefitType && (
-                              <p className="flex items-center gap-3 md:gap-2">
+                              <p className="flex items-center gap-2">
                                 <FileText className="w-5 h-5 md:w-4 md:h-4 flex-shrink-0 text-primary" />
-                                <span>Application Type: {applicationProgress.application_data.benefitType}</span>
+                                <span>Type: {applicationProgress.application_data.benefitType}</span>
                               </p>
                             )}
                           </div>
-                        </>
+                        </div>
                       )}
                       <Button
                         asChild
                         className="w-full h-14 md:h-10 text-lg md:text-sm font-semibold rounded-2xl md:rounded-lg shadow-lg md:shadow-none"
                       >
-                        <Link href="/application">Continue Application</Link>
+                        <Link href="/application-choice">Continue Application</Link>
                       </Button>
                     </>
                   ) : (
-                    <>
-                      <p className="text-gray-600 text-base md:text-sm leading-relaxed">
-                        You haven't started your benefits application yet.
+                    <div className="text-center py-8 md:py-6">
+                      <FileText className="w-16 h-16 md:w-12 md:h-12 text-gray-300 mx-auto mb-4 md:mb-3" />
+                      <h3 className="text-xl md:text-lg font-semibold text-gray-900 mb-2">No Applications Yet</h3>
+                      <p className="text-base md:text-sm text-gray-600 mb-6 md:mb-4">
+                        Start your benefits application to see your progress here.
                       </p>
                       <Button
                         asChild
@@ -905,7 +903,7 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
                       >
                         <Link href="/application-choice">Start Application</Link>
                       </Button>
-                    </>
+                    </div>
                   )}
                 </CardContent>
               </Card>
@@ -913,41 +911,28 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
               <Card className="rounded-2xl md:rounded-xl shadow-lg md:shadow-sm border-0 md:border">
                 <CardHeader className="pb-6 md:pb-4 px-6 md:px-6">
                   <CardTitle className="flex items-center gap-3 text-xl md:text-lg">
-                    <Sparkles className="w-6 h-6 md:w-5 md:h-5 text-primary" />
+                    <CheckCircle className="w-6 h-6 md:w-5 md:h-5 text-primary" />
                     Quick Actions
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4 md:space-y-3 pt-0 px-6 md:px-6">
                   <Button
-                    variant="outline"
-                    className="w-full justify-start h-auto p-5 md:p-4 bg-white hover:bg-gray-50 rounded-2xl md:rounded-lg border-2 md:border shadow-sm md:shadow-none"
                     asChild
+                    className="w-full h-14 md:h-10 text-lg md:text-sm font-semibold rounded-2xl md:rounded-lg shadow-lg md:shadow-none"
                   >
-                    <Link href="/application-choice" className="flex items-center gap-4 md:gap-3">
-                      <FileText className="w-6 h-6 md:w-5 md:h-5 flex-shrink-0 text-primary" />
-                      <div className="text-left flex-1 min-w-0">
-                        <div className="font-semibold text-base md:text-sm truncate">
-                          {applicationProgress ? "Continue Application" : "Start New Application"}
-                        </div>
-                        <div className="text-sm md:text-xs text-gray-500 truncate mt-1">
-                          {applicationProgress ? "Pick up where you left off" : "Begin your benefits journey"}
-                        </div>
-                      </div>
+                    <Link href="/application-choice">
+                      {applicationProgress && Array.isArray(applicationProgress) && applicationProgress.length > 0
+                        ? "Continue Application"
+                        : "Start New Application"}
                     </Link>
                   </Button>
-
                   <Button
+                    asChild
                     variant="outline"
-                    className="w-full justify-start h-auto p-5 md:p-4 bg-white hover:bg-gray-50 rounded-2xl md:rounded-lg border-2 md:border shadow-sm md:shadow-none"
+                    className="w-full h-14 md:h-10 text-lg md:text-sm font-semibold rounded-2xl md:rounded-lg shadow-lg md:shadow-none bg-transparent"
                     onClick={() => setActiveTab("documents")}
                   >
-                    <div className="flex items-center gap-4 md:gap-3 w-full">
-                      <Upload className="w-6 h-6 md:w-5 md:h-5 flex-shrink-0 text-primary" />
-                      <div className="text-left flex-1 min-w-0">
-                        <div className="font-semibold text-base md:text-sm truncate">Upload Documents</div>
-                        <div className="text-sm md:text-xs text-gray-500 truncate mt-1">Submit supporting files</div>
-                      </div>
-                    </div>
+                    <span>Upload Documents</span>
                   </Button>
                 </CardContent>
               </Card>
@@ -959,109 +944,84 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
               <CardHeader className="pb-6 md:pb-4 px-6 md:px-6">
                 <CardTitle className="flex items-center gap-3 text-2xl md:text-xl font-bold">
                   <FileText className="w-7 h-7 md:w-6 md:h-6 text-primary" />
-                  My Applications
+                  Your Applications
                 </CardTitle>
                 <CardDescription className="text-base md:text-sm text-gray-600 leading-relaxed">
                   View and manage all your benefit applications in one place.
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-6 pt-0 px-6 md:px-6">
-                {submittedApplications && submittedApplications.length > 0 && (
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-green-800">Submitted Applications</h3>
-                    {submittedApplications.map((app, index) => (
-                      <Card key={index} className="bg-green-50 border-green-200">
+            </Card>
+
+            <div className="space-y-6">
+              {submittedApplications && submittedApplications.length > 0 && (
+                <div className="space-y-4">
+                  <h3 className="text-xl font-semibold text-gray-900">Submitted Applications</h3>
+                  {submittedApplications.map((app, index) => (
+                    <Card key={index} className="bg-green-50 border-green-200">
+                      <CardContent className="p-4">
+                        <div className="flex items-center justify-between mb-3">
+                          <h4 className="font-semibold">{app.benefit_type || "Benefits Application"}</h4>
+                          <Badge className="bg-green-100 text-green-800">Submitted</Badge>
+                        </div>
+                        <div className="text-sm text-gray-600">
+                          <p>Submitted: {new Date(app.submitted_at).toLocaleDateString()}</p>
+                          <p>Reference: {app.reference_number || `REF-${app.id?.slice(-8)}`}</p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+
+              {applicationProgress && Array.isArray(applicationProgress) && applicationProgress.length > 0 && (
+                <div className="space-y-4">
+                  <h3 className="text-xl font-semibold text-gray-900">In Progress Applications</h3>
+                  {applicationProgress.map((app, index) => {
+                    const appProgressPercentage = Math.round(((app.current_step || 1) / 9) * 100)
+                    return (
+                      <Card key={index} className="bg-yellow-50 border-yellow-200">
                         <CardContent className="p-4">
                           <div className="flex items-center justify-between mb-3">
-                            <h4 className="font-semibold">{app.benefit_type || "Benefits Application"}</h4>
-                            <Badge className="bg-green-100 text-green-800">Submitted</Badge>
+                            <h4 className="font-semibold">
+                              {app.application_data?.benefitType || "Benefits Application"}
+                            </h4>
+                            <Badge className="bg-yellow-100 text-yellow-800">In Progress</Badge>
                           </div>
-                          <div className="space-y-2 text-sm text-gray-600">
-                            <p>Submitted: {new Date(app.submitted_at).toLocaleDateString()}</p>
-                            <p>Reference: {app.reference_number || `REF-${app.id?.slice(-8)}`}</p>
+                          <div className="space-y-3">
+                            <div className="flex justify-between text-sm">
+                              <span>Progress</span>
+                              <span>{appProgressPercentage}% Complete</span>
+                            </div>
+                            <Progress value={appProgressPercentage} className="h-2" />
+                            <div className="text-sm text-gray-600">
+                              <p>Current Step: {getStepTitle(app.current_step)}</p>
+                              <p>Last Updated: {new Date(app.updated_at).toLocaleDateString()}</p>
+                            </div>
+                            <Button asChild size="sm" className="w-full">
+                              <Link href="/application">Continue Application</Link>
+                            </Button>
                           </div>
                         </CardContent>
                       </Card>
-                    ))}
-                  </div>
-                )}
+                    )
+                  })}
+                </div>
+              )}
 
-                {applicationProgress &&
-                  (Array.isArray(applicationProgress) ? applicationProgress.length > 0 : applicationProgress) && (
-                    <div className="space-y-4">
-                      <h3 className="text-lg font-semibold text-yellow-800">In Progress Applications</h3>
-                      {Array.isArray(applicationProgress) ? (
-                        applicationProgress.map((app, index) => {
-                          const appProgressPercentage = Math.round(((app.current_step || 1) / 9) * 100)
-                          return (
-                            <Card key={index} className="bg-yellow-50 border-yellow-200">
-                              <CardContent className="p-4">
-                                <div className="flex items-center justify-between mb-3">
-                                  <h4 className="font-semibold">
-                                    {app.application_data?.benefitType || "Benefits Application"}
-                                  </h4>
-                                  <Badge className="bg-yellow-100 text-yellow-800">In Progress</Badge>
-                                </div>
-                                <div className="space-y-3">
-                                  <div className="flex justify-between text-sm">
-                                    <span>Progress</span>
-                                    <span>{appProgressPercentage}% Complete</span>
-                                  </div>
-                                  <Progress value={appProgressPercentage} className="h-2" />
-                                  <div className="text-sm text-gray-600">
-                                    <p>Current Step: {getStepTitle(app.current_step)}</p>
-                                    <p>Last Updated: {new Date(app.updated_at).toLocaleDateString()}</p>
-                                  </div>
-                                  <Button asChild size="sm" className="w-full">
-                                    <Link href="/application">Continue Application</Link>
-                                  </Button>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          )
-                        })
-                      ) : (
-                        <Card className="bg-yellow-50 border-yellow-200">
-                          <CardContent className="p-4">
-                            <div className="flex items-center justify-between mb-3">
-                              <h4 className="font-semibold">
-                                {applicationProgress.application_data?.benefitType || "Benefits Application"}
-                              </h4>
-                              <Badge className="bg-yellow-100 text-yellow-800">In Progress</Badge>
-                            </div>
-                            <div className="space-y-3">
-                              <div className="flex justify-between text-sm">
-                                <span>Progress</span>
-                                <span>{Math.round(progressPercentage)}% Complete</span>
-                              </div>
-                              <Progress value={progressPercentage} className="h-2" />
-                              <div className="text-sm text-gray-600">
-                                <p>Current Step: {getStepTitle(applicationProgress.current_step)}</p>
-                                <p>Last Updated: {new Date(applicationProgress.updated_at).toLocaleDateString()}</p>
-                              </div>
-                              <Button asChild size="sm" className="w-full">
-                                <Link href="/application">Continue Application</Link>
-                              </Button>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      )}
-                    </div>
-                  )}
-
-                {(!applicationProgress || (Array.isArray(applicationProgress) && applicationProgress.length === 0)) &&
-                  (!submittedApplications || submittedApplications.length === 0) && (
-                    <div className="text-center py-8">
+              {(!applicationProgress || (Array.isArray(applicationProgress) && applicationProgress.length === 0)) &&
+                (!submittedApplications || submittedApplications.length === 0) && (
+                  <Card className="text-center py-12">
+                    <CardContent>
                       <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2">No Applications Yet</h3>
-                      <p className="text-gray-600 mb-4">Start your benefits application to see it here.</p>
+                      <h3 className="text-xl font-semibold text-gray-900 mb-2">No Applications Yet</h3>
+                      <p className="text-gray-600 mb-6">Start your first benefits application to get started.</p>
                       <Button asChild>
-                        <Link href="/application-choice">Start Application</Link>
+                        <Link href="/application-choice">Start New Application</Link>
                       </Button>
-                    </div>
-                  )}
-              </CardContent>
-            </Card>
+                    </CardContent>
+                  </Card>
+                )}
+            </div>
           </TabsContent>
 
           <TabsContent value="notifications" className="space-y-6">
@@ -1072,39 +1032,133 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
                   Notifications
                 </CardTitle>
                 <CardDescription className="text-base md:text-sm text-gray-600 leading-relaxed">
-                  Stay updated on your application status and important reminders.
+                  Stay updated with important information about your applications and benefits.
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4 pt-0 px-6 md:px-6">
-                {mockNotifications.map((notification) => (
-                  <Card
-                    key={notification.id}
-                    className={`border-l-4 ${
-                      notification.type === "success"
-                        ? "border-l-green-500 bg-green-50"
-                        : notification.type === "warning"
-                          ? "border-l-yellow-500 bg-yellow-50"
-                          : "border-l-blue-500 bg-blue-50"
-                    } ${notification.read ? "opacity-75" : ""}`}
-                  >
-                    <CardContent className="p-4">
-                      <div className="flex items-start gap-3">
-                        {getNotificationIcon(notification.type)}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between mb-2">
-                            <h4 className="font-semibold text-gray-900 truncate">{notification.title}</h4>
-                            <span className="text-xs text-gray-500 flex-shrink-0 ml-2">
-                              {new Date(notification.timestamp).toLocaleDateString()}
-                            </span>
+            </Card>
+
+            <div className="space-y-4">
+              {mockNotifications.map((notification) => (
+                <Card
+                  key={notification.id}
+                  className={`rounded-2xl md:rounded-xl shadow-lg md:shadow-sm border-0 md:border ${
+                    !notification.read ? "bg-blue-50 border-blue-200" : "bg-white"
+                  }`}
+                >
+                  <CardContent className="p-6 md:p-4">
+                    <div className="flex items-start gap-4">
+                      <div className="flex-shrink-0 mt-1">{getNotificationIcon(notification.type)}</div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex-1">
+                            <h4 className="text-lg md:text-base font-semibold text-gray-900 mb-2 md:mb-1">
+                              {notification.title}
+                            </h4>
+                            <p className="text-base md:text-sm text-gray-600 leading-relaxed">
+                              {notification.description}
+                            </p>
                           </div>
-                          <p className="text-sm text-gray-700 leading-relaxed">{notification.description}</p>
+                          {!notification.read && (
+                            <div className="w-3 h-3 bg-blue-500 rounded-full flex-shrink-0 mt-2"></div>
+                          )}
                         </div>
+                        <p className="text-sm md:text-xs text-gray-500 mt-3 md:mt-2">
+                          {new Date(notification.timestamp).toLocaleDateString("en-US", {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </p>
                       </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="report-changes" className="space-y-6">
+            {selectedChangeCategory ? (
+              renderChangeForm()
+            ) : (
+              <>
+                <Card className="rounded-2xl md:rounded-xl shadow-lg md:shadow-sm border-0 md:border">
+                  <CardHeader className="pb-6 md:pb-4 px-6 md:px-6">
+                    <CardTitle className="flex items-center gap-3 text-2xl md:text-xl font-bold">
+                      <AlertTriangle className="w-7 h-7 md:w-6 md:h-6 text-primary" />
+                      Report Changes
+                    </CardTitle>
+                    <CardDescription className="text-base md:text-sm text-gray-600 leading-relaxed">
+                      It's important to report changes that might affect your benefits within 10 days.
+                    </CardDescription>
+                  </CardHeader>
+                </Card>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-4">
+                  <Card
+                    className="rounded-2xl md:rounded-xl shadow-lg md:shadow-sm border-0 md:border cursor-pointer hover:shadow-xl md:hover:shadow-md transition-shadow"
+                    onClick={() => setSelectedChangeCategory("income-assets")}
+                  >
+                    <CardContent className="p-6 md:p-4">
+                      <div className="flex items-center gap-4 mb-4 md:mb-3">
+                        <DollarSign className="w-8 h-8 md:w-6 md:h-6 text-primary" />
+                        <h3 className="text-xl md:text-lg font-semibold">Income & Assets</h3>
+                      </div>
+                      <p className="text-base md:text-sm text-gray-600">
+                        Report changes in employment, income, or assets like bank accounts and property.
+                      </p>
                     </CardContent>
                   </Card>
-                ))}
-              </CardContent>
-            </Card>
+
+                  <Card
+                    className="rounded-2xl md:rounded-xl shadow-lg md:shadow-sm border-0 md:border cursor-pointer hover:shadow-xl md:hover:shadow-md transition-shadow"
+                    onClick={() => setSelectedChangeCategory("household")}
+                  >
+                    <CardContent className="p-6 md:p-4">
+                      <div className="flex items-center gap-4 mb-4 md:mb-3">
+                        <Users className="w-8 h-8 md:w-6 md:h-6 text-secondary" />
+                        <h3 className="text-xl md:text-lg font-semibold">Household Changes</h3>
+                      </div>
+                      <p className="text-base md:text-sm text-gray-600">
+                        Report changes in household members, marriage, divorce, or family composition.
+                      </p>
+                    </CardContent>
+                  </Card>
+
+                  <Card
+                    className="rounded-2xl md:rounded-xl shadow-lg md:shadow-sm border-0 md:border cursor-pointer hover:shadow-xl md:hover:shadow-md transition-shadow"
+                    onClick={() => setSelectedChangeCategory("address")}
+                  >
+                    <CardContent className="p-6 md:p-4">
+                      <div className="flex items-center gap-4 mb-4 md:mb-3">
+                        <Home className="w-8 h-8 md:w-6 md:h-6 text-primary" />
+                        <h3 className="text-xl md:text-lg font-semibold">Address & Residency</h3>
+                      </div>
+                      <p className="text-base md:text-sm text-gray-600">
+                        Report address changes or moves to a different state or county.
+                      </p>
+                    </CardContent>
+                  </Card>
+
+                  <Card
+                    className="rounded-2xl md:rounded-xl shadow-lg md:shadow-sm border-0 md:border cursor-pointer hover:shadow-xl md:hover:shadow-md transition-shadow"
+                    onClick={() => setSelectedChangeCategory("insurance")}
+                  >
+                    <CardContent className="p-6 md:p-4">
+                      <div className="flex items-center gap-4 mb-4 md:mb-3">
+                        <Shield className="w-8 h-8 md:w-6 md:h-6 text-secondary" />
+                        <h3 className="text-xl md:text-lg font-semibold">Health Insurance</h3>
+                      </div>
+                      <p className="text-base md:text-sm text-gray-600">
+                        Report changes in health insurance coverage, Medicare eligibility, or job-based insurance.
+                      </p>
+                    </CardContent>
+                  </Card>
+                </div>
+              </>
+            )}
           </TabsContent>
 
           <TabsContent value="documents" className="space-y-6">
@@ -1112,113 +1166,125 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
               <CardHeader className="pb-6 md:pb-4 px-6 md:px-6">
                 <CardTitle className="flex items-center gap-3 text-2xl md:text-xl font-bold">
                   <Upload className="w-7 h-7 md:w-6 md:h-6 text-primary" />
-                  Document Management
+                  Document Upload
                 </CardTitle>
                 <CardDescription className="text-base md:text-sm text-gray-600 leading-relaxed">
-                  Upload and manage your supporting documents for benefit applications.
+                  Upload required documents to support your benefits application.
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-6 pt-0 px-6 md:px-6">
-                {uploadSuccess && (
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="w-5 h-5 text-green-600" />
-                      <span className="text-green-800 font-medium">Document uploaded successfully!</span>
+            </Card>
+
+            <Card className="rounded-2xl md:rounded-xl shadow-lg md:shadow-sm border-0 md:border">
+              <CardHeader className="pb-6 md:pb-4 px-6 md:px-6">
+                <CardTitle className="text-xl md:text-lg">Upload New Document</CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0 px-6 md:px-6">
+                {uploadSuccess ? (
+                  <div className="text-center py-8">
+                    <CheckCircle className="w-16 h-16 text-primary mx-auto mb-4" />
+                    <h3 className="text-2xl font-semibold text-gray-900 mb-2">Document Uploaded Successfully</h3>
+                    <p className="text-gray-600">Your document has been received and will be processed shortly.</p>
+                  </div>
+                ) : (
+                  <form onSubmit={handleDocumentUpload} className="space-y-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="documentType" className="text-sm font-medium text-gray-700">
+                        Document Type
+                      </Label>
+                      <Select value={selectedDocumentType} onValueChange={setSelectedDocumentType} required>
+                        <SelectTrigger className="w-full border-gray-300 rounded-xl">
+                          <SelectValue placeholder="Select document type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {documentTypes.map((docType) => (
+                            <SelectItem key={docType.value} value={docType.value}>
+                              <div className="py-1">
+                                <div className="font-medium">{docType.label}</div>
+                                <div className="text-sm text-muted-foreground">{docType.description}</div>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="file" className="text-sm font-medium text-gray-700">
+                        Choose File
+                      </Label>
+                      <Input
+                        id="file"
+                        type="file"
+                        onChange={(e) => setUploadedFile(e.target.files?.[0] || null)}
+                        className="border-gray-300 rounded-xl"
+                        accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                        required
+                      />
+                      <p className="text-sm text-gray-500">Accepted formats: PDF, JPG, PNG, DOC, DOCX (Max 10MB)</p>
+                    </div>
+
+                    <Button
+                      type="submit"
+                      disabled={isUploading || !selectedDocumentType || !uploadedFile}
+                      className="w-full bg-primary hover:bg-primary/90 text-white rounded-xl"
+                    >
+                      {isUploading ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin mr-2" />
+                          Uploading...
+                        </>
+                      ) : (
+                        <>
+                          <Upload className="w-4 h-4 mr-2" />
+                          Upload Document
+                        </>
+                      )}
+                    </Button>
+                  </form>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card className="rounded-2xl md:rounded-xl shadow-lg md:shadow-sm border-0 md:border">
+              <CardHeader className="pb-6 md:pb-4 px-6 md:px-6">
+                <CardTitle className="text-xl md:text-lg">Document History</CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0 px-6 md:px-6">
+                {loadingDocuments ? (
+                  <div className="text-center py-8">
+                    <div className="w-8 h-8 border-2 border-primary/20 border-t-primary rounded-full animate-spin mx-auto mb-4"></div>
+                    <p className="text-gray-600">Loading documents...</p>
+                  </div>
+                ) : documentHistory.length > 0 ? (
+                  <div className="space-y-4">
+                    {documentHistory.map((doc, index) => (
+                      <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <FileText className="w-5 h-5 text-primary" />
+                          <div>
+                            <p className="font-medium">{doc.file_name}</p>
+                            <p className="text-sm text-gray-600">
+                              {documentTypes.find((type) => type.value === doc.document_type)?.label ||
+                                doc.document_type}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm text-gray-600">{new Date(doc.uploaded_at).toLocaleDateString()}</p>
+                          <Badge variant="outline" className="text-xs">
+                            Uploaded
+                          </Badge>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2">No Documents Yet</h3>
+                    <p className="text-gray-600">Upload your first document to get started.</p>
                   </div>
                 )}
-
-                <form onSubmit={handleDocumentUpload} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="documentType" className="text-sm font-medium">
-                      Document Type
-                    </Label>
-                    <Select value={selectedDocumentType} onValueChange={setSelectedDocumentType}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select document type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {documentTypes.map((type) => (
-                          <SelectItem key={type.value} value={type.value}>
-                            <div className="py-1">
-                              <div className="font-medium">{type.label}</div>
-                              <div className="text-sm text-muted-foreground">{type.description}</div>
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="file" className="text-sm font-medium">
-                      Choose File
-                    </Label>
-                    <Input
-                      id="file"
-                      type="file"
-                      onChange={(e) => setUploadedFile(e.target.files?.[0] || null)}
-                      accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-                      className="cursor-pointer"
-                    />
-                    <p className="text-xs text-gray-500">Accepted formats: PDF, JPG, PNG, DOC, DOCX (Max 10MB)</p>
-                  </div>
-
-                  <Button
-                    type="submit"
-                    disabled={!selectedDocumentType || !uploadedFile || isUploading}
-                    className="w-full"
-                  >
-                    {isUploading ? (
-                      <>
-                        <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin mr-2" />
-                        Uploading...
-                      </>
-                    ) : (
-                      <>
-                        <Upload className="w-4 h-4 mr-2" />
-                        Upload Document
-                      </>
-                    )}
-                  </Button>
-                </form>
-
-                <div className="border-t pt-6">
-                  <h3 className="text-lg font-semibold mb-4">Document History</h3>
-                  {loadingDocuments ? (
-                    <div className="text-center py-4">
-                      <div className="w-8 h-8 border-2 border-primary/20 border-t-primary rounded-full animate-spin mx-auto mb-2"></div>
-                      <p className="text-sm text-gray-600">Loading documents...</p>
-                    </div>
-                  ) : documentHistory.length > 0 ? (
-                    <div className="space-y-3">
-                      {documentHistory.map((doc) => (
-                        <Card key={doc.id} className="bg-gray-50">
-                          <CardContent className="p-4">
-                            <div className="flex items-center justify-between">
-                              <div>
-                                <h4 className="font-medium">{doc.file_name}</h4>
-                                <p className="text-sm text-gray-600">
-                                  {documentTypes.find((t) => t.value === doc.document_type)?.label || doc.document_type}
-                                </p>
-                                <p className="text-xs text-gray-500">
-                                  Uploaded: {new Date(doc.uploaded_at).toLocaleDateString()}
-                                </p>
-                              </div>
-                              <FileText className="w-8 h-8 text-gray-400" />
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-8">
-                      <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                      <h4 className="text-lg font-semibold text-gray-900 mb-2">No Documents Yet</h4>
-                      <p className="text-gray-600">Upload your first document to get started.</p>
-                    </div>
-                  )}
-                </div>
               </CardContent>
             </Card>
           </TabsContent>
@@ -1231,47 +1297,47 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
                   Profile Information
                 </CardTitle>
                 <CardDescription className="text-base md:text-sm text-gray-600 leading-relaxed">
-                  Manage your account details and preferences.
+                  Manage your account information and preferences.
                 </CardDescription>
+              </CardHeader>
+            </Card>
+
+            <Card className="rounded-2xl md:rounded-xl shadow-lg md:shadow-sm border-0 md:border">
+              <CardHeader className="pb-6 md:pb-4 px-6 md:px-6">
+                <CardTitle className="text-xl md:text-lg">Account Details</CardTitle>
               </CardHeader>
               <CardContent className="space-y-6 pt-0 px-6 md:px-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium">Full Name</Label>
-                    <Input value={user.user_metadata?.full_name || ""} readOnly className="bg-gray-50" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium">Email Address</Label>
-                    <Input value={user.email || ""} readOnly className="bg-gray-50" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium">Account Created</Label>
+                    <Label className="text-sm font-medium text-gray-700">Full Name</Label>
                     <Input
-                      value={user.created_at ? new Date(user.created_at).toLocaleDateString() : ""}
+                      value={user.user_metadata?.full_name || ""}
+                      className="border-gray-300 rounded-xl"
                       readOnly
-                      className="bg-gray-50"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium">Account Status</Label>
-                    <div className="flex items-center gap-2">
-                      <Badge className="bg-green-100 text-green-800">Active</Badge>
-                    </div>
+                    <Label className="text-sm font-medium text-gray-700">Email Address</Label>
+                    <Input value={user.email || ""} className="border-gray-300 rounded-xl" readOnly />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium text-gray-700">Account Created</Label>
+                    <Input
+                      value={user.created_at ? new Date(user.created_at).toLocaleDateString() : ""}
+                      className="border-gray-300 rounded-xl"
+                      readOnly
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium text-gray-700">User ID</Label>
+                    <Input value={user.id} className="border-gray-300 rounded-xl" readOnly />
                   </div>
                 </div>
-
-                <div className="border-t pt-6">
-                  <h3 className="text-lg font-semibold mb-4">Account Actions</h3>
-                  <div className="space-y-3">
-                    <Button variant="outline" className="w-full justify-start bg-transparent">
-                      <Shield className="w-4 h-4 mr-2" />
-                      Change Password
-                    </Button>
-                    <Button variant="outline" className="w-full justify-start bg-transparent">
-                      <Bell className="w-4 h-4 mr-2" />
-                      Notification Preferences
-                    </Button>
-                  </div>
+                <div className="pt-4 border-t">
+                  <p className="text-sm text-gray-600">
+                    To update your profile information, please contact support or update your information through your
+                    benefits application.
+                  </p>
                 </div>
               </CardContent>
             </Card>

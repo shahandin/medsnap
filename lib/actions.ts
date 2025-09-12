@@ -513,3 +513,87 @@ export async function signOut() {
   await supabase.auth.signOut()
   redirect("/signin")
 }
+
+export async function loadAllUserApplications() {
+  try {
+    const supabase = createClient()
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser()
+
+    if (authError || !user) {
+      return { data: [] }
+    }
+
+    const { data, error } = await supabase
+      .from("application_progress")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("updated_at", { ascending: false })
+
+    if (error || !data) {
+      return { data: [] }
+    }
+
+    const processedApplications = []
+
+    for (const app of data) {
+      let applicationData
+
+      if (!process.env.PHI_ENCRYPTION_KEY) {
+        throw new Error("PHI_ENCRYPTION_KEY environment variable is required for HIPAA compliance")
+      }
+
+      if (typeof app.application_data === "string") {
+        try {
+          applicationData = await decryptApplicationData(app.application_data)
+        } catch (decryptError) {
+          console.error("Failed to decrypt application data:", decryptError)
+          continue
+        }
+      } else if (typeof app.application_data === "object" && app.application_data !== null) {
+        const rawData = app.application_data
+
+        if (hasEncryptedFields(rawData)) {
+          try {
+            applicationData = await decryptApplicationData(rawData)
+          } catch (decryptError) {
+            console.error("Failed to decrypt nested application data:", decryptError)
+            continue
+          }
+        } else if ("iv" in rawData && "encrypted" in rawData) {
+          try {
+            applicationData = await decryptApplicationData(rawData)
+          } catch (decryptError) {
+            console.error("Failed to decrypt root application data:", decryptError)
+            continue
+          }
+        } else {
+          applicationData = rawData
+        }
+      } else {
+        continue
+      }
+
+      const benefitTypeFromData = applicationData?.benefitType
+      const benefitTypeFromDB = app.application_type
+      const finalBenefitType = benefitTypeFromData || benefitTypeFromDB || ""
+
+      processedApplications.push({
+        id: app.id,
+        application_data: applicationData,
+        current_step: app.current_step,
+        application_type: app.application_type,
+        benefit_type: finalBenefitType,
+        created_at: app.created_at,
+        updated_at: app.updated_at,
+      })
+    }
+
+    return { data: processedApplications }
+  } catch (error) {
+    console.error("Load all user applications error:", error)
+    return { data: [] }
+  }
+}
