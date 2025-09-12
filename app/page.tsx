@@ -77,6 +77,21 @@ export default async function HomePage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 px-4">
               <Card className="group hover:shadow-xl transition-all duration-300 border-border/50 hover:border-primary/20 bg-card/50 backdrop-blur-sm rounded-2xl overflow-hidden">
                 <CardHeader className="text-center pb-4">
+                  <div className="mx-auto w-16 h-16 bg-gradient-to-br from-secondary/20 to-primary/20 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                    <span className="text-2xl text-secondary">🏢</span>
+                  </div>
+                  <CardTitle className="text-xl font-heading font-semibold">Complete Platform</CardTitle>
+                </CardHeader>
+                <CardContent className="text-center">
+                  <CardDescription className="text-base leading-relaxed">
+                    One platform for everything: submit applications, upload documentation, report life changes, respond
+                    to notifications, renew benefits, and more.
+                  </CardDescription>
+                </CardContent>
+              </Card>
+
+              <Card className="group hover:shadow-xl transition-all duration-300 border-border/50 hover:border-primary/20 bg-card/50 backdrop-blur-sm rounded-2xl overflow-hidden">
+                <CardHeader className="text-center pb-4">
                   <div className="mx-auto w-16 h-16 bg-gradient-to-br from-primary/20 to-primary/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                     <span className="text-2xl text-primary">✓</span>
                   </div>
@@ -113,21 +128,6 @@ export default async function HomePage() {
                 <CardContent className="text-center">
                   <CardDescription className="text-base leading-relaxed">
                     Your progress is automatically saved so you can complete your application at your own pace.
-                  </CardDescription>
-                </CardContent>
-              </Card>
-
-              <Card className="group hover:shadow-xl transition-all duration-300 border-border/50 hover:border-primary/20 bg-card/50 backdrop-blur-sm rounded-2xl overflow-hidden">
-                <CardHeader className="text-center pb-4">
-                  <div className="mx-auto w-16 h-16 bg-gradient-to-br from-secondary/20 to-primary/20 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                    <span className="text-2xl text-secondary">🏢</span>
-                  </div>
-                  <CardTitle className="text-xl font-heading font-semibold">Complete Platform</CardTitle>
-                </CardHeader>
-                <CardContent className="text-center">
-                  <CardDescription className="text-base leading-relaxed">
-                    One platform for everything: submit applications, make updates, renew benefits, respond to
-                    notifications, and upload documents.
                   </CardDescription>
                 </CardContent>
               </Card>
