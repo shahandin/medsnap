@@ -8,8 +8,6 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { ScrollArea } from "@/components/ui/scroll-area"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -19,10 +17,8 @@ import {
   FileText,
   Clock,
   CheckCircle,
-  AlertCircle,
   Calendar,
   Upload,
-  ExternalLink,
   Bell,
   LogOut,
   AlertTriangle,
@@ -91,13 +87,23 @@ const mockNotifications = [
   },
 ]
 
-// Mock functions for status, progress, step title, and notification icon
-const getApplicationStatus = () => {
-  return "In Progress"
+const getApplicationStatus = (applicationProgress: any, submittedApplications: any[]) => {
+  if (submittedApplications && submittedApplications.length > 0) {
+    return "Submitted"
+  }
+  if (applicationProgress) {
+    return "In Progress"
+  }
+  return "Not Started"
 }
 
-const getProgressPercentage = () => {
-  return 75
+const getProgressPercentage = (applicationProgress: any) => {
+  if (!applicationProgress) return 0
+
+  // Calculate progress based on current step and total steps (9 total steps)
+  const totalSteps = 9
+  const currentStep = applicationProgress.current_step || 1
+  return Math.round((currentStep / totalSteps) * 100)
 }
 
 const getStatusColor = (status: string) => {
@@ -112,7 +118,18 @@ const getStatusColor = (status: string) => {
 }
 
 const getStepTitle = (step: number) => {
-  return `Step ${step}: Personal Information`
+  const stepTitles = {
+    1: "Personal Information",
+    2: "Household Information",
+    3: "Income Details",
+    4: "Assets Information",
+    5: "Expenses",
+    6: "Health Insurance",
+    7: "Additional Information",
+    8: "Review Application",
+    9: "Submit Application",
+  }
+  return `Step ${step}: ${stepTitles[step as keyof typeof stepTitles] || "Application Step"}`
 }
 
 const getNotificationIcon = (type: string) => {
@@ -564,8 +581,8 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
     )
   }
 
-  const status = getApplicationStatus()
-  const progressPercentage = getProgressPercentage()
+  const status = getApplicationStatus(applicationProgress, submittedApplications)
+  const progressPercentage = getProgressPercentage(applicationProgress)
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -732,7 +749,65 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6 md:space-y-4 pt-0 px-6 md:px-6">
-                  {applicationProgress ? (
+                  {submittedApplications && submittedApplications.length > 0 ? (
+                    <>
+                      <div className="space-y-4">
+                        <h4 className="font-semibold text-green-800">Submitted Applications</h4>
+                        {submittedApplications.map((app, index) => (
+                          <div key={index} className="bg-green-50 border border-green-200 rounded-lg p-4">
+                            <div className="space-y-2 text-sm">
+                              <p>
+                                <span className="font-semibold">Type:</span>{" "}
+                                {app.benefit_type || "Benefits Application"}
+                              </p>
+                              <p>
+                                <span className="font-semibold">Submitted:</span>{" "}
+                                {new Date(app.submitted_at).toLocaleDateString()}
+                              </p>
+                              <p>
+                                <span className="font-semibold">Reference:</span>{" "}
+                                {app.reference_number || `REF-${app.id?.slice(-8)}`}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      {applicationProgress && (
+                        <>
+                          <div className="border-t pt-4">
+                            <h4 className="font-semibold text-yellow-800 mb-3">In Progress Application</h4>
+                            <div>
+                              <div className="flex justify-between text-base md:text-sm font-semibold mb-3 md:mb-2">
+                                <span>Progress</span>
+                                <span>{Math.round(progressPercentage)}% Complete</span>
+                              </div>
+                              <Progress value={progressPercentage} className="h-3 md:h-2 rounded-full" />
+                            </div>
+                            <div className="space-y-3 text-base md:text-sm text-gray-600 mt-4">
+                              <p className="flex items-center gap-3 md:gap-2">
+                                <Clock className="w-5 h-5 md:w-4 md:h-4 flex-shrink-0 text-primary" />
+                                <span className="break-words leading-relaxed">
+                                  Current Step: {getStepTitle(applicationProgress.current_step)}
+                                </span>
+                              </p>
+                              <p className="flex items-center gap-3 md:gap-2">
+                                <Calendar className="w-5 h-5 md:w-4 md:h-4 flex-shrink-0 text-primary" />
+                                <span>
+                                  Last Updated: {new Date(applicationProgress.updated_at).toLocaleDateString()}
+                                </span>
+                              </p>
+                            </div>
+                          </div>
+                          <Button
+                            asChild
+                            className="w-full h-14 md:h-10 text-lg md:text-sm font-semibold rounded-2xl md:rounded-lg shadow-lg md:shadow-none"
+                          >
+                            <Link href="/application">Continue Application</Link>
+                          </Button>
+                        </>
+                      )}
+                    </>
+                  ) : applicationProgress ? (
                     <>
                       <div>
                         <div className="flex justify-between text-base md:text-sm font-semibold mb-3 md:mb-2">
@@ -752,6 +827,12 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
                           <Calendar className="w-5 h-5 md:w-4 md:h-4 flex-shrink-0 text-primary" />
                           <span>Last Updated: {new Date(applicationProgress.updated_at).toLocaleDateString()}</span>
                         </p>
+                        {applicationProgress.application_data?.benefitType && (
+                          <p className="flex items-center gap-3 md:gap-2">
+                            <FileText className="w-5 h-5 md:w-4 md:h-4 flex-shrink-0 text-primary" />
+                            <span>Application Type: {applicationProgress.application_data.benefitType}</span>
+                          </p>
+                        )}
                       </div>
                       <Button
                         asChild
@@ -789,7 +870,7 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
                     className="w-full justify-start h-auto p-5 md:p-4 bg-white hover:bg-gray-50 rounded-2xl md:rounded-lg border-2 md:border shadow-sm md:shadow-none"
                     asChild
                   >
-                    <Link href="/application" className="flex items-center gap-4 md:gap-3">
+                    <Link href="/application-choice" className="flex items-center gap-4 md:gap-3">
                       <FileText className="w-6 h-6 md:w-5 md:h-5 flex-shrink-0 text-primary" />
                       <div className="text-left flex-1 min-w-0">
                         <div className="font-semibold text-base md:text-sm truncate">
@@ -801,37 +882,18 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
                       </div>
                     </Link>
                   </Button>
+
                   <Button
                     variant="outline"
                     className="w-full justify-start h-auto p-5 md:p-4 bg-white hover:bg-gray-50 rounded-2xl md:rounded-lg border-2 md:border shadow-sm md:shadow-none"
-                    asChild
-                  >
-                    <Link href="/about" className="flex items-center gap-4 md:gap-3">
-                      <ExternalLink className="w-6 h-6 md:w-5 md:h-5 flex-shrink-0 text-primary" />
-                      <div className="text-left flex-1 min-w-0">
-                        <div className="font-semibold text-base md:text-sm truncate">Learn About Benefits</div>
-                        <div className="text-sm md:text-xs text-gray-500 truncate mt-1">
-                          Understand your eligibility
-                        </div>
-                      </div>
-                    </Link>
-                  </Button>
-                  <Button
-                    variant="outline"
-                    disabled
-                    className="w-full justify-start h-auto p-5 md:p-4 bg-white rounded-2xl md:rounded-lg border-2 md:border shadow-sm md:shadow-none opacity-60"
+                    onClick={() => setActiveTab("documents")}
                   >
                     <div className="flex items-center gap-4 md:gap-3 w-full">
-                      <Upload className="w-6 h-6 md:w-5 md:h-5 text-gray-500 flex-shrink-0" />
+                      <Upload className="w-6 h-6 md:w-5 md:h-5 flex-shrink-0 text-primary" />
                       <div className="text-left flex-1 min-w-0">
-                        <div className="font-semibold text-gray-500 text-base md:text-sm truncate">
-                          Upload Documents
-                        </div>
+                        <div className="font-semibold text-base md:text-sm truncate">Upload Documents</div>
                         <div className="text-sm md:text-xs text-gray-500 truncate mt-1">Submit supporting files</div>
                       </div>
-                      <Badge variant="secondary" className="ml-auto text-xs px-2 py-1 flex-shrink-0 rounded-full">
-                        Coming Soon
-                      </Badge>
                     </div>
                   </Button>
                 </CardContent>
@@ -840,393 +902,23 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
           </TabsContent>
 
           <TabsContent value="applications" className="space-y-6">
-            <Card className="rounded-2xl md:rounded-xl shadow-lg md:shadow-sm border-0 md:border">
-              <CardHeader className="pb-6 md:pb-4 px-6 md:px-6">
-                <CardTitle className="text-2xl md:text-xl font-bold">Your Applications</CardTitle>
-                <CardDescription className="text-base md:text-sm text-gray-600 leading-relaxed">
-                  View and manage your benefits applications
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="pt-0 px-6 md:px-6">
-                {applicationProgress ? (
-                  <div className="space-y-6 md:space-y-4">
-                    <div className="bg-blue-50 border border-blue-200 rounded-2xl md:rounded-xl p-6 md:p-4">
-                      <h3 className="font-bold text-blue-900 mb-3 md:mb-2 text-lg md:text-base">In Progress</h3>
-                      <div className="space-y-3 md:space-y-2 text-base md:text-sm text-blue-800">
-                        <p>
-                          <span className="font-semibold">Application Type:</span>{" "}
-                          {applicationProgress.application_data?.benefitType || "Not specified"}
-                        </p>
-                        <p>
-                          <span className="font-semibold">State:</span>{" "}
-                          {applicationProgress.application_data?.state || "Not specified"}
-                        </p>
-                        <p>
-                          <span className="font-semibold">Last Updated:</span>{" "}
-                          {new Date(applicationProgress.updated_at).toLocaleDateString()}
-                        </p>
-                      </div>
-                    </div>
-                    <Button
-                      asChild
-                      className="w-full h-14 md:h-10 text-lg md:text-sm font-semibold rounded-2xl md:rounded-lg shadow-lg md:shadow-none"
-                    >
-                      <Link href="/application">Continue Application</Link>
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="text-center py-12 md:py-8">
-                    <FileText className="w-16 h-16 md:w-12 md:h-12 text-gray-400 mx-auto mb-6 md:mb-4" />
-                    <h3 className="font-bold text-gray-900 mb-3 md:mb-2 text-xl md:text-lg">No Applications Yet</h3>
-                    <p className="text-gray-600 mb-8 md:mb-6 text-base md:text-sm px-4 leading-relaxed">
-                      Start your first benefits application to see it here and track your progress.
-                    </p>
-                    <Button
-                      asChild
-                      className="h-14 md:h-10 px-8 text-lg md:text-sm font-semibold rounded-2xl md:rounded-lg shadow-lg md:shadow-none"
-                    >
-                      <Link href="/application-choice">Start Application</Link>
-                    </Button>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+            {/* Applications Tab Content */}
           </TabsContent>
 
           <TabsContent value="notifications" className="space-y-6">
-            <Card className="rounded-2xl md:rounded-xl shadow-lg md:shadow-sm border-0 md:border">
-              <CardHeader className="pb-6 md:pb-4 px-6 md:px-6">
-                <CardTitle className="text-2xl md:text-xl font-bold">Notifications</CardTitle>
-                <CardDescription className="text-base md:text-sm text-gray-600 leading-relaxed">
-                  View all your account and application notifications
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="pt-0 px-6 md:px-6">
-                <ScrollArea className="h-96 md:h-80">
-                  <div className="space-y-4 md:space-y-3 pr-4">
-                    {mockNotifications.map((notification) => (
-                      <div
-                        key={notification.id}
-                        className="border rounded-2xl md:rounded-xl p-5 md:p-4 bg-white hover:bg-gray-50 transition-colors shadow-sm md:shadow-none"
-                      >
-                        <div className="flex items-start gap-4 md:gap-3">
-                          <div className="flex-shrink-0 mt-1">{getNotificationIcon(notification.type)}</div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-start justify-between gap-2 mb-3 md:mb-2">
-                              <h3 className="font-bold text-gray-900 text-base md:text-sm leading-tight">
-                                {notification.title}
-                              </h3>
-                              {!notification.read && (
-                                <div className="w-3 h-3 md:w-2 md:h-2 bg-blue-500 rounded-full flex-shrink-0 mt-2"></div>
-                              )}
-                            </div>
-                            <p className="text-gray-600 text-base md:text-sm leading-relaxed mb-3 md:mb-2">
-                              {notification.description}
-                            </p>
-                            <p className="text-sm md:text-xs text-gray-500">
-                              {new Date(notification.timestamp).toLocaleString()}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </ScrollArea>
-              </CardContent>
-            </Card>
+            {/* Notifications Tab Content */}
           </TabsContent>
 
           <TabsContent value="report-changes" className="space-y-6">
-            {selectedChangeCategory ? (
-              renderChangeForm()
-            ) : (
-              <Card className="rounded-2xl md:rounded-xl shadow-lg md:shadow-sm border-0 md:border">
-                <CardHeader className="pb-6 md:pb-4 px-6 md:px-6">
-                  <CardTitle className="text-2xl md:text-xl font-bold">Report Life Changes</CardTitle>
-                  <CardDescription className="text-base md:text-sm text-gray-600 leading-relaxed">
-                    Report changes in your circumstances to maintain your Medicaid eligibility and ensure correct
-                    benefits
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6 md:space-y-4 pt-0 px-6 md:px-6">
-                  <Alert className="rounded-2xl md:rounded-xl border-amber-200 bg-amber-50 p-4 md:p-3">
-                    <AlertCircle className="h-5 w-5 md:h-4 md:w-4 text-amber-600" />
-                    <AlertDescription className="text-base md:text-sm text-amber-800 leading-relaxed">
-                      <strong>Important:</strong> You must report changes within 10 days to avoid potential issues with
-                      your benefits.
-                    </AlertDescription>
-                  </Alert>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-3">
-                    <Button
-                      onClick={() => setSelectedChangeCategory("income-assets")}
-                      variant="outline"
-                      className="h-auto p-6 md:p-8 justify-start bg-white hover:bg-blue-50 md:hover:bg-blue-50 hover:border-blue-200 md:hover:border-blue-200 rounded-2xl md:rounded-xl border-2 md:border shadow-sm md:shadow-none transition-all duration-200"
-                    >
-                      <div className="flex items-center gap-4 md:gap-6 w-full">
-                        <DollarSign className="w-7 h-7 md:w-8 md:h-8 text-primary hover:text-blue-600 md:hover:text-blue-600 flex-shrink-0 transition-colors duration-200" />
-                        <div className="text-left flex-1">
-                          <div className="font-bold text-base md:text-lg text-gray-900 hover:text-blue-900 md:hover:text-blue-900 transition-colors duration-200">
-                            Income & Asset Changes
-                          </div>
-                          <div className="text-sm md:text-base text-gray-500 hover:text-blue-700 md:hover:text-blue-700 mt-1 md:mt-2 leading-relaxed transition-colors duration-200">
-                            Job changes, income, assets
-                          </div>
-                        </div>
-                      </div>
-                    </Button>
-
-                    <Button
-                      onClick={() => setSelectedChangeCategory("household")}
-                      variant="outline"
-                      className="h-auto p-6 md:p-8 justify-start bg-white hover:bg-blue-50 md:hover:bg-blue-50 hover:border-blue-200 md:hover:border-blue-200 rounded-2xl md:rounded-xl border-2 md:border shadow-sm md:shadow-none transition-all duration-200"
-                    >
-                      <div className="flex items-center gap-4 md:gap-6 w-full">
-                        <Users className="w-7 h-7 md:w-8 md:h-8 text-secondary hover:text-blue-600 md:hover:text-blue-600 flex-shrink-0 transition-colors duration-200" />
-                        <div className="text-left flex-1">
-                          <div className="font-bold text-base md:text-lg text-gray-900 hover:text-blue-900 md:hover:text-blue-900 transition-colors duration-200">
-                            Household Changes
-                          </div>
-                          <div className="text-sm md:text-base text-gray-500 hover:text-blue-700 md:hover:text-blue-700 mt-1 md:mt-2 leading-relaxed transition-colors duration-200">
-                            Marriage, family members
-                          </div>
-                        </div>
-                      </div>
-                    </Button>
-
-                    <Button
-                      onClick={() => setSelectedChangeCategory("address")}
-                      variant="outline"
-                      className="h-auto p-6 md:p-8 justify-start bg-white hover:bg-blue-50 md:hover:bg-blue-50 hover:border-blue-200 md:hover:border-blue-200 rounded-2xl md:rounded-xl border-2 md:border shadow-sm md:shadow-none transition-all duration-200"
-                    >
-                      <div className="flex items-center gap-4 md:gap-6 w-full">
-                        <Home className="w-7 h-7 md:w-8 md:h-8 text-primary hover:text-blue-600 md:hover:text-blue-600 flex-shrink-0 transition-colors duration-200" />
-                        <div className="text-left flex-1">
-                          <div className="font-bold text-base md:text-lg text-gray-900 hover:text-blue-900 md:hover:text-blue-900 transition-colors duration-200">
-                            Address Changes
-                          </div>
-                          <div className="text-sm md:text-base text-gray-500 hover:text-blue-700 md:hover:text-blue-700 mt-1 md:mt-2 leading-relaxed transition-colors duration-200">
-                            Moving, residency
-                          </div>
-                        </div>
-                      </div>
-                    </Button>
-
-                    <Button
-                      onClick={() => setSelectedChangeCategory("insurance")}
-                      variant="outline"
-                      className="h-auto p-6 md:p-8 justify-start bg-white hover:bg-blue-50 md:hover:bg-blue-50 hover:border-blue-200 md:hover:border-blue-200 rounded-2xl md:rounded-xl border-2 md:border shadow-sm md:shadow-none transition-all duration-200"
-                    >
-                      <div className="flex items-center gap-4 md:gap-6 w-full">
-                        <Shield className="w-7 h-7 md:w-8 md:h-8 text-secondary hover:text-blue-600 md:hover:text-blue-600 flex-shrink-0 transition-colors duration-200" />
-                        <div className="text-left flex-1">
-                          <div className="font-bold text-base md:text-lg text-gray-900 hover:text-blue-900 md:hover:text-blue-900 transition-colors duration-200">
-                            Insurance Changes
-                          </div>
-                          <div className="text-sm md:text-base text-gray-500 hover:text-blue-700 md:hover:text-blue-700 mt-1 md:mt-2 leading-relaxed transition-colors duration-200">
-                            Health coverage updates
-                          </div>
-                        </div>
-                      </div>
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+            {renderChangeForm()}
           </TabsContent>
 
           <TabsContent value="documents" className="space-y-6">
-            <Card className="rounded-2xl md:rounded-xl shadow-lg md:shadow-sm border-0 md:border">
-              <CardHeader className="pb-6 md:pb-4 px-6 md:px-6">
-                <CardTitle className="text-2xl md:text-xl font-bold">Documents</CardTitle>
-                <CardDescription className="text-base md:text-sm text-gray-600 leading-relaxed">
-                  Upload and manage your application documents
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="pt-0 px-6 md:px-6 space-y-6">
-                {/* Document Information Section */}
-                <div className="bg-blue-50 border border-blue-200 rounded-2xl md:rounded-xl p-6 md:p-4">
-                  <h3 className="font-bold text-blue-900 mb-3 md:mb-2 text-lg md:text-base">Document Requirements</h3>
-                  <p className="text-blue-800 text-base md:text-sm leading-relaxed mb-4">
-                    Upload supporting documents for your Medicaid application. Accepted formats: PDF, JPG, PNG (max 10MB
-                    per file).
-                  </p>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-blue-700">
-                    <div>• Proof of income and employment</div>
-                    <div>• Identity verification documents</div>
-                    <div>• Residency and address verification</div>
-                    <div>• Medical records and documentation</div>
-                  </div>
-                </div>
-
-                {uploadSuccess && (
-                  <Alert className="rounded-2xl md:rounded-xl border-green-200 bg-green-50 p-4 md:p-3">
-                    <CheckCircle className="h-5 w-5 md:h-4 md:w-4 text-green-600" />
-                    <AlertDescription className="text-base md:text-sm text-green-800 leading-relaxed">
-                      <strong>Success!</strong> Your document has been uploaded successfully.
-                    </AlertDescription>
-                  </Alert>
-                )}
-
-                {/* Document Upload Form */}
-                <Card className="bg-white border-gray-200 rounded-2xl md:rounded-xl">
-                  <CardHeader className="pb-4">
-                    <CardTitle className="text-lg font-semibold">Upload New Document</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <form onSubmit={handleDocumentUpload} className="space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="documentType" className="text-sm font-medium text-gray-700">
-                          Document Type
-                        </Label>
-                        <Select value={selectedDocumentType} onValueChange={setSelectedDocumentType}>
-                          <SelectTrigger className="w-full border-gray-300 rounded-xl">
-                            <SelectValue placeholder="Select document type" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {documentTypes.map((docType) => (
-                              <SelectItem key={docType.value} value={docType.value}>
-                                <div className="py-1">
-                                  <div className="font-medium">{docType.label}</div>
-                                  <div className="text-sm text-muted-foreground">{docType.description}</div>
-                                </div>
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      {selectedDocumentType && (
-                        <div className="space-y-2">
-                          <Label htmlFor="fileUpload" className="text-sm font-medium text-gray-700">
-                            Choose File
-                          </Label>
-                          <Input
-                            id="fileUpload"
-                            type="file"
-                            accept=".pdf,.jpg,.jpeg,.png"
-                            onChange={(e) => setUploadedFile(e.target.files?.[0] || null)}
-                            className="border-gray-300 rounded-xl file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-primary file:text-white hover:file:bg-primary/90"
-                          />
-                          {uploadedFile && (
-                            <p className="text-sm text-gray-600">
-                              Selected: {uploadedFile.name} ({(uploadedFile.size / 1024 / 1024).toFixed(2)} MB)
-                            </p>
-                          )}
-                        </div>
-                      )}
-
-                      <Button
-                        type="submit"
-                        disabled={!selectedDocumentType || !uploadedFile || isUploading}
-                        className="w-full bg-primary hover:bg-primary/90 text-white rounded-xl"
-                      >
-                        {isUploading ? (
-                          <>
-                            <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin mr-2" />
-                            Uploading...
-                          </>
-                        ) : (
-                          <>
-                            <Upload className="w-4 h-4 mr-2" />
-                            Upload Document
-                          </>
-                        )}
-                      </Button>
-                    </form>
-                  </CardContent>
-                </Card>
-
-                {/* Document History */}
-                <Card className="bg-white border-gray-200 rounded-2xl md:rounded-xl">
-                  <CardHeader className="pb-4">
-                    <CardTitle className="text-lg font-semibold">Upload History</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    {loadingDocuments ? (
-                      <div className="text-center py-8">
-                        <div className="w-8 h-8 border-2 border-primary/20 border-t-primary rounded-full animate-spin mx-auto mb-4"></div>
-                        <p className="text-gray-600">Loading documents...</p>
-                      </div>
-                    ) : documentHistory.length > 0 ? (
-                      <div className="space-y-3">
-                        {documentHistory.map((doc) => (
-                          <div key={doc.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
-                            <div className="flex items-center gap-3">
-                              <FileText className="w-5 h-5 text-primary" />
-                              <div>
-                                <div className="font-medium text-gray-900">
-                                  {documentTypes.find((type) => type.value === doc.document_type)?.label ||
-                                    doc.document_type}
-                                </div>
-                                <div className="text-sm text-gray-600">{doc.file_name}</div>
-                              </div>
-                            </div>
-                            <div className="text-right">
-                              <div className="text-sm text-gray-600">
-                                {new Date(doc.uploaded_at).toLocaleDateString()}
-                              </div>
-                              <div className="text-xs text-gray-500">
-                                {new Date(doc.uploaded_at).toLocaleTimeString()}
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="text-center py-8">
-                        <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                        <h3 className="font-semibold text-gray-900 mb-2">No Documents Uploaded</h3>
-                        <p className="text-gray-600 text-sm">Upload your first document using the form above.</p>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </CardContent>
-            </Card>
+            {/* Documents Tab Content */}
           </TabsContent>
 
           <TabsContent value="profile" className="space-y-6">
-            <Card className="rounded-2xl md:rounded-xl shadow-lg md:shadow-sm border-0 md:border">
-              <CardHeader className="pb-6 md:pb-4 px-6 md:px-6">
-                <CardTitle className="text-2xl md:text-xl font-bold">Profile Information</CardTitle>
-                <CardDescription className="text-base md:text-sm text-gray-600 leading-relaxed">
-                  View and manage your account details
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="pt-0 px-6 md:px-6">
-                <div className="space-y-6 md:space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-4">
-                    <div className="space-y-3 md:space-y-2">
-                      <label className="text-base md:text-sm font-semibold text-gray-700">Email</label>
-                      <div className="p-4 md:p-3 bg-gray-50 rounded-2xl md:rounded-xl text-base md:text-sm break-all">
-                        {user.email}
-                      </div>
-                    </div>
-                    <div className="space-y-3 md:space-y-2">
-                      <label className="text-base md:text-sm font-semibold text-gray-700">Full Name</label>
-                      <div className="p-4 md:p-3 bg-gray-50 rounded-2xl md:rounded-xl text-base md:text-sm">
-                        {user.user_metadata?.full_name || "Not provided"}
-                      </div>
-                    </div>
-                    <div className="space-y-3 md:space-y-2 md:col-span-2">
-                      <label className="text-base md:text-sm font-semibold text-gray-700">Account Created</label>
-                      <div className="p-4 md:p-3 bg-gray-50 rounded-2xl md:rounded-xl text-base md:text-sm">
-                        {new Date(user.created_at || Date.now()).toLocaleDateString()}
-                      </div>
-                    </div>
-                  </div>
-
-                  <Alert className="rounded-2xl md:rounded-xl border-blue-200 bg-blue-50 p-4 md:p-3">
-                    <AlertCircle className="h-5 w-5 md:h-4 md:w-4 text-blue-600" />
-                    <AlertDescription className="text-base md:text-sm text-blue-800 leading-relaxed">
-                      Profile editing functionality is coming soon. Contact support if you need to update your
-                      information.
-                    </AlertDescription>
-                  </Alert>
-                </div>
-              </CardContent>
-            </Card>
+            {/* Profile Tab Content */}
           </TabsContent>
         </Tabs>
       </div>
