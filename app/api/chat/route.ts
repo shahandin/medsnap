@@ -618,8 +618,16 @@ PLATFORM INFORMATION:
       fullText += chunk
     }
 
+    console.log("[v0] RAW LLM RESPONSE (before any filtering):")
+    console.log("=".repeat(50))
+    console.log(fullText)
+    console.log("=".repeat(50))
+    console.log("[v0] Raw response length:", fullText.length)
+
     let cleanedResponse = fullText
 
+    console.log("[v0] FILTERING STEP 1: Remove system artifacts")
+    const beforeSystemClean = cleanedResponse
     // First, remove only obvious system artifacts
     cleanedResponse = cleanedResponse
       .replace(/\[Assistant\s*:\s*\]/gi, "")
@@ -629,6 +637,12 @@ PLATFORM INFORMATION:
       .replace(/\[DEBUG\s*:\s*\]/gi, "")
       .replace(/\[v0\]/gi, "")
 
+    if (beforeSystemClean !== cleanedResponse) {
+      console.log("[v0] System artifacts removed. New length:", cleanedResponse.length)
+    }
+
+    console.log("[v0] FILTERING STEP 2: Remove template variables")
+    const beforeTemplateClean = cleanedResponse
     // Remove template variables but preserve content in brackets/braces that might be legitimate
     cleanedResponse = cleanedResponse
       .replace(/\$\{[^}]*\}/g, "")
@@ -636,14 +650,33 @@ PLATFORM INFORMATION:
       .replace(/\[Your State\]/gi, "your state")
       .replace(/\[PLACEHOLDER[^\]]*\]/gi, "")
 
+    if (beforeTemplateClean !== cleanedResponse) {
+      console.log("[v0] Template variables removed. New length:", cleanedResponse.length)
+    }
+
+    console.log("[v0] FILTERING STEP 3: Clean whitespace")
+    const beforeWhitespaceClean = cleanedResponse
     // Clean up whitespace
     cleanedResponse = cleanedResponse.replace(/\s+/g, " ").trim()
 
+    if (beforeWhitespaceClean !== cleanedResponse) {
+      console.log("[v0] Whitespace cleaned. New length:", cleanedResponse.length)
+    }
+
+    console.log("[v0] RESPONSE AFTER INITIAL CLEANING:")
+    console.log("=".repeat(50))
+    console.log(cleanedResponse)
+    console.log("=".repeat(50))
+
     // Only apply fallback if response is truly empty or too short AFTER targeted cleaning
     if (!cleanedResponse || cleanedResponse.length < 20) {
+      console.log("[v0] FALLBACK TRIGGERED: Response too short (<20 chars)")
       cleanedResponse =
         "I'd be happy to help you with information about benefits eligibility. Could you please provide more details about your specific situation?"
     }
+
+    console.log("[v0] FILTERING STEP 4: Additional cleaning")
+    const beforeAdditionalClean = cleanedResponse
 
     cleanedResponse = cleanedResponse.replace(
       /\s*$$[^)]*(?:assistant navigates|user to|internal instruction|system prompt)[^)]*$$/gi,
@@ -680,21 +713,15 @@ PLATFORM INFORMATION:
       "",
     )
 
-    cleanedResponse = cleanedResponse.replace(
-      /Here's the application page for \[.*?\]/gi,
-      "Here's your application page",
-    )
-    cleanedResponse = cleanedResponse.replace(/\[.*?\] part/gi, "")
-    cleanedResponse = cleanedResponse.replace(/the \[.*?\] section/gi, "that section")
+    if (beforeAdditionalClean !== cleanedResponse) {
+      console.log("[v0] Additional cleaning applied. New length:", cleanedResponse.length)
+    }
 
-    // Clean up any double spaces, multiple dots, or trailing punctuation
-    cleanedResponse = cleanedResponse
-      .replace(/\.{3,}/g, "")
-      .replace(/\s+/g, " ")
-      .trim()
-
-    // Remove any remaining empty parentheses or brackets
-    cleanedResponse = cleanedResponse.replace(/$$\s*$$/g, "").replace(/\[\s*\]/g, "")
+    console.log("[v0] FINAL CLEANED RESPONSE:")
+    console.log("=".repeat(50))
+    console.log(cleanedResponse)
+    console.log("=".repeat(50))
+    console.log("[v0] Final response length:", cleanedResponse.length)
 
     let navigationAction = null
 
