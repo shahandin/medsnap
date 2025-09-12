@@ -121,13 +121,13 @@ export default async function HomePage() {
               <Card className="group hover:shadow-xl transition-all duration-300 border-border/50 hover:border-primary/20 bg-card/50 backdrop-blur-sm rounded-2xl overflow-hidden">
                 <CardHeader className="text-center pb-4">
                   <div className="mx-auto w-16 h-16 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                    <span className="text-2xl text-primary">🕒</span>
+                    <span className="text-2xl text-primary">🤖</span>
                   </div>
-                  <CardTitle className="text-xl font-heading font-semibold">Auto-Save Progress</CardTitle>
+                  <CardTitle className="text-xl font-heading font-semibold">AI Enabled</CardTitle>
                 </CardHeader>
                 <CardContent className="text-center">
                   <CardDescription className="text-base leading-relaxed">
-                    Your progress is automatically saved so you can complete your application at your own pace.
+                    AI enabled assistant that guides you through your application and answers all of your questions.
                   </CardDescription>
                 </CardContent>
               </Card>
