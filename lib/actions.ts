@@ -205,12 +205,17 @@ export async function loadApplicationProgress(applicationId?: string) {
     if (!error && data && data.length > 0) {
       let applicationData
 
-      console.log("[v0] Raw data from DB:", {
+      console.log("[v0] LOAD DEBUG - Raw data from DB:", {
         hasData: !!data[0].application_data,
         dataType: typeof data[0].application_data,
         isString: typeof data[0].application_data === "string",
-        hasIvEncrypted:
+        hasRootIvEncrypted:
           data[0].application_data && typeof data[0].application_data === "object" && "iv" in data[0].application_data,
+        hasNestedEncryption: hasEncryptedFields(data[0].application_data),
+        personalInfoStructure: data[0].application_data?.personalInfo
+          ? Object.keys(data[0].application_data.personalInfo)
+          : [],
+        firstNameValue: data[0].application_data?.personalInfo?.firstName,
       })
 
       if (!process.env.PHI_ENCRYPTION_KEY) {
@@ -219,46 +224,51 @@ export async function loadApplicationProgress(applicationId?: string) {
 
       if (typeof data[0].application_data === "string") {
         try {
-          console.log("[v0] Attempting to decrypt string data")
+          console.log("[v0] LOAD DEBUG - Attempting to decrypt string data")
           applicationData = await decryptApplicationData(data[0].application_data)
-          console.log("[v0] String decryption successful")
+          console.log("[v0] LOAD DEBUG - String decryption successful")
         } catch (decryptError) {
-          console.error("[v0] String decryption failed:", decryptError)
+          console.error("[v0] LOAD DEBUG - String decryption failed:", decryptError)
           return { data: null }
         }
       } else if (typeof data[0].application_data === "object" && data[0].application_data !== null) {
         const rawData = data[0].application_data
 
-        if ("iv" in rawData && "encrypted" in rawData) {
+        if (hasEncryptedFields(rawData)) {
           try {
-            console.log("[v0] Attempting to decrypt object with iv/encrypted")
+            console.log("[v0] LOAD DEBUG - Attempting to decrypt object with nested encrypted fields")
             applicationData = await decryptApplicationData(rawData)
-            console.log("[v0] Object decryption successful")
+            console.log("[v0] LOAD DEBUG - Nested decryption successful")
           } catch (decryptError) {
-            console.error("[v0] Object decryption failed:", decryptError)
+            console.error("[v0] LOAD DEBUG - Nested decryption failed:", decryptError)
+            return { data: null }
+          }
+        } else if ("iv" in rawData && "encrypted" in rawData) {
+          try {
+            console.log("[v0] LOAD DEBUG - Attempting to decrypt object with root iv/encrypted")
+            applicationData = await decryptApplicationData(rawData)
+            console.log("[v0] LOAD DEBUG - Root object decryption successful")
+          } catch (decryptError) {
+            console.error("[v0] LOAD DEBUG - Root object decryption failed:", decryptError)
             return { data: null }
           }
         } else {
-          console.log("[v0] Using raw object data (no encryption)")
+          console.log("[v0] LOAD DEBUG - Using raw object data (no encryption detected)")
           applicationData = rawData
         }
       } else {
-        console.log("[v0] No application data found")
+        console.log("[v0] LOAD DEBUG - No application data found")
         return { data: null }
       }
 
-      console.log("[v0] Decrypted data structure:", {
+      console.log("[v0] LOAD DEBUG - After decryption:", {
         hasData: !!applicationData,
         type: typeof applicationData,
         hasPersonalInfo: !!applicationData?.personalInfo,
+        personalInfoFirstName: applicationData?.personalInfo?.firstName,
         hasBenefitType: !!applicationData?.benefitType,
         hasState: !!applicationData?.state,
       })
-
-      if (!applicationData || typeof applicationData !== "object" || Array.isArray(applicationData)) {
-        console.log("[v0] Invalid decrypted data structure")
-        return { data: null }
-      }
 
       const benefitTypeFromData = applicationData?.benefitType
       const benefitTypeFromDB = data[0].application_type
