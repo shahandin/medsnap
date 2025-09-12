@@ -39,7 +39,7 @@ export function PrescreeningResults({ results, onContinue }: PrescreeningResults
             <CardTitle className="text-lg">Medicaid</CardTitle>
             <CardDescription>
               {medicaidEligible ? (
-                <span className="text-green-700 font-medium">Potentially Eligible</span>
+                <span className="text-green-700 font-medium"></span>
               ) : (
                 <span className="text-orange-700 font-medium">May Not Qualify</span>
               )}
@@ -73,7 +73,7 @@ export function PrescreeningResults({ results, onContinue }: PrescreeningResults
             <CardTitle className="text-lg">SNAP</CardTitle>
             <CardDescription>
               {snapEligible ? (
-                <span className="text-green-700 font-medium">Potentially Eligible</span>
+                <span className="text-green-700 font-medium"></span>
               ) : (
                 <span className="text-orange-700 font-medium">May Not Qualify</span>
               )}
