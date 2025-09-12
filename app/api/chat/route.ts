@@ -620,42 +620,29 @@ PLATFORM INFORMATION:
 
     let cleanedResponse = fullText
 
-    // Remove obvious template variables and placeholders
-    cleanedResponse = cleanedResponse.replace(/\[State Name\]/gi, "your state")
-    cleanedResponse = cleanedResponse.replace(/\[Your State\]/gi, "your state")
-    cleanedResponse = cleanedResponse.replace(/\[INSERT_.*?\]/gi, "")
-
-    // Remove empty template variables
-    cleanedResponse = cleanedResponse.replace(/\{\s*\}/g, "")
-    cleanedResponse = cleanedResponse.replace(/\$\{.*?\}/g, "")
-
-    // Remove system instructions and internal directions (but preserve legitimate parenthetical content)
-    cleanedResponse = cleanedResponse.replace(
-      /\s*$$[^)]*(?:assistant navigates|internal instruction|system prompt|stage direction)[^)]*$$/gi,
-      "",
-    )
-
-    // Remove assistant action descriptions
-    cleanedResponse = cleanedResponse.replace(/$$The assistant .*?$$/gi, "")
-
-    // Remove navigation instructions that aren't meant for users
-    cleanedResponse = cleanedResponse.replace(
-      /\.\.\.*\s*(?:I'll|I will|Let me) (?:navigate|guide|direct|take) (?:you|the user).*?(?=\.|$)/gi,
-      "",
-    )
-
-    // Clean up spacing and formatting
+    // First, remove only obvious system artifacts
     cleanedResponse = cleanedResponse
-      .replace(/\.{3,}/g, "")
-      .replace(/\s+/g, " ")
-      .trim()
+      .replace(/\[Assistant\s*:\s*\]/gi, "")
+      .replace(/\[User\s*:\s*\]/gi, "")
+      .replace(/\[System\s*:\s*\]/gi, "")
+      .replace(/\[Internal\s*:\s*\]/gi, "")
+      .replace(/\[DEBUG\s*:\s*\]/gi, "")
+      .replace(/\[v0\]/gi, "")
 
-    // Remove empty parentheses or brackets left behind
-    cleanedResponse = cleanedResponse.replace(/$$\s*$$/g, "").replace(/\[\s*\]/g, "")
+    // Remove template variables but preserve content in brackets/braces that might be legitimate
+    cleanedResponse = cleanedResponse
+      .replace(/\$\{[^}]*\}/g, "")
+      .replace(/\[State Name\]/gi, "your state")
+      .replace(/\[Your State\]/gi, "your state")
+      .replace(/\[PLACEHOLDER[^\]]*\]/gi, "")
 
-    if (!cleanedResponse || cleanedResponse.length < 10) {
+    // Clean up whitespace
+    cleanedResponse = cleanedResponse.replace(/\s+/g, " ").trim()
+
+    // Only apply fallback if response is truly empty or too short AFTER targeted cleaning
+    if (!cleanedResponse || cleanedResponse.length < 20) {
       cleanedResponse =
-        "I'm having trouble generating a response right now. Could you try rephrasing your question about benefits?"
+        "I'd be happy to help you with information about benefits eligibility. Could you please provide more details about your specific situation?"
     }
 
     cleanedResponse = cleanedResponse.replace(
