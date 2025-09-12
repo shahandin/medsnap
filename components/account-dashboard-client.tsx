@@ -1,8 +1,8 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useEffect } from "react"
+import { useSearchParams } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -31,7 +31,6 @@ import {
   Menu,
 } from "lucide-react"
 import { signOut } from "@/lib/actions"
-import { useSearchParams } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import Link from "next/link"
 
@@ -151,26 +150,23 @@ const getNotificationIcon = (type: string) => {
 }
 
 export default function AccountDashboardClient({ user }: AccountDashboardClientProps) {
+  const searchParams = useSearchParams()
   const [applicationProgress, setApplicationProgress] = useState<any>(null)
   const [submittedApplications, setSubmittedApplications] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const searchParams = useSearchParams()
-  const defaultTab = searchParams.get("tab") || "overview"
-  const [activeTab, setActiveTab] = useState(defaultTab)
-
+  const [activeTab, setActiveTab] = useState(searchParams.get("tab") || "applications")
   const [activeChangeForm, setActiveChangeForm] = useState<string | null>(null)
   const [formData, setFormData] = useState<any>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitSuccess, setSubmitSuccess] = useState(false)
-
   const [selectedChangeCategory, setSelectedChangeCategory] = useState<string | null>(null)
-
   const [selectedDocumentType, setSelectedDocumentType] = useState<string>("")
   const [uploadedFile, setUploadedFile] = useState<File | null>(null)
   const [isUploading, setIsUploading] = useState(false)
   const [uploadSuccess, setUploadSuccess] = useState(false)
   const [documentHistory, setDocumentHistory] = useState<any[]>([])
   const [loadingDocuments, setLoadingDocuments] = useState(false)
+  const [loading, setLoading] = useState(false)
 
   const documentTypes = [
     {
@@ -615,14 +611,7 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
           <div className="sticky top-0 z-10 bg-gray-50 pb-2 -mx-4 px-4">
             {/* Desktop Tab Navigation */}
             <div className="hidden md:block">
-              <TabsList className="w-full h-auto p-1 bg-white shadow-sm border rounded-lg grid grid-cols-6">
-                <TabsTrigger
-                  value="overview"
-                  className="flex items-center gap-2 px-4 py-3 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-white rounded-md"
-                >
-                  <TrendingUp className="w-4 h-4" />
-                  Overview
-                </TabsTrigger>
+              <TabsList className="w-full h-auto p-1 bg-white shadow-sm border rounded-lg grid grid-cols-5">
                 <TabsTrigger
                   value="applications"
                   className="flex items-center gap-2 px-4 py-3 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-white rounded-md"
@@ -725,220 +714,6 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
             </div>
           </div>
 
-          <TabsContent value="overview" className="space-y-6">
-            <Card className="rounded-2xl md:rounded-xl shadow-lg md:shadow-sm border-0 md:border">
-              <CardHeader className="pb-6 md:pb-4 px-6 md:px-6">
-                <CardTitle className="flex items-center gap-3 text-2xl md:text-xl font-bold">
-                  <TrendingUp className="w-7 h-7 md:w-6 md:h-6 text-primary" />
-                  Your Benefits Journey
-                </CardTitle>
-                <CardDescription className="text-base md:text-sm text-gray-600 leading-relaxed">
-                  Track your progress and manage your benefits applications with ease.
-                </CardDescription>
-              </CardHeader>
-            </Card>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-4">
-              <Card className="rounded-2xl md:rounded-xl shadow-lg md:shadow-sm border-0 md:border">
-                <CardHeader className="pb-6 md:pb-4 px-6 md:px-6">
-                  <CardTitle className="flex items-center justify-between text-xl md:text-lg">
-                    <span className="flex items-center gap-3">
-                      <FileText className="w-6 h-6 md:w-5 md:h-5 text-primary" />
-                      Application Status
-                    </span>
-                    <Badge
-                      className={`${getStatusColor(status)} text-sm md:text-xs px-3 py-1.5 md:px-2 md:py-1 rounded-full`}
-                    >
-                      {status}
-                    </Badge>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6 md:space-y-4 pt-0 px-6 md:px-6">
-                  {submittedApplications && submittedApplications.length > 0 ? (
-                    <>
-                      <div className="space-y-4">
-                        <h4 className="font-semibold text-green-800">Submitted Applications</h4>
-                        {submittedApplications.map((app, index) => (
-                          <div key={index} className="bg-green-50 border border-green-200 rounded-lg p-4">
-                            <div className="space-y-2 text-sm">
-                              <p>
-                                <span className="font-semibold">Type:</span>{" "}
-                                {app.benefit_type || "Benefits Application"}
-                              </p>
-                              <p>
-                                <span className="font-semibold">Submitted:</span>{" "}
-                                {new Date(app.submitted_at).toLocaleDateString()}
-                              </p>
-                              <p>
-                                <span className="font-semibold">Reference:</span>{" "}
-                                {app.reference_number || `REF-${app.id?.slice(-8)}`}
-                              </p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                      {applicationProgress && Array.isArray(applicationProgress) && applicationProgress.length > 0 && (
-                        <>
-                          <div className="border-t pt-4">
-                            <h4 className="font-semibold text-yellow-800 mb-3">In Progress Applications</h4>
-                            {applicationProgress.map((app, index) => {
-                              const appProgressPercentage = Math.round(((app.current_step || 1) / 9) * 100)
-                              return (
-                                <div key={index} className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-3">
-                                  <div className="space-y-3">
-                                    <div className="flex justify-between text-sm font-semibold">
-                                      <span>Progress</span>
-                                      <span>{appProgressPercentage}% Complete</span>
-                                    </div>
-                                    <Progress value={appProgressPercentage} className="h-2 rounded-full" />
-                                    <div className="space-y-2 text-sm text-gray-600">
-                                      <p className="flex items-center gap-2">
-                                        <Clock className="w-4 h-4 flex-shrink-0 text-primary" />
-                                        <span>Current Step: {getStepTitle(app.current_step)}</span>
-                                      </p>
-                                      <p className="flex items-center gap-2">
-                                        <Calendar className="w-4 h-4 flex-shrink-0 text-primary" />
-                                        <span>Last Updated: {new Date(app.updated_at).toLocaleDateString()}</span>
-                                      </p>
-                                      {app.application_data?.benefitType && (
-                                        <p className="flex items-center gap-2">
-                                          <FileText className="w-4 h-4 flex-shrink-0 text-primary" />
-                                          <span>Type: {app.application_data.benefitType}</span>
-                                        </p>
-                                      )}
-                                    </div>
-                                  </div>
-                                </div>
-                              )
-                            })}
-                          </div>
-
-                          <Button
-                            asChild
-                            className="w-full h-14 md:h-10 text-lg md:text-sm font-semibold rounded-2xl md:rounded-lg shadow-lg md:shadow-none"
-                          >
-                            <Link href="/application-choice">Continue Application</Link>
-                          </Button>
-                        </>
-                      )}
-                    </>
-                  ) : applicationProgress &&
-                    (Array.isArray(applicationProgress) ? applicationProgress.length > 0 : applicationProgress) ? (
-                    <>
-                      {Array.isArray(applicationProgress) ? (
-                        applicationProgress.map((app, index) => {
-                          const appProgressPercentage = Math.round(((app.current_step || 1) / 9) * 100)
-                          return (
-                            <div key={index} className="space-y-4">
-                              <div>
-                                <div className="flex justify-between text-base md:text-sm font-semibold mb-3 md:mb-2">
-                                  <span>Progress</span>
-                                  <span>{appProgressPercentage}% Complete</span>
-                                </div>
-                                <Progress value={appProgressPercentage} className="h-3 md:h-2 rounded-full" />
-                              </div>
-                              <div className="space-y-4 md:space-y-3 text-base md:text-sm text-gray-600">
-                                <p className="flex items-center gap-2">
-                                  <Clock className="w-5 h-5 md:w-4 md:h-4 flex-shrink-0 text-primary" />
-                                  <span>Current Step: {getStepTitle(app.current_step)}</span>
-                                </p>
-                                <p className="flex items-center gap-2">
-                                  <Calendar className="w-5 h-5 md:w-4 md:h-4 flex-shrink-0 text-primary" />
-                                  <span>Last Updated: {new Date(app.updated_at).toLocaleDateString()}</span>
-                                </p>
-                                {app.application_data?.benefitType && (
-                                  <p className="flex items-center gap-2">
-                                    <FileText className="w-5 h-5 md:w-4 md:h-4 flex-shrink-0 text-primary" />
-                                    <span>Type: {app.application_data.benefitType}</span>
-                                  </p>
-                                )}
-                              </div>
-                            </div>
-                          )
-                        })
-                      ) : (
-                        <div className="space-y-4">
-                          <div>
-                            <div className="flex justify-between text-base md:text-sm font-semibold mb-3 md:mb-2">
-                              <span>Progress</span>
-                              <span>{progressPercentage}% Complete</span>
-                            </div>
-                            <Progress value={progressPercentage} className="h-3 md:h-2 rounded-full" />
-                          </div>
-                          <div className="space-y-4 md:space-y-3 text-base md:text-sm text-gray-600">
-                            <p className="flex items-center gap-2">
-                              <Clock className="w-5 h-5 md:w-4 md:h-4 flex-shrink-0 text-primary" />
-                              <span>Current Step: {getStepTitle(applicationProgress.current_step)}</span>
-                            </p>
-                            <p className="flex items-center gap-2">
-                              <Calendar className="w-5 h-5 md:w-4 md:h-4 flex-shrink-0 text-primary" />
-                              <span>Last Updated: {new Date(applicationProgress.updated_at).toLocaleDateString()}</span>
-                            </p>
-                            {applicationProgress.application_data?.benefitType && (
-                              <p className="flex items-center gap-2">
-                                <FileText className="w-5 h-5 md:w-4 md:h-4 flex-shrink-0 text-primary" />
-                                <span>Type: {applicationProgress.application_data.benefitType}</span>
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                      )}
-                      <Button
-                        asChild
-                        className="w-full h-14 md:h-10 text-lg md:text-sm font-semibold rounded-2xl md:rounded-lg shadow-lg md:shadow-none"
-                      >
-                        <Link href="/application-choice">Continue Application</Link>
-                      </Button>
-                    </>
-                  ) : (
-                    <div className="text-center py-8 md:py-6">
-                      <FileText className="w-16 h-16 md:w-12 md:h-12 text-gray-300 mx-auto mb-4 md:mb-3" />
-                      <h3 className="text-xl md:text-lg font-semibold text-gray-900 mb-2">No Applications Yet</h3>
-                      <p className="text-base md:text-sm text-gray-600 mb-6 md:mb-4">
-                        Start your benefits application to see your progress here.
-                      </p>
-                      <Button
-                        asChild
-                        className="w-full h-14 md:h-10 text-lg md:text-sm font-semibold rounded-2xl md:rounded-lg shadow-lg md:shadow-none"
-                      >
-                        <Link href="/application-choice">Start Application</Link>
-                      </Button>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
-              <Card className="rounded-2xl md:rounded-xl shadow-lg md:shadow-sm border-0 md:border">
-                <CardHeader className="pb-6 md:pb-4 px-6 md:px-6">
-                  <CardTitle className="flex items-center gap-3 text-xl md:text-lg">
-                    <CheckCircle className="w-6 h-6 md:w-5 md:h-5 text-primary" />
-                    Quick Actions
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4 md:space-y-3 pt-0 px-6 md:px-6">
-                  <Button
-                    asChild
-                    className="w-full h-14 md:h-10 text-lg md:text-sm font-semibold rounded-2xl md:rounded-lg shadow-lg md:shadow-none"
-                  >
-                    <Link href="/application-choice">
-                      {applicationProgress && Array.isArray(applicationProgress) && applicationProgress.length > 0
-                        ? "Continue Application"
-                        : "Start New Application"}
-                    </Link>
-                  </Button>
-                  <Button
-                    asChild
-                    variant="outline"
-                    className="w-full h-14 md:h-10 text-lg md:text-sm font-semibold rounded-2xl md:rounded-lg shadow-lg md:shadow-none bg-transparent"
-                    onClick={() => setActiveTab("documents")}
-                  >
-                    <span>Upload Documents</span>
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-
           <TabsContent value="applications" className="space-y-6">
             <Card className="rounded-2xl md:rounded-xl shadow-lg md:shadow-sm border-0 md:border">
               <CardHeader className="pb-6 md:pb-4 px-6 md:px-6">
@@ -950,78 +725,86 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
                   View and manage all your benefit applications in one place.
                 </CardDescription>
               </CardHeader>
-            </Card>
-
-            <div className="space-y-6">
-              {submittedApplications && submittedApplications.length > 0 && (
-                <div className="space-y-4">
-                  <h3 className="text-xl font-semibold text-gray-900">Submitted Applications</h3>
-                  {submittedApplications.map((app, index) => (
-                    <Card key={index} className="bg-green-50 border-green-200">
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between mb-3">
-                          <h4 className="font-semibold">{app.benefit_type || "Benefits Application"}</h4>
-                          <Badge className="bg-green-100 text-green-800">Submitted</Badge>
-                        </div>
-                        <div className="text-sm text-gray-600">
-                          <p>Submitted: {new Date(app.submitted_at).toLocaleDateString()}</p>
-                          <p>Reference: {app.reference_number || `REF-${app.id?.slice(-8)}`}</p>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              )}
-
-              {applicationProgress && Array.isArray(applicationProgress) && applicationProgress.length > 0 && (
-                <div className="space-y-4">
-                  <h3 className="text-xl font-semibold text-gray-900">In Progress Applications</h3>
-                  {applicationProgress.map((app, index) => {
-                    const appProgressPercentage = Math.round(((app.current_step || 1) / 9) * 100)
-                    return (
-                      <Card key={index} className="bg-yellow-50 border-yellow-200">
-                        <CardContent className="p-4">
-                          <div className="flex items-center justify-between mb-3">
-                            <h4 className="font-semibold">
-                              {app.application_data?.benefitType || "Benefits Application"}
-                            </h4>
-                            <Badge className="bg-yellow-100 text-yellow-800">In Progress</Badge>
-                          </div>
-                          <div className="space-y-3">
-                            <div className="flex justify-between text-sm">
-                              <span>Progress</span>
-                              <span>{appProgressPercentage}% Complete</span>
+              <CardContent className="space-y-4 pt-0 px-6 md:px-6">
+                {loading ? (
+                  <div className="text-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+                    <p className="mt-2 text-gray-600">Loading applications...</p>
+                  </div>
+                ) : applicationProgress && Array.isArray(applicationProgress) && applicationProgress.length > 0 ? (
+                  <div className="grid gap-4">
+                    {applicationProgress.map((app, index) => {
+                      const appProgressPercentage = Math.round(((app.current_step || 1) / 9) * 100)
+                      return (
+                        <Card
+                          key={index}
+                          className="border border-gray-200 hover:border-primary/30 transition-colors duration-200 bg-gradient-to-r from-white to-gray-50/30"
+                        >
+                          <CardContent className="p-6">
+                            <div className="flex items-start justify-between mb-4">
+                              <div className="flex-1">
+                                <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                                  {app.benefit_type
+                                    ? app.benefit_type.charAt(0).toUpperCase() + app.benefit_type.slice(1)
+                                    : "Benefits"}{" "}
+                                  Application
+                                </h3>
+                                <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
+                                  <span className="flex items-center gap-1">
+                                    <Clock className="w-4 h-4" />
+                                    Step {app.current_step || 1} of 9
+                                  </span>
+                                  <span className="flex items-center gap-1">
+                                    <Calendar className="w-4 h-4" />
+                                    {new Date(app.updated_at).toLocaleDateString()}
+                                  </span>
+                                </div>
+                              </div>
+                              <div className="text-right">
+                                <div className="text-2xl font-bold text-primary mb-1">{appProgressPercentage}%</div>
+                                <div className="text-xs text-gray-500">Complete</div>
+                              </div>
                             </div>
-                            <Progress value={appProgressPercentage} className="h-2" />
-                            <div className="text-sm text-gray-600">
-                              <p>Current Step: {getStepTitle(app.current_step)}</p>
-                              <p>Last Updated: {new Date(app.updated_at).toLocaleDateString()}</p>
-                            </div>
-                            <Button asChild size="sm" className="w-full">
-                              <Link href="/application">Continue Application</Link>
-                            </Button>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    )
-                  })}
-                </div>
-              )}
 
-              {(!applicationProgress || (Array.isArray(applicationProgress) && applicationProgress.length === 0)) &&
-                (!submittedApplications || submittedApplications.length === 0) && (
-                  <Card className="text-center py-12">
-                    <CardContent>
-                      <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                      <h3 className="text-xl font-semibold text-gray-900 mb-2">No Applications Yet</h3>
-                      <p className="text-gray-600 mb-6">Start your first benefits application to get started.</p>
-                      <Button asChild>
-                        <Link href="/application-choice">Start New Application</Link>
-                      </Button>
-                    </CardContent>
-                  </Card>
+                            <div className="space-y-3">
+                              <div>
+                                <div className="flex justify-between text-sm mb-1">
+                                  <span className="text-gray-600">Progress</span>
+                                  <span className="font-medium">{getStepTitle(app.current_step)}</span>
+                                </div>
+                                <Progress value={appProgressPercentage} className="h-2" />
+                              </div>
+
+                              <div className="flex justify-between items-center pt-2">
+                                <div className="text-sm text-gray-600">
+                                  Last updated: {new Date(app.updated_at).toLocaleDateString()}
+                                </div>
+                                <Button asChild size="sm" className="px-6">
+                                  <Link href="/application">Continue</Link>
+                                </Button>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      )
+                    })}
+                  </div>
+                ) : (
+                  <div className="text-center py-12">
+                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <FileText className="w-8 h-8 text-gray-400" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">No Applications Yet</h3>
+                    <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                      Start your benefits application to see your progress and manage your applications here.
+                    </p>
+                    <Button asChild className="px-8">
+                      <Link href="/application-choice">Start New Application</Link>
+                    </Button>
+                  </div>
                 )}
-            </div>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           <TabsContent value="notifications" className="space-y-6">
