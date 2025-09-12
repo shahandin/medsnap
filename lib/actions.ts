@@ -5,6 +5,18 @@ import { encryptApplicationData, decryptApplicationData } from "@/lib/hipaa-encr
 
 export async function saveApplicationProgress(applicationData: any, currentStep: number, applicationId?: string) {
   try {
+    console.log("[v0] SAVE DEBUG - Input data:", {
+      hasApplicationData: !!applicationData,
+      currentStep,
+      applicationId,
+      benefitType: applicationData?.benefitType,
+      state: applicationData?.state,
+      hasPersonalInfo: !!applicationData?.personalInfo,
+      personalInfoKeys: applicationData?.personalInfo ? Object.keys(applicationData.personalInfo) : [],
+      firstName: applicationData?.personalInfo?.firstName,
+      dataSize: JSON.stringify(applicationData || {}).length,
+    })
+
     const supabase = await createClient()
     const {
       data: { user },
@@ -38,7 +50,19 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
       throw new Error("PHI_ENCRYPTION_KEY environment variable is required for HIPAA compliance")
     }
 
+    console.log("[v0] SAVE DEBUG - Before encryption:", {
+      dataToEncrypt: applicationData,
+      hasPersonalInfo: !!applicationData?.personalInfo,
+      personalInfoContent: applicationData?.personalInfo,
+    })
+
     const dataToStore = await encryptApplicationData(applicationData)
+
+    console.log("[v0] SAVE DEBUG - After encryption:", {
+      encryptedDataType: typeof dataToStore,
+      encryptedDataSize: JSON.stringify(dataToStore || {}).length,
+      hasIvEncrypted: dataToStore && typeof dataToStore === "object" && "iv" in dataToStore,
+    })
 
     if (applicationId) {
       const { data, error } = await supabase
@@ -52,6 +76,13 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
         .eq("id", applicationId)
         .eq("user_id", user.id)
         .select()
+
+      console.log("[v0] SAVE DEBUG - Update result:", {
+        success: !error,
+        error: error?.message,
+        dataReturned: !!data?.[0],
+        applicationId: data?.[0]?.id,
+      })
 
       if (error) {
         return { success: false, error: `Failed to update progress: ${error.message}` }
@@ -76,6 +107,13 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
         )
         .select()
 
+      console.log("[v0] SAVE DEBUG - Upsert result:", {
+        success: !error,
+        error: error?.message,
+        dataReturned: !!data?.[0],
+        applicationId: data?.[0]?.id,
+      })
+
       if (error) {
         return { success: false, error: `Failed to save progress: ${error.message}` }
       }
@@ -83,7 +121,10 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
       return { success: true, applicationId: data?.[0]?.id }
     }
   } catch (error) {
-    console.error("[v0] saveApplicationProgress error:", error)
+    console.error("[v0] SAVE DEBUG - Error occurred:", {
+      error: error instanceof Error ? error.message : error,
+      stack: error instanceof Error ? error.stack : undefined,
+    })
     return { success: false, error: error instanceof Error ? error.message : "Unknown error" }
   }
 }
@@ -113,15 +154,25 @@ export async function loadApplicationProgress(applicationId?: string) {
     if (!error && data && data.length > 0) {
       let applicationData
 
+      console.log("[v0] Raw data from DB:", {
+        hasData: !!data[0].application_data,
+        dataType: typeof data[0].application_data,
+        isString: typeof data[0].application_data === "string",
+        hasIvEncrypted:
+          data[0].application_data && typeof data[0].application_data === "object" && "iv" in data[0].application_data,
+      })
+
       if (!process.env.PHI_ENCRYPTION_KEY) {
         throw new Error("PHI_ENCRYPTION_KEY environment variable is required for HIPAA compliance")
       }
 
       if (typeof data[0].application_data === "string") {
         try {
+          console.log("[v0] Attempting to decrypt string data")
           applicationData = await decryptApplicationData(data[0].application_data)
+          console.log("[v0] String decryption successful")
         } catch (decryptError) {
-          console.error("[v0] Decryption failed:", decryptError)
+          console.error("[v0] String decryption failed:", decryptError)
           return { data: null }
         }
       } else if (typeof data[0].application_data === "object" && data[0].application_data !== null) {
@@ -129,19 +180,32 @@ export async function loadApplicationProgress(applicationId?: string) {
 
         if ("iv" in rawData && "encrypted" in rawData) {
           try {
+            console.log("[v0] Attempting to decrypt object with iv/encrypted")
             applicationData = await decryptApplicationData(rawData)
+            console.log("[v0] Object decryption successful")
           } catch (decryptError) {
-            console.error("[v0] Failed to decrypt object data:", decryptError)
+            console.error("[v0] Object decryption failed:", decryptError)
             return { data: null }
           }
         } else {
+          console.log("[v0] Using raw object data (no encryption)")
           applicationData = rawData
         }
       } else {
+        console.log("[v0] No application data found")
         return { data: null }
       }
 
+      console.log("[v0] Decrypted data structure:", {
+        hasData: !!applicationData,
+        type: typeof applicationData,
+        hasPersonalInfo: !!applicationData?.personalInfo,
+        hasBenefitType: !!applicationData?.benefitType,
+        hasState: !!applicationData?.state,
+      })
+
       if (!applicationData || typeof applicationData !== "object" || Array.isArray(applicationData)) {
+        console.log("[v0] Invalid decrypted data structure")
         return { data: null }
       }
 
