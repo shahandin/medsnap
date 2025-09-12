@@ -91,7 +91,7 @@ export default async function HomePage() {
 
               <Card className="group hover:shadow-xl transition-all duration-300 border-border/50 hover:border-primary/20 bg-card/50 backdrop-blur-sm rounded-2xl overflow-hidden">
                 <CardHeader className="text-center pb-4">
-                  <div className="mx-auto w-16 h-16 bg-gradient-to-br from-secondary/20 to-secondary/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                  <div className="mx-auto w-16 h-16 bg-gradient-to-br from-secondary/20 to-primary/20 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                     <span className="text-2xl text-secondary">🛡️</span>
                   </div>
                   <CardTitle className="text-xl font-heading font-semibold">Secure & Private</CardTitle>
@@ -120,13 +120,14 @@ export default async function HomePage() {
               <Card className="group hover:shadow-xl transition-all duration-300 border-border/50 hover:border-primary/20 bg-card/50 backdrop-blur-sm rounded-2xl overflow-hidden">
                 <CardHeader className="text-center pb-4">
                   <div className="mx-auto w-16 h-16 bg-gradient-to-br from-secondary/20 to-primary/20 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                    <span className="text-2xl text-secondary">👥</span>
+                    <span className="text-2xl text-secondary">🏢</span>
                   </div>
-                  <CardTitle className="text-xl font-heading font-semibold">Expert Support</CardTitle>
+                  <CardTitle className="text-xl font-heading font-semibold">Complete Platform</CardTitle>
                 </CardHeader>
                 <CardContent className="text-center">
                   <CardDescription className="text-base leading-relaxed">
-                    Get help when you need it with our dedicated support team and comprehensive resources.
+                    One platform for everything: submit applications, make updates, renew benefits, respond to
+                    notifications, and upload documents.
                   </CardDescription>
                 </CardContent>
               </Card>
