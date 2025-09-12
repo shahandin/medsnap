@@ -3,6 +3,23 @@ import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { encryptApplicationData, decryptApplicationData } from "@/lib/hipaa-encryption"
 
+function hasEncryptedFields(obj: any): boolean {
+  if (!obj || typeof obj !== "object") return false
+
+  for (const key in obj) {
+    const value = obj[key]
+    if (value && typeof value === "object") {
+      if ("iv" in value && "encrypted" in value) {
+        return true
+      }
+      if (hasEncryptedFields(value)) {
+        return true
+      }
+    }
+  }
+  return false
+}
+
 export async function saveApplicationProgress(applicationData: any, currentStep: number, applicationId?: string) {
   try {
     console.log("[v0] SAVE DEBUG - Input data:", {
@@ -61,7 +78,7 @@ export async function saveApplicationProgress(applicationData: any, currentStep:
     console.log("[v0] SAVE DEBUG - After encryption:", {
       encryptedDataType: typeof dataToStore,
       encryptedDataSize: JSON.stringify(dataToStore || {}).length,
-      hasIvEncrypted: dataToStore && typeof dataToStore === "object" && "iv" in dataToStore,
+      hasEncryptedFields: hasEncryptedFields(dataToStore),
     })
 
     if (applicationId) {
