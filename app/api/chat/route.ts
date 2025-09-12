@@ -608,7 +608,7 @@ PLATFORM INFORMATION:
     console.log("[v0] Chat API: About to call Groq API with enhanced configuration and conversation memory")
 
     const result = await streamText({
-      model: groq("llama3-70b-8192"),
+      model: groq("llama-3.3-70b-versatile"),
       prompt: `${systemPrompt}\n\n${contextPrompt}\n\n${relevantKnowledge}${conversationContext}\n\nUser: ${message}\nAssistant:`,
       maxTokens: 1200,
     })
