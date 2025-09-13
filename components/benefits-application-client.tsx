@@ -169,6 +169,19 @@ export default function BenefitsApplicationClient({
     }
   }, [])
 
+  const loadSubmittedApplications = useCallback(async () => {
+    try {
+      const response = await fetch("/api/submitted-applications")
+      if (response.ok) {
+        const data = await response.json()
+        const submittedTypes = data.applications?.map((app: any) => app.benefit_type).filter(Boolean) || []
+        setSubmittedApplications(submittedTypes)
+      }
+    } catch (error) {
+      console.error("Error loading submitted applications:", error)
+    }
+  }, [])
+
   useEffect(() => {
     if (stepParam && !isLoading) {
       const stepNumber = Number.parseInt(stepParam)
@@ -183,7 +196,8 @@ export default function BenefitsApplicationClient({
 
   useEffect(() => {
     loadSavedProgress(startFresh, continueId)
-  }, [startFresh, continueId, loadSavedProgress])
+    loadSubmittedApplications()
+  }, [startFresh, continueId, loadSavedProgress, loadSubmittedApplications])
 
   useEffect(() => {
     if (applicationData.benefitType && applicationData.benefitType !== "" && currentStep > 0 && !isLoading) {
