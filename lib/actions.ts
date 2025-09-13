@@ -513,7 +513,7 @@ export async function getSubmittedApplications() {
 
     const { data: applications, error } = await supabase
       .from("applications")
-      .select("benefit_type, submitted_at, status")
+      .select("id, benefit_type, submitted_at, status")
       .eq("user_id", user.id)
       .order("submitted_at", { ascending: false })
 
