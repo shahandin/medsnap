@@ -725,83 +725,156 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
                   View and manage all your benefit applications in one place.
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4 pt-0 px-6 md:px-6">
+              <CardContent className="space-y-6 pt-0 px-6 md:px-6">
                 {loading ? (
                   <div className="text-center py-8">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
                     <p className="mt-2 text-gray-600">Loading applications...</p>
                   </div>
-                ) : applicationProgress && Array.isArray(applicationProgress) && applicationProgress.length > 0 ? (
-                  <div className="grid gap-4">
-                    {applicationProgress.map((app, index) => {
-                      const appProgressPercentage = Math.round(((app.current_step || 1) / 9) * 100)
-                      return (
-                        <Card
-                          key={index}
-                          className="border border-gray-200 hover:border-primary/30 transition-colors duration-200 bg-gradient-to-r from-white to-gray-50/30"
-                        >
-                          <CardContent className="p-6">
-                            <div className="flex items-start justify-between mb-4">
-                              <div className="flex-1">
-                                <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                                  {app.benefit_type
-                                    ? app.benefit_type.charAt(0).toUpperCase() + app.benefit_type.slice(1)
-                                    : "Benefits"}{" "}
-                                  Application
-                                </h3>
-                                <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
-                                  <span className="flex items-center gap-1">
-                                    <Clock className="w-4 h-4" />
-                                    Step {app.current_step || 1} of 9
-                                  </span>
-                                  <span className="flex items-center gap-1">
-                                    <Calendar className="w-4 h-4" />
-                                    {new Date(app.updated_at).toLocaleDateString()}
-                                  </span>
-                                </div>
-                              </div>
-                              <div className="text-right">
-                                <div className="text-2xl font-bold text-primary mb-1">{appProgressPercentage}%</div>
-                                <div className="text-xs text-gray-500">Complete</div>
-                              </div>
-                            </div>
-
-                            <div className="space-y-3">
-                              <div>
-                                <div className="flex justify-between text-sm mb-1">
-                                  <span className="text-gray-600">Progress</span>
-                                  <span className="font-medium">{getStepTitle(app.current_step)}</span>
-                                </div>
-                                <Progress value={appProgressPercentage} className="h-2" />
-                              </div>
-
-                              <div className="flex justify-between items-center pt-2">
-                                <div className="text-sm text-gray-600">
-                                  Last updated: {new Date(app.updated_at).toLocaleDateString()}
-                                </div>
-                                <Button asChild size="sm" className="px-6">
-                                  <Link href="/application">Continue</Link>
-                                </Button>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      )
-                    })}
-                  </div>
                 ) : (
-                  <div className="text-center py-12">
-                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <FileText className="w-8 h-8 text-gray-400" />
-                    </div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">No Applications Yet</h3>
-                    <p className="text-gray-600 mb-6 max-w-md mx-auto">
-                      Start your benefits application to see your progress and manage your applications here.
-                    </p>
-                    <Button asChild className="px-8">
-                      <Link href="/application-choice">Start New Application</Link>
-                    </Button>
-                  </div>
+                  <>
+                    {submittedApplications && submittedApplications.length > 0 && (
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-2">
+                          <CheckCircle className="w-5 h-5 text-green-600" />
+                          <h3 className="text-lg font-semibold text-gray-900">Submitted Applications</h3>
+                        </div>
+                        <div className="grid gap-4">
+                          {submittedApplications.map((app, index) => (
+                            <Card
+                              key={`submitted-${index}`}
+                              className="border border-green-200 bg-gradient-to-r from-green-50 to-white"
+                            >
+                              <CardContent className="p-6">
+                                <div className="flex items-start justify-between mb-4">
+                                  <div className="flex-1">
+                                    <h4 className="text-lg font-semibold text-gray-900 mb-1">
+                                      {app.benefit_type
+                                        ? app.benefit_type.charAt(0).toUpperCase() + app.benefit_type.slice(1)
+                                        : "Benefits"}{" "}
+                                      Application
+                                    </h4>
+                                    <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
+                                      <span className="flex items-center gap-1">
+                                        <CheckCircle className="w-4 h-4 text-green-600" />
+                                        Submitted
+                                      </span>
+                                      <span className="flex items-center gap-1">
+                                        <Calendar className="w-4 h-4" />
+                                        {new Date(app.submitted_at).toLocaleDateString()}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <Badge className="bg-green-100 text-green-800 border-green-300">Complete</Badge>
+                                </div>
+
+                                <div className="space-y-3">
+                                  <div className="flex justify-between text-sm">
+                                    <span className="text-gray-600">Status: {app.status || "Submitted"}</span>
+                                    <span className="font-medium text-green-700">Application ID: {app.id}</span>
+                                  </div>
+                                  <div className="text-sm text-gray-600">
+                                    Submitted on:{" "}
+                                    {new Date(app.submitted_at).toLocaleDateString("en-US", {
+                                      year: "numeric",
+                                      month: "long",
+                                      day: "numeric",
+                                    })}
+                                  </div>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {applicationProgress && Array.isArray(applicationProgress) && applicationProgress.length > 0 && (
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-2">
+                          <Clock className="w-5 h-5 text-yellow-600" />
+                          <h3 className="text-lg font-semibold text-gray-900">In Progress Applications</h3>
+                        </div>
+                        <div className="grid gap-4">
+                          {applicationProgress.map((app, index) => {
+                            const appProgressPercentage = Math.round(((app.current_step || 1) / 9) * 100)
+                            return (
+                              <Card
+                                key={index}
+                                className="border border-gray-200 hover:border-primary/30 transition-colors duration-200 bg-gradient-to-r from-white to-gray-50/30"
+                              >
+                                <CardContent className="p-6">
+                                  <div className="flex items-start justify-between mb-4">
+                                    <div className="flex-1">
+                                      <h4 className="text-lg font-semibold text-gray-900 mb-1">
+                                        {app.benefit_type
+                                          ? app.benefit_type.charAt(0).toUpperCase() + app.benefit_type.slice(1)
+                                          : "Benefits"}{" "}
+                                        Application
+                                      </h4>
+                                      <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
+                                        <span className="flex items-center gap-1">
+                                          <Clock className="w-4 h-4" />
+                                          Step {app.current_step || 1} of 9
+                                        </span>
+                                        <span className="flex items-center gap-1">
+                                          <Calendar className="w-4 h-4" />
+                                          {new Date(app.updated_at).toLocaleDateString()}
+                                        </span>
+                                      </div>
+                                    </div>
+                                    <div className="text-right">
+                                      <div className="text-2xl font-bold text-primary mb-1">
+                                        {appProgressPercentage}%
+                                      </div>
+                                      <div className="text-xs text-gray-500">Complete</div>
+                                    </div>
+                                  </div>
+
+                                  <div className="space-y-3">
+                                    <div>
+                                      <div className="flex justify-between text-sm mb-1">
+                                        <span className="text-gray-600">Progress</span>
+                                        <span className="font-medium">{getStepTitle(app.current_step)}</span>
+                                      </div>
+                                      <Progress value={appProgressPercentage} className="h-2" />
+                                    </div>
+
+                                    <div className="flex justify-between items-center pt-2">
+                                      <div className="text-sm text-gray-600">
+                                        Last updated: {new Date(app.updated_at).toLocaleDateString()}
+                                      </div>
+                                      <Button asChild size="sm" className="px-6">
+                                        <Link href="/application">Continue</Link>
+                                      </Button>
+                                    </div>
+                                  </div>
+                                </CardContent>
+                              </Card>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {(!applicationProgress ||
+                      !Array.isArray(applicationProgress) ||
+                      applicationProgress.length === 0) &&
+                      (!submittedApplications || submittedApplications.length === 0) && (
+                        <div className="text-center py-12">
+                          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <FileText className="w-8 h-8 text-gray-400" />
+                          </div>
+                          <h3 className="text-lg font-semibold text-gray-900 mb-2">No Applications Yet</h3>
+                          <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                            Start your benefits application to see your progress and manage your applications here.
+                          </p>
+                          <Button asChild className="px-8">
+                            <Link href="/application-choice">Start New Application</Link>
+                          </Button>
+                        </div>
+                      )}
+                  </>
                 )}
               </CardContent>
             </Card>
