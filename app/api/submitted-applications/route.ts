@@ -24,21 +24,18 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    // Query for submitted applications (assuming you have a submissions table)
-    // For now, return empty array since we don't have submitted applications yet
     const { data: submissions, error } = await supabase
-      .from("application_submissions")
-      .select("benefit_type, submitted_at")
+      .from("applications")
+      .select("benefit_type, submitted_at, status")
       .eq("user_id", user.id)
       .order("submitted_at", { ascending: false })
 
-    if (error && error.code !== "PGRST116") {
-      // PGRST116 = table doesn't exist
+    if (error) {
       console.error("Error fetching submitted applications:", error)
       return NextResponse.json({ error: "Failed to fetch submitted applications" }, { status: 500 })
     }
 
-    // Return empty array if table doesn't exist or no submissions found
+    // Return the submitted applications
     const applications = submissions || []
 
     return NextResponse.json({

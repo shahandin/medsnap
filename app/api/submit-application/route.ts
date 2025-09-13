@@ -71,6 +71,19 @@ export async function POST(request: NextRequest) {
 
     console.log("[v0] Submit API: Application inserted successfully, ID:", application.id)
 
+    console.log("[v0] Submit API: Cleaning up application progress record")
+    const { error: progressDeleteError } = await supabase
+      .from("application_progress")
+      .delete()
+      .eq("user_id", user.id)
+      .eq("application_type", benefitType)
+
+    if (progressDeleteError) {
+      console.error("[v0] Submit API: Progress delete error (non-critical):", progressDeleteError)
+    } else {
+      console.log("[v0] Submit API: Application progress record deleted successfully")
+    }
+
     // Delete any incomplete applications for this user and benefit type
     console.log("[v0] Submit API: Cleaning up incomplete applications")
     const { error: deleteError } = await supabase

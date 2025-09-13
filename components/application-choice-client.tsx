@@ -62,8 +62,8 @@ export default function ApplicationChoiceClient() {
       const response = await fetch("/api/submitted-applications")
       if (response.ok) {
         const data = await response.json()
-        const benefitTypes = data.applications?.map((app: any) => app.benefit_type) || []
-        setSubmittedApplications(benefitTypes)
+        const submittedIds = data.applications?.map((app: any) => app.application_progress_id).filter(Boolean) || []
+        setSubmittedApplications(submittedIds)
       }
     } catch (error) {}
   }
@@ -209,38 +209,40 @@ export default function ApplicationChoiceClient() {
               <CardDescription>Resume working on applications you've already started</CardDescription>
             </CardHeader>
             <CardContent>
-              {incompleteApplications.length > 0 ? (
+              {incompleteApplications.filter((app) => !submittedApplications.includes(app.id)).length > 0 ? (
                 <div className="space-y-3">
-                  {incompleteApplications.map((app) => {
-                    return (
-                      <div
-                        key={app.id}
-                        className="p-4 border rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
-                        onClick={() => continueApplication(app.id)}
-                      >
-                        <div className="flex justify-between items-start">
-                          <div className="flex-1">
-                            <div className="mb-3">
-                              <span
-                                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getBenefitTypeColor(app)}`}
-                              >
-                                {getBenefitType(app)}
-                              </span>
+                  {incompleteApplications
+                    .filter((app) => !submittedApplications.includes(app.id))
+                    .map((app) => {
+                      return (
+                        <div
+                          key={app.id}
+                          className="p-4 border rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+                          onClick={() => continueApplication(app.id)}
+                        >
+                          <div className="flex justify-between items-start">
+                            <div className="flex-1">
+                              <div className="mb-3">
+                                <span
+                                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getBenefitTypeColor(app)}`}
+                                >
+                                  {getBenefitType(app)}
+                                </span>
+                              </div>
+                              <div className="space-y-1">
+                                <p className="text-sm text-gray-600">
+                                  Last saved: {new Date(app.updated_at).toLocaleDateString()}
+                                </p>
+                                <p className="text-sm text-blue-600 font-medium">
+                                  Current step: {getStepName(app.current_step)}
+                                </p>
+                              </div>
                             </div>
-                            <div className="space-y-1">
-                              <p className="text-sm text-gray-600">
-                                Last saved: {new Date(app.updated_at).toLocaleDateString()}
-                              </p>
-                              <p className="text-sm text-blue-600 font-medium">
-                                Current step: {getStepName(app.current_step)}
-                              </p>
-                            </div>
+                            <ArrowRight className="w-5 h-5 text-gray-400 mt-2" />
                           </div>
-                          <ArrowRight className="w-5 h-5 text-gray-400 mt-2" />
                         </div>
-                      </div>
-                    )
-                  })}
+                      )
+                    })}
                 </div>
               ) : (
                 <div className="text-center py-4">

@@ -500,7 +500,33 @@ export async function submitApplication(applicationData: any, benefitType: strin
 }
 
 export async function getSubmittedApplications() {
-  return { data: [] }
+  try {
+    const supabase = createClient()
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser()
+
+    if (authError || !user) {
+      return { data: [] }
+    }
+
+    const { data: applications, error } = await supabase
+      .from("applications")
+      .select("benefit_type, submitted_at, status")
+      .eq("user_id", user.id)
+      .order("submitted_at", { ascending: false })
+
+    if (error) {
+      console.error("Error fetching submitted applications:", error)
+      return { data: [] }
+    }
+
+    return { data: applications || [] }
+  } catch (error) {
+    console.error("Error in getSubmittedApplications:", error)
+    return { data: [] }
+  }
 }
 
 export async function saveAndSignOut(applicationData: any, currentStep: number) {
