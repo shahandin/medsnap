@@ -85,6 +85,34 @@ const mockNotifications = [
   },
 ]
 
+const documentTypes = [
+  {
+    value: "proof-of-income",
+    label: "Proof of Income",
+    description: "Pay stubs, bank statements, or unemployment benefits statements.",
+  },
+  {
+    value: "proof-of-address",
+    label: "Proof of Address",
+    description: "Utility bills, lease agreements, or official mail.",
+  },
+  {
+    value: "identification",
+    label: "Identification",
+    description: "Driver's license, passport, or state ID.",
+  },
+  {
+    value: "medical-records",
+    label: "Medical Records",
+    description: "Documents related to medical conditions or treatments.",
+  },
+  {
+    value: "other",
+    label: "Other",
+    description: "Any other relevant documents.",
+  },
+]
+
 const getApplicationStatus = (applicationProgress: any, submittedApplications: any[]) => {
   if (submittedApplications && submittedApplications.length > 0) {
     return "Submitted"
@@ -167,33 +195,80 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
   const [documentHistory, setDocumentHistory] = useState<any[]>([])
   const [loadingDocuments, setLoadingDocuments] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [communicationPreference, setCommunicationPreference] = useState("email")
+  const [mailingAddress, setMailingAddress] = useState({
+    street: "",
+    city: "",
+    state: "",
+    zipCode: "",
+  })
+  const [languagePreference, setLanguagePreference] = useState("english")
 
-  const documentTypes = [
-    {
-      value: "proof-of-income",
-      label: "Proof of Income",
-      description: "Pay stubs, employment letters, benefit statements",
-    },
-    { value: "proof-of-identity", label: "Proof of Identity", description: "Driver's license, state ID, passport" },
-    {
-      value: "proof-of-residency",
-      label: "Proof of Residency",
-      description: "Utility bills, lease agreement, mortgage statement",
-    },
-    {
-      value: "social-security-card",
-      label: "Social Security Card",
-      description: "Social Security card or verification letter",
-    },
-    { value: "birth-certificate", label: "Birth Certificate", description: "Official birth certificate" },
-    {
-      value: "medical-records",
-      label: "Medical Records",
-      description: "Medical documentation, disability verification",
-    },
-    { value: "bank-statements", label: "Bank Statements", description: "Recent bank account statements" },
-    { value: "tax-documents", label: "Tax Documents", description: "Tax returns, W-2 forms, 1099 forms" },
-    { value: "other", label: "Other", description: "Any other supporting documentation" },
+  const LANGUAGE_OPTIONS = [
+    { value: "english", label: "English" },
+    { value: "spanish", label: "Spanish (Español)" },
+    { value: "chinese_mandarin", label: "Chinese - Mandarin (中文)" },
+    { value: "chinese_cantonese", label: "Chinese - Cantonese (粵語)" },
+    { value: "vietnamese", label: "Vietnamese (Tiếng Việt)" },
+    { value: "korean", label: "Korean (한국어)" },
+    { value: "russian", label: "Russian (Русский)" },
+    { value: "arabic", label: "Arabic (العربية)" },
+    { value: "french", label: "French (Français)" },
+    { value: "portuguese", label: "Portuguese (Português)" },
+    { value: "tagalog", label: "Tagalog" },
+    { value: "hindi", label: "Hindi (हिन्दी)" },
+    { value: "urdu", label: "Urdu (اردو)" },
+    { value: "bengali", label: "Bengali (বাংলা)" },
+    { value: "punjabi", label: "Punjabi (ਪੰਜਾਬੀ)" },
+    { value: "gujarati", label: "Gujarati (ગુજરાતી)" },
+    { value: "tamil", label: "Tamil (தமிழ்)" },
+    { value: "telugu", label: "Telugu (తెలుగు)" },
+    { value: "marathi", label: "Marathi (मराठी)" },
+    { value: "japanese", label: "Japanese (日本語)" },
+    { value: "thai", label: "Thai (ไทย)" },
+    { value: "laotian", label: "Laotian (ລາວ)" },
+    { value: "cambodian", label: "Cambodian (ខ្មែរ)" },
+    { value: "burmese", label: "Burmese (မြန်မာ)" },
+    { value: "nepali", label: "Nepali (नेपाली)" },
+    { value: "somali", label: "Somali" },
+    { value: "amharic", label: "Amharic (አማርኛ)" },
+    { value: "tigrinya", label: "Tigrinya (ትግርኛ)" },
+    { value: "oromo", label: "Oromo (Afaan Oromoo)" },
+    { value: "swahili", label: "Swahili (Kiswahili)" },
+    { value: "haitian_creole", label: "Haitian Creole (Kreyòl Ayisyen)" },
+    { value: "italian", label: "Italian (Italiano)" },
+    { value: "german", label: "German (Deutsch)" },
+    { value: "polish", label: "Polish (Polski)" },
+    { value: "ukrainian", label: "Ukrainian (Українська)" },
+    { value: "romanian", label: "Romanian (Română)" },
+    { value: "greek", label: "Greek (Ελληνικά)" },
+    { value: "serbian", label: "Serbian (Српски)" },
+    { value: "croatian", label: "Croatian (Hrvatski)" },
+    { value: "bosnian", label: "Bosnian (Bosanski)" },
+    { value: "albanian", label: "Albanian (Shqip)" },
+    { value: "armenian", label: "Armenian (Հայերեն)" },
+    { value: "persian", label: "Persian/Farsi (فارسی)" },
+    { value: "pashto", label: "Pashto (پښتو)" },
+    { value: "dari", label: "Dari (دری)" },
+    { value: "turkish", label: "Turkish (Türkçe)" },
+    { value: "kurdish", label: "Kurdish (Kurdî)" },
+    { value: "hebrew", label: "Hebrew (עברית)" },
+    { value: "dutch", label: "Dutch (Nederlands)" },
+    { value: "swedish", label: "Swedish (Svenska)" },
+    { value: "norwegian", label: "Norwegian (Norsk)" },
+    { value: "danish", label: "Danish (Dansk)" },
+    { value: "finnish", label: "Finnish (Suomi)" },
+    { value: "hungarian", label: "Hungarian (Magyar)" },
+    { value: "czech", label: "Czech (Čeština)" },
+    { value: "slovak", label: "Slovak (Slovenčina)" },
+    { value: "slovenian", label: "Slovenian (Slovenščina)" },
+    { value: "lithuanian", label: "Lithuanian (Lietuvių)" },
+    { value: "latvian", label: "Latvian (Latviešu)" },
+    { value: "estonian", label: "Estonian (Eesti)" },
+    { value: "maltese", label: "Maltese (Malti)" },
+    { value: "irish", label: "Irish (Gaeilge)" },
+    { value: "welsh", label: "Welsh (Cymraeg)" },
+    { value: "scottish_gaelic", label: "Scottish Gaelic (Gàidhlig)" },
   ]
 
   useEffect(() => {
@@ -1165,14 +1240,6 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
               <CardContent className="space-y-6 pt-0 px-6 md:px-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium text-gray-700">Full Name</Label>
-                    <Input
-                      value={user.user_metadata?.full_name || ""}
-                      className="border-gray-300 rounded-xl"
-                      readOnly
-                    />
-                  </div>
-                  <div className="space-y-2">
                     <Label className="text-sm font-medium text-gray-700">Email Address</Label>
                     <Input value={user.email || ""} className="border-gray-300 rounded-xl" readOnly />
                   </div>
@@ -1184,11 +1251,104 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
                       readOnly
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium text-gray-700">User ID</Label>
-                    <Input value={user.id} className="border-gray-300 rounded-xl" readOnly />
-                  </div>
                 </div>
+
+                <div className="pt-4 border-t">
+                  <Button variant="outline" className="rounded-xl bg-transparent">
+                    Reset Password
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="rounded-2xl md:rounded-xl shadow-lg md:shadow-sm border-0 md:border">
+              <CardHeader className="pb-6 md:pb-4 px-6 md:px-6">
+                <CardTitle className="text-xl md:text-lg">Communication Preferences</CardTitle>
+                <CardDescription className="text-sm text-gray-600">
+                  Choose how you'd like to receive important updates and notifications.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6 pt-0 px-6 md:px-6">
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium text-gray-700">Preferred Contact Method</Label>
+                    <Select value={communicationPreference} onValueChange={setCommunicationPreference}>
+                      <SelectTrigger className="border-gray-300 rounded-xl">
+                        <SelectValue placeholder="Select contact method" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="email">Email</SelectItem>
+                        <SelectItem value="phone">Phone</SelectItem>
+                        <SelectItem value="mail">Mail</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {communicationPreference === "mail" && (
+                    <div className="space-y-4 p-4 bg-gray-50 rounded-xl">
+                      <Label className="text-sm font-medium text-gray-700">Mailing Address</Label>
+                      <div className="space-y-3">
+                        <Input
+                          placeholder="Street Address"
+                          value={mailingAddress.street}
+                          onChange={(e) => setMailingAddress((prev) => ({ ...prev, street: e.target.value }))}
+                          className="border-gray-300 rounded-xl"
+                        />
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                          <Input
+                            placeholder="City"
+                            value={mailingAddress.city}
+                            onChange={(e) => setMailingAddress((prev) => ({ ...prev, city: e.target.value }))}
+                            className="border-gray-300 rounded-xl"
+                          />
+                          <Input
+                            placeholder="State"
+                            value={mailingAddress.state}
+                            onChange={(e) => setMailingAddress((prev) => ({ ...prev, state: e.target.value }))}
+                            className="border-gray-300 rounded-xl"
+                          />
+                          <Input
+                            placeholder="ZIP Code"
+                            value={mailingAddress.zipCode}
+                            onChange={(e) => setMailingAddress((prev) => ({ ...prev, zipCode: e.target.value }))}
+                            className="border-gray-300 rounded-xl"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="rounded-2xl md:rounded-xl shadow-lg md:shadow-sm border-0 md:border">
+              <CardHeader className="pb-6 md:pb-4 px-6 md:px-6">
+                <CardTitle className="text-xl md:text-lg">Language Preferences</CardTitle>
+                <CardDescription className="text-sm text-gray-600">
+                  Select your preferred language for documents and communications.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6 pt-0 px-6 md:px-6">
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-gray-700">Preferred Language</Label>
+                  <Select value={languagePreference} onValueChange={setLanguagePreference}>
+                    <SelectTrigger className="border-gray-300 rounded-xl">
+                      <SelectValue placeholder="Select your preferred language" />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-60">
+                      {LANGUAGE_OPTIONS.map((language) => (
+                        <SelectItem key={language.value} value={language.value}>
+                          {language.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="rounded-2xl md:rounded-xl shadow-lg md:shadow-sm border-0 md:border">
+              <CardContent className="pt-6 px-6 md:px-6">
                 <div className="pt-4 border-t">
                   <p className="text-sm text-gray-600">
                     To update your profile information, please contact support or update your information through your
