@@ -80,7 +80,7 @@ export default async function HomePage() {
                   <div className="mx-auto w-16 h-16 bg-gradient-to-br from-secondary/20 to-primary/20 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                     <span className="text-2xl text-secondary">🏢</span>
                   </div>
-                  <CardTitle className="text-xl font-heading font-semibold">Complete Platform</CardTitle>
+                  <CardTitle className="text-xl font-heading font-semibold">Comprehensive Platform</CardTitle>
                 </CardHeader>
                 <CardContent className="text-center">
                   <CardDescription className="text-base leading-relaxed">

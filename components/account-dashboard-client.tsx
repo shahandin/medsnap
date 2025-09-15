@@ -1346,17 +1346,6 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
                 </div>
               </CardContent>
             </Card>
-
-            <Card className="rounded-2xl md:rounded-xl shadow-lg md:shadow-sm border-0 md:border">
-              <CardContent className="pt-6 px-6 md:px-6">
-                <div className="pt-4 border-t">
-                  <p className="text-sm text-gray-600">
-                    To update your profile information, please contact support or update your information through your
-                    benefits application.
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
           </TabsContent>
         </Tabs>
       </div>
