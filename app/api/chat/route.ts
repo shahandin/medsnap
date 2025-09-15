@@ -617,24 +617,67 @@ PLATFORM INFORMATION:
 
     console.log("[v0] Chat API: About to call Groq API with enhanced configuration and conversation memory")
 
-    const result = await streamText({
+    const initialResult = await streamText({
       model: groq("llama-3.3-70b-versatile"),
       prompt: `${systemPrompt}\n\n${contextPrompt}\n\n${relevantKnowledge}${conversationContext}\n\nUser: ${message}\nAssistant:`,
       maxTokens: 1200,
     })
 
-    let fullText = ""
-    for await (const chunk of result.textStream) {
-      fullText += chunk
+    let initialResponse = ""
+    for await (const chunk of initialResult.textStream) {
+      initialResponse += chunk
     }
 
-    console.log("[v0] RAW LLM RESPONSE (before any filtering):")
+    console.log("[v0] INITIAL LLM RESPONSE:")
     console.log("=".repeat(50))
-    console.log(fullText)
+    console.log(initialResponse)
     console.log("=".repeat(50))
-    console.log("[v0] Raw response length:", fullText.length)
 
-    let cleanedResponse = fullText
+    console.log("[v0] Making synthesis call to LLM")
+    const synthesisResult = await streamText({
+      model: groq("llama-3.3-70b-versatile"),
+      prompt: `Please synthesize and summarize the following response to make it more concise and digestible while preserving all important information:
+
+ORIGINAL RESPONSE:
+${initialResponse}
+
+SYNTHESIS INSTRUCTIONS:
+- Keep the most important information
+- Make it concise but complete
+- Use bullet points if helpful for clarity
+- Maintain accuracy of eligibility requirements and numbers
+- Remove any redundancy or unnecessary elaboration
+- Target 100-150 words unless complex eligibility details require more
+
+SYNTHESIZED RESPONSE:`,
+      maxTokens: 800,
+    })
+
+    let synthesizedResponse = ""
+    for await (const chunk of synthesisResult.textStream) {
+      synthesizedResponse += chunk
+    }
+
+    console.log("[v0] SYNTHESIZED LLM RESPONSE:")
+    console.log("=".repeat(50))
+    console.log(synthesizedResponse)
+    console.log("=".repeat(50))
+
+    let finalResponse = synthesizedResponse.trim()
+
+    // Basic fallback if synthesis fails
+    if (!finalResponse || finalResponse.length < 20) {
+      console.log("[v0] FALLBACK: Using original response due to synthesis failure")
+      finalResponse = initialResponse.trim()
+    }
+
+    if (!finalResponse || finalResponse.length < 20) {
+      console.log("[v0] FINAL FALLBACK: Both responses failed")
+      finalResponse =
+        "I'd be happy to help you with information about benefits eligibility. Could you please provide more details about your specific situation?"
+    }
+
+    let cleanedResponse = finalResponse
 
     console.log("[v0] FILTERING STEP 1: Remove system artifacts")
     const beforeSystemClean = cleanedResponse
@@ -679,11 +722,11 @@ PLATFORM INFORMATION:
     console.log("=".repeat(50))
 
     // Only apply fallback if response is truly empty or too short AFTER targeted cleaning
-    if (!cleanedResponse || cleanedResponse.length < 20) {
-      console.log("[v0] FALLBACK TRIGGERED: Response too short (<20 chars)")
-      cleanedResponse =
-        "I'd be happy to help you with information about benefits eligibility. Could you please provide more details about your specific situation?"
-    }
+    // if (!cleanedResponse || cleanedResponse.length < 20) {
+    //   console.log("[v0] FALLBACK TRIGGERED: Response too short (<20 chars)")
+    //   cleanedResponse =
+    //     "I'd be happy to help you with information about benefits eligibility. Could you please provide more details about your specific situation?"
+    // }
 
     console.log("[v0] FILTERING STEP 4: Additional cleaning")
     const beforeAdditionalClean = cleanedResponse
