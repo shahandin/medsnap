@@ -48,28 +48,60 @@ export function TranslationProvider({ children }: TranslationProviderProps) {
   const [isHydrated, setIsHydrated] = useState(false)
 
   useEffect(() => {
+    console.log("[v0] TranslationProvider mounting")
     setIsHydrated(true)
 
-    const savedLanguage = localStorage.getItem("preferred-language") as Language
-    if (savedLanguage && (savedLanguage === "en" || savedLanguage === "es")) {
-      setLanguageState(savedLanguage)
+    try {
+      const savedLanguage = localStorage.getItem("preferred-language") as Language
+      console.log("[v0] Saved language from localStorage:", savedLanguage)
+
+      if (savedLanguage && (savedLanguage === "en" || savedLanguage === "es")) {
+        console.log("[v0] Setting language from localStorage:", savedLanguage)
+        setLanguageState(savedLanguage)
+      } else {
+        console.log("[v0] No valid saved language, using default:", DEFAULT_LANGUAGE)
+      }
+    } catch (error) {
+      console.error("[v0] Error accessing localStorage:", error)
     }
+
     setIsLoading(false)
+    console.log("[v0] TranslationProvider initialization complete")
   }, [])
 
   const setLanguage = (lang: Language) => {
-    console.log("[v0] Setting language to:", lang) // Debug log
+    console.log("[v0] setLanguage called with:", lang)
+    console.log("[v0] Current language state:", language)
+    console.log("[v0] isHydrated:", isHydrated)
+
     setLanguageState(lang)
+    console.log("[v0] Language state updated to:", lang)
+
     if (typeof window !== "undefined") {
-      localStorage.setItem("preferred-language", lang)
+      try {
+        localStorage.setItem("preferred-language", lang)
+        console.log("[v0] Language saved to localStorage:", lang)
+      } catch (error) {
+        console.error("[v0] Error saving to localStorage:", error)
+      }
+    } else {
+      console.log("[v0] Window not available, skipping localStorage save")
     }
-    console.log("[v0] Language state updated, new language:", lang) // Debug log
   }
 
   const t = (key: string): string => {
     const currentLang = isHydrated ? language : DEFAULT_LANGUAGE
-    return getTranslation(translations[currentLang], key)
+    const result = getTranslation(translations[currentLang], key)
+
+    // Only log if translation key is not found (to avoid spam)
+    if (result === key) {
+      console.log("[v0] Translation not found for key:", key, "in language:", currentLang)
+    }
+
+    return result
   }
+
+  console.log("[v0] TranslationProvider rendering with language:", language)
 
   return (
     <TranslationContext.Provider value={{ language, setLanguage, t, isLoading }}>
