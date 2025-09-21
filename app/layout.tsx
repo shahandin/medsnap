@@ -5,6 +5,7 @@ import "./globals.css"
 import { GlobalAIChat } from "@/components/global-ai-chat"
 import { SessionTimeoutProvider } from "@/components/session-timeout-provider"
 import { redirect } from "next/navigation"
+import { getLocale } from "@/utils/locale" // Assuming a utility function to get the default locale
 
 const inter = Inter({
   subsets: ["latin"],
@@ -29,7 +30,8 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  redirect("/en")
+  const defaultLocale = getLocale() // Get the default locale
+  redirect(defaultLocale) // Redirect to default locale
 
   return (
     <html lang="en" className={`${inter.variable} ${manrope.variable} antialiased`}>

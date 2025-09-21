@@ -26,21 +26,30 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (
-    !user &&
-    !request.nextUrl.pathname.startsWith("/signin") &&
-    !request.nextUrl.pathname.startsWith("/auth") &&
-    !request.nextUrl.pathname.startsWith("/signup") && // Allow access to signup page for unauthenticated users
-    request.nextUrl.pathname !== "/"
-  ) {
+  const publicPaths = [
+    "/signin",
+    "/signup",
+    "/auth/callback",
+    "/auth/sign-up",
+    "/", // Root path
+  ]
+
+  const locales = ["en", "es"] // Should match your i18n routing config
+  const localeHomePaths = locales.map((locale) => `/${locale}`)
+
+  const pathname = request.nextUrl.pathname
+  const isPublicPath =
+    publicPaths.includes(pathname) ||
+    localeHomePaths.includes(pathname) ||
+    publicPaths.some((path) => pathname.startsWith(path + "/")) ||
+    locales.some((locale) => publicPaths.some((path) => pathname.startsWith(`/${locale}${path}`)))
+
+  if (!user && !isPublicPath) {
     const url = request.nextUrl.clone()
 
-    // Check if current path has a locale prefix
-    const locales = ["en", "es"] // Should match your i18n routing config
-    const currentLocale = locales.find((locale) => request.nextUrl.pathname.startsWith(`/${locale}`))
-
-    // Redirect to signin with the same locale prefix if present
+    const currentLocale = locales.find((locale) => pathname.startsWith(`/${locale}`))
     url.pathname = currentLocale ? `/${currentLocale}/signin` : "/signin"
+
     return NextResponse.redirect(url)
   }
 

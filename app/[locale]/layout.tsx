@@ -45,3 +45,7 @@ export default async function LocaleLayout({
     </html>
   )
 }
+
+export function generateStaticParams() {
+  return [{ locale: "en" }, { locale: "es" }]
+}
