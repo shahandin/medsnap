@@ -1,8 +1,27 @@
+import createIntlMiddleware from "next-intl/middleware"
 import { updateSession } from "@/lib/supabase/middleware"
 import type { NextRequest } from "next/server"
 
+const locales = ["en", "es", "fr", "zh", "ar", "hi", "pt", "ru", "ja", "de"]
+
+const intlMiddleware = createIntlMiddleware({
+  locales,
+  defaultLocale: "en",
+})
+
 export async function middleware(request: NextRequest) {
-  return await updateSession(request)
+  const intlResponse = intlMiddleware(request)
+
+  const supabaseResponse = await updateSession(request)
+
+  if (supabaseResponse) {
+    intlResponse.headers.forEach((value, key) => {
+      supabaseResponse.headers.set(key, value)
+    })
+    return supabaseResponse
+  }
+
+  return intlResponse
 }
 
 export const config = {

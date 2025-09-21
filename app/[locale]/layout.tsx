@@ -1,7 +1,7 @@
 import type React from "react"
 import type { Metadata } from "next"
 import { Inter, Manrope } from "next/font/google"
-import "./globals.css"
+import "../globals.css"
 import { GlobalAIChat } from "@/components/global-ai-chat"
 import { SessionTimeoutProvider } from "@/components/session-timeout-provider"
 import { NextIntlClientProvider } from "next-intl"
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   generator: "v0.app",
 }
 
-export default async function RootLayout({
+export default async function LocaleLayout({
   children,
   params: { locale },
 }: Readonly<{
