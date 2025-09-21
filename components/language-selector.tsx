@@ -1,5 +1,7 @@
 "use client"
 
+import type React from "react"
+
 import { useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
@@ -36,8 +38,23 @@ export function LanguageSelector() {
     }
   }
 
-  const handleTriggerClick = () => {
+  const handleTriggerClick = (e: React.MouseEvent) => {
     console.log("[v0] Language selector trigger clicked")
+    console.log("[v0] Click event:", e)
+    console.log("[v0] Event target:", e.target)
+    console.log("[v0] Current target:", e.currentTarget)
+  }
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    console.log("[v0] Mouse down on language selector")
+  }
+
+  const handleMouseUp = (e: React.MouseEvent) => {
+    console.log("[v0] Mouse up on language selector")
+  }
+
+  const handlePointerDown = (e: React.PointerEvent) => {
+    console.log("[v0] Pointer down on language selector")
   }
 
   return (
@@ -46,8 +63,12 @@ export function LanguageSelector() {
         <Button
           variant="ghost"
           size="sm"
-          className="flex items-center gap-2 text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg px-3 py-2 font-medium transition-all duration-200 text-sm"
+          className="flex items-center gap-2 text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg px-3 py-2 font-medium transition-all duration-200 text-sm relative z-50"
+          style={{ pointerEvents: "auto", position: "relative", zIndex: 9999 }}
           onClick={handleTriggerClick}
+          onMouseDown={handleMouseDown}
+          onMouseUp={handleMouseUp}
+          onPointerDown={handlePointerDown}
         >
           <Globe className="h-4 w-4" />
           <span className="hidden sm:inline">{currentLanguage.nativeName}</span>
@@ -55,7 +76,7 @@ export function LanguageSelector() {
           <ChevronDown className="h-3 w-3" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-48">
+      <DropdownMenuContent align="end" className="w-48 z-50">
         {Object.entries(LANGUAGES).map(([code, lang]) => (
           <DropdownMenuItem
             key={code}
