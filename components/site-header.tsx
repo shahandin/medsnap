@@ -9,7 +9,6 @@ import { cn } from "@/lib/utils"
 import { useEffect, useState } from "react"
 import { loadApplicationProgress } from "@/lib/actions"
 import { NotificationsModal } from "./notifications-modal"
-import { LanguageSelector } from "./language-selector"
 
 interface SiteHeaderProps {
   user?: {
@@ -99,7 +98,7 @@ export function SiteHeader({ user }: SiteHeaderProps) {
   const publicNavigation = [{ name: "About", href: "/about" }]
 
   const authenticatedNavigation = [
-    { name: "Apply", href: "#", onClick: handleApplyForBenefits }, // Modified to use click handler instead of direct href
+    { name: "Apply for Benefits", href: "#", onClick: handleApplyForBenefits }, // Modified to use click handler instead of direct href
     { name: "Dashboard", href: "/account" },
     { name: "About", href: "/about" },
   ]
@@ -179,8 +178,6 @@ export function SiteHeader({ user }: SiteHeaderProps) {
         </div>
 
         <div className="flex items-center space-x-2 sm:space-x-4">
-          <LanguageSelector currentLocale={pathname.split("/")[1] || "en"} />
-
           {user ? (
             <div className="flex items-center space-x-2 sm:space-x-4">
               <div className="relative">
@@ -217,7 +214,7 @@ export function SiteHeader({ user }: SiteHeaderProps) {
                 asChild
                 className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80 text-primary-foreground rounded-lg px-4 sm:px-6 py-2 font-semibold shadow-md hover:shadow-lg transition-all duration-200 text-sm"
               >
-                <Link href="/signup">Sign Up</Link>
+                <Link href="/signup">Get Started</Link>
               </Button>
             </div>
           )}

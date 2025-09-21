@@ -1,15 +1,16 @@
 "use client"
 
 import { useEffect } from "react"
-import { useRouter, usePathname } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 
 export default function AuthCallback() {
   const router = useRouter()
-  const pathname = usePathname()
 
   useEffect(() => {
     const handleAuthCallback = async () => {
+      console.log("[v0] AuthCallback: Starting auth verification...")
+
       const supabase = createClient()
       const {
         data: { user },
@@ -17,25 +18,25 @@ export default function AuthCallback() {
       } = await supabase.auth.getUser()
 
       if (error) {
+        console.log("[v0] AuthCallback: Auth error:", error)
         router.push("/signin")
         return
       }
 
       if (user) {
-        // Extract locale from current path or default to 'en'
-        const pathSegments = pathname.split("/")
-        const locale = pathSegments[1] && ["en", "es"].includes(pathSegments[1]) ? pathSegments[1] : "en"
-
+        console.log("[v0] AuthCallback: User authenticated, redirecting to home")
+        // Small delay to ensure session is fully established
         setTimeout(() => {
-          router.push(`/${locale}`)
+          router.push("/")
         }, 100)
       } else {
+        console.log("[v0] AuthCallback: No user found, redirecting to signin")
         router.push("/signin")
       }
     }
 
     handleAuthCallback()
-  }, [router, pathname])
+  }, [router])
 
   return (
     <div className="flex items-center justify-center min-h-screen">

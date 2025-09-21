@@ -1,10 +1,10 @@
 "use client"
 
 import type React from "react"
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 
 function SubmitButton({ isLoading }: { isLoading: boolean }) {
@@ -31,19 +31,11 @@ function SubmitButton({ isLoading }: { isLoading: boolean }) {
 
 export function LoginForm() {
   const router = useRouter()
-  const searchParams = useSearchParams()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
-
-  useEffect(() => {
-    const reason = searchParams.get("reason")
-    if (reason === "timeout") {
-      setError("Your session expired due to inactivity for security reasons. Please sign in again.")
-    }
-  }, [searchParams])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -87,22 +79,7 @@ export function LoginForm() {
 
       <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
         {error && (
-          <div
-            className={`border px-4 py-3 rounded-xl text-sm ${
-              error.includes("session expired")
-                ? "bg-orange-50 border-orange-200 text-orange-700"
-                : "bg-red-50 border-red-200 text-red-700"
-            }`}
-          >
-            {error}
-          </div>
-        )}
-
-        {searchParams.get("reason") === "timeout" && (
-          <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-xl text-sm">
-            <strong>Security Notice:</strong> Automatic logout helps protect your personal health information in
-            compliance with HIPAA regulations.
-          </div>
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">{error}</div>
         )}
 
         <div className="space-y-4">

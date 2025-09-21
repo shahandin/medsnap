@@ -26,30 +26,15 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  const publicPaths = [
-    "/signin",
-    "/signup",
-    "/auth/callback",
-    "/auth/sign-up",
-    "/", // Root path
-  ]
-
-  const locales = ["en", "es"] // Should match your i18n routing config
-  const localeHomePaths = locales.map((locale) => `/${locale}`)
-
-  const pathname = request.nextUrl.pathname
-  const isPublicPath =
-    publicPaths.includes(pathname) ||
-    localeHomePaths.includes(pathname) ||
-    publicPaths.some((path) => pathname.startsWith(path + "/")) ||
-    locales.some((locale) => publicPaths.some((path) => pathname.startsWith(`/${locale}${path}`)))
-
-  if (!user && !isPublicPath) {
+  if (
+    !user &&
+    !request.nextUrl.pathname.startsWith("/signin") &&
+    !request.nextUrl.pathname.startsWith("/auth") &&
+    !request.nextUrl.pathname.startsWith("/signup") && // Allow access to signup page for unauthenticated users
+    request.nextUrl.pathname !== "/"
+  ) {
     const url = request.nextUrl.clone()
-
-    const currentLocale = locales.find((locale) => pathname.startsWith(`/${locale}`))
-    url.pathname = currentLocale ? `/${currentLocale}/signin` : "/signin"
-
+    url.pathname = "/signin"
     return NextResponse.redirect(url)
   }
 
