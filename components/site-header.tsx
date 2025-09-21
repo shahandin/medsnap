@@ -10,7 +10,6 @@ import { useEffect, useState } from "react"
 import { loadApplicationProgress } from "@/lib/actions"
 import { NotificationsModal } from "./notifications-modal"
 import { LanguageSelector } from "./language-selector"
-import { useTranslations } from "next-intl"
 
 interface SiteHeaderProps {
   user?: {
@@ -26,8 +25,6 @@ export function SiteHeader({ user }: SiteHeaderProps) {
   const [showNotifications, setShowNotifications] = useState(false)
   const [hasUnreadNotifications, setHasUnreadNotifications] = useState(true) // Mock data - would come from API
   const [showMobileMenu, setShowMobileMenu] = useState(false)
-
-  const t = useTranslations("navigation")
 
   const handleApplyForBenefits = async (e: React.MouseEvent) => {
     e.preventDefault()
@@ -99,12 +96,12 @@ export function SiteHeader({ user }: SiteHeaderProps) {
     getUserInitials()
   }, [user])
 
-  const publicNavigation = [{ name: t("about"), href: "/about" }]
+  const publicNavigation = [{ name: "About", href: "/about" }]
 
   const authenticatedNavigation = [
-    { name: t("apply"), href: "#", onClick: handleApplyForBenefits }, // Modified to use click handler instead of direct href
-    { name: t("dashboard"), href: "/account" },
-    { name: t("about"), href: "/about" },
+    { name: "Apply", href: "#", onClick: handleApplyForBenefits }, // Modified to use click handler instead of direct href
+    { name: "Dashboard", href: "/account" },
+    { name: "About", href: "/about" },
   ]
 
   const navigation = user ? authenticatedNavigation : publicNavigation
@@ -213,14 +210,14 @@ export function SiteHeader({ user }: SiteHeaderProps) {
                 asChild
                 className="text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg px-3 sm:px-4 py-2 font-medium transition-all duration-200 text-sm"
               >
-                <Link href="/signin">{t("signin")}</Link>
+                <Link href="/signin">Sign In</Link>
               </Button>
               <Button
                 size="sm"
                 asChild
                 className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80 text-primary-foreground rounded-lg px-4 sm:px-6 py-2 font-semibold shadow-md hover:shadow-lg transition-all duration-200 text-sm"
               >
-                <Link href="/signup">{t("signup")}</Link>
+                <Link href="/signup">Sign Up</Link>
               </Button>
             </div>
           )}

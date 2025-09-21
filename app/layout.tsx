@@ -4,6 +4,7 @@ import { Inter, Manrope } from "next/font/google"
 import "./globals.css"
 import { GlobalAIChat } from "@/components/global-ai-chat"
 import { SessionTimeoutProvider } from "@/components/session-timeout-provider"
+import { redirect } from "next/navigation"
 
 const inter = Inter({
   subsets: ["latin"],
@@ -28,6 +29,8 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  redirect("/en")
+
   return (
     <html lang="en" className={`${inter.variable} ${manrope.variable} antialiased`}>
       <body>
