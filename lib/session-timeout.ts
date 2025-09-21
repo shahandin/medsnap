@@ -1,6 +1,8 @@
 "use client"
 
 import { useEffect, useRef } from "react"
+import { createBrowserClient } from "@supabase/ssr"
+import { useRouter } from "next/navigation"
 
 interface UseSessionTimeoutOptions {
   timeoutMinutes: number
@@ -9,8 +11,34 @@ interface UseSessionTimeoutOptions {
 
 export function useSessionTimeout({ timeoutMinutes, onTimeout }: UseSessionTimeoutOptions) {
   const lastActivity = useRef(Date.now())
+  const router = useRouter()
+
+  const signOut = async () => {
+    try {
+      const supabase = createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      )
+
+      await supabase.auth.signOut()
+      router.push("/signin?reason=timeout")
+    } catch (error) {
+      console.error("Error signing out:", error)
+      // Fallback: redirect anyway
+      router.push("/signin?reason=timeout")
+    }
+  }
 
   useEffect(() => {
+    const updateActivity = () => {
+      lastActivity.current = Date.now()
+    }
+
+    const events = ["mousedown", "mousemove", "keypress", "scroll", "touchstart"]
+    events.forEach((event) => {
+      document.addEventListener(event, updateActivity, true)
+    })
+
     const checkTimeout = () => {
       const now = Date.now()
       const timeSinceLastActivity = now - lastActivity.current
@@ -24,6 +52,13 @@ export function useSessionTimeout({ timeoutMinutes, onTimeout }: UseSessionTimeo
 
     const interval = setInterval(checkTimeout, 10000) // Check every 10 seconds
 
-    return () => clearInterval(interval)
+    return () => {
+      clearInterval(interval)
+      events.forEach((event) => {
+        document.removeEventListener(event, updateActivity, true)
+      })
+    }
   }, [timeoutMinutes, onTimeout])
+
+  return { signOut }
 }
