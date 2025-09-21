@@ -45,9 +45,11 @@ interface TranslationProviderProps {
 export function TranslationProvider({ children }: TranslationProviderProps) {
   const [language, setLanguageState] = useState<Language>(DEFAULT_LANGUAGE)
   const [isLoading, setIsLoading] = useState(true)
+  const [isHydrated, setIsHydrated] = useState(false)
 
-  // Load saved language preference on mount
   useEffect(() => {
+    setIsHydrated(true)
+
     const savedLanguage = localStorage.getItem("preferred-language") as Language
     if (savedLanguage && (savedLanguage === "en" || savedLanguage === "es")) {
       setLanguageState(savedLanguage)
@@ -56,12 +58,17 @@ export function TranslationProvider({ children }: TranslationProviderProps) {
   }, [])
 
   const setLanguage = (lang: Language) => {
+    console.log("[v0] Setting language to:", lang) // Debug log
     setLanguageState(lang)
-    localStorage.setItem("preferred-language", lang)
+    if (typeof window !== "undefined") {
+      localStorage.setItem("preferred-language", lang)
+    }
+    console.log("[v0] Language state updated, new language:", lang) // Debug log
   }
 
   const t = (key: string): string => {
-    return getTranslation(translations[language], key)
+    const currentLang = isHydrated ? language : DEFAULT_LANGUAGE
+    return getTranslation(translations[currentLang], key)
   }
 
   return (
