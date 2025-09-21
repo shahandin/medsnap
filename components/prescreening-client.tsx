@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { PrescreeningQuestionnaire } from "./prescreening-questionnaire"
 import { PrescreeningResults } from "./prescreening-results"
+import { useTranslation } from "@/contexts/translation-context"
 
 interface EligibilityResults {
   medicaidEligible: boolean
@@ -11,6 +12,7 @@ interface EligibilityResults {
 }
 
 export function PrescreeningClient() {
+  const { t } = useTranslation()
   const [step, setStep] = useState<"questionnaire" | "results">("questionnaire")
   const [results, setResults] = useState<EligibilityResults | null>(null)
   const [loading, setLoading] = useState(false)
@@ -97,7 +99,7 @@ export function PrescreeningClient() {
       <div className="min-h-[60vh] flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Processing your responses...</p>
+          <p className="text-muted-foreground">{t("prescreening.processingMessage")}</p>
         </div>
       </div>
     )
@@ -108,11 +110,8 @@ export function PrescreeningClient() {
       {step === "questionnaire" && (
         <div>
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-foreground mb-2">Benefits Eligibility Check</h1>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Answer a few quick questions to see if you might qualify for Medicaid and SNAP benefits. This will help
-              you decide which applications to complete.
-            </p>
+            <h1 className="text-3xl font-bold text-foreground mb-2">{t("prescreening.title")}</h1>
+            <p className="text-muted-foreground max-w-2xl mx-auto">{t("prescreening.subtitle")}</p>
           </div>
           <PrescreeningQuestionnaire onComplete={handleQuestionnaireComplete} />
         </div>

@@ -6,8 +6,11 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
+import { useTranslation } from "@/contexts/translation-context"
 
 function SubmitButton({ isLoading }: { isLoading: boolean }) {
+  const { t } = useTranslation()
+
   return (
     <Button
       type="submit"
@@ -17,11 +20,11 @@ function SubmitButton({ isLoading }: { isLoading: boolean }) {
       {isLoading ? (
         <>
           <span className="mr-2 inline-block animate-spin">⏳</span>
-          Signing in...
+          {t("auth.signIn.signingIn")}
         </>
       ) : (
         <>
-          Sign In
+          {t("auth.signIn.signInButton")}
           <span className="ml-2 group-hover:translate-x-1 transition-transform duration-200">→</span>
         </>
       )}
@@ -31,6 +34,7 @@ function SubmitButton({ isLoading }: { isLoading: boolean }) {
 
 export function LoginForm() {
   const router = useRouter()
+  const { t } = useTranslation()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState<string | null>(null)
@@ -73,8 +77,10 @@ export function LoginForm() {
   return (
     <div className="w-full max-w-md space-y-6 sm:space-y-8 bg-white/95 backdrop-blur-sm p-6 sm:p-8 rounded-2xl shadow-xl border border-border/50">
       <div className="space-y-2 text-center">
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-heading font-bold text-foreground">Welcome back</h1>
-        <p className="text-base sm:text-lg text-muted-foreground">Sign in to your account</p>
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-heading font-bold text-foreground">
+          {t("auth.signIn.title")}
+        </h1>
+        <p className="text-base sm:text-lg text-muted-foreground">{t("auth.signIn.subtitle")}</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
@@ -85,12 +91,12 @@ export function LoginForm() {
         <div className="space-y-4">
           <div className="space-y-2">
             <label htmlFor="email" className="block text-sm font-medium text-foreground">
-              Email
+              {t("auth.signIn.email")}
             </label>
             <Input
               id="email"
               type="email"
-              placeholder="you@example.com"
+              placeholder={t("auth.signIn.emailPlaceholder")}
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -99,7 +105,7 @@ export function LoginForm() {
           </div>
           <div className="space-y-2">
             <label htmlFor="password" className="block text-sm font-medium text-foreground">
-              Password
+              {t("auth.signIn.password")}
             </label>
             <div className="relative">
               <Input
@@ -114,6 +120,7 @@ export function LoginForm() {
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute inset-y-0 right-0 pr-3 flex items-center text-muted-foreground hover:text-foreground transition-colors duration-200 min-w-[44px] justify-center"
+                title={showPassword ? t("auth.signIn.hidePassword") : t("auth.signIn.showPassword")}
               >
                 {showPassword ? "🙈" : "👁️"}
               </button>
@@ -124,13 +131,13 @@ export function LoginForm() {
         <SubmitButton isLoading={isLoading} />
 
         <div className="text-center text-muted-foreground text-sm sm:text-base">
-          Don't have an account?{" "}
+          {t("auth.signIn.noAccount")}{" "}
           <button
             type="button"
             onClick={() => router.push("/signup")}
             className="text-primary hover:text-primary/80 font-medium transition-colors duration-200 underline bg-transparent border-none cursor-pointer"
           >
-            Sign up
+            {t("auth.signIn.signUpLink")}
           </button>
         </div>
       </form>

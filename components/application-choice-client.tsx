@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { PlusCircle, FileText, ArrowRight } from "lucide-react"
+import { useTranslation } from "@/contexts/translation-context"
 
 interface IncompleteApplication {
   id: string
@@ -16,6 +17,7 @@ interface IncompleteApplication {
 }
 
 export default function ApplicationChoiceClient() {
+  const { t } = useTranslation()
   const [incompleteApplications, setIncompleteApplications] = useState<IncompleteApplication[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -77,17 +79,17 @@ export default function ApplicationChoiceClient() {
   }
 
   const getStepName = (step: number) => {
-    const stepNames = [
-      "Benefit Selection",
-      "Personal Information",
-      "Household Information",
-      "Income Information",
-      "Asset Information",
-      "Health & Disability",
-      "Additional Information",
-      "Review & Submit",
+    const stepKeys = [
+      "forms.review.sections.personalInfo", // Benefit Selection -> Personal Info for translation consistency
+      "forms.review.sections.personalInfo",
+      "forms.review.sections.household",
+      "forms.review.sections.income",
+      "forms.review.sections.assets",
+      "forms.review.sections.health",
+      "Additional Information", // Keep as fallback for now
+      "forms.review.title",
     ]
-    return stepNames[step] || `Step ${step + 1}`
+    return stepKeys[step] ? t(stepKeys[step]) : `Step ${step + 1}`
   }
 
   const getBenefitType = (application: IncompleteApplication) => {
@@ -98,13 +100,13 @@ export default function ApplicationChoiceClient() {
 
     switch (benefitType) {
       case "medicaid":
-        return "Medicaid Application"
+        return t("applicationChoice.medicaidApplication")
       case "snap":
-        return "SNAP Application"
+        return t("applicationChoice.snapApplication")
       case "both":
-        return "Medicaid & SNAP Application"
+        return t("applicationChoice.bothApplication")
       default:
-        return "Benefits Application"
+        return t("applicationChoice.benefitsApplication")
     }
   }
 
@@ -155,7 +157,7 @@ export default function ApplicationChoiceClient() {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading your applications...</p>
+          <p className="text-gray-600">{t("applicationChoice.loading")}</p>
         </div>
       </div>
     )
@@ -166,7 +168,7 @@ export default function ApplicationChoiceClient() {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
         <div className="text-center">
           <p className="text-red-600 mb-4">{error}</p>
-          <Button onClick={() => window.location.reload()}>Try Again</Button>
+          <Button onClick={() => window.location.reload()}>{t("common.tryAgain")}</Button>
         </div>
       </div>
     )
@@ -176,8 +178,8 @@ export default function ApplicationChoiceClient() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Your Applications</h1>
-          <p className="text-gray-600">Choose how you'd like to proceed with your benefits application</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">{t("applicationChoice.title")}</h1>
+          <p className="text-gray-600">{t("applicationChoice.subtitle")}</p>
         </div>
 
         <div className="grid gap-6 md:grid-cols-2">
@@ -187,12 +189,12 @@ export default function ApplicationChoiceClient() {
                 <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
                   <PlusCircle className="w-8 h-8 text-blue-600" />
                 </div>
-                <CardTitle className="text-xl">Start New Application</CardTitle>
-                <CardDescription>Begin a fresh benefits application from the beginning</CardDescription>
+                <CardTitle className="text-xl">{t("applicationChoice.startNew.title")}</CardTitle>
+                <CardDescription>{t("applicationChoice.startNew.description")}</CardDescription>
               </CardHeader>
               <CardContent className="text-center">
                 <Button className="w-full" size="lg">
-                  Start New <ArrowRight className="ml-2 w-4 h-4" />
+                  {t("applicationChoice.startNew.button")} <ArrowRight className="ml-2 w-4 h-4" />
                 </Button>
               </CardContent>
             </Card>
@@ -205,8 +207,8 @@ export default function ApplicationChoiceClient() {
               <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
                 <FileText className="w-8 h-8 text-green-600" />
               </div>
-              <CardTitle className="text-xl">Continue Existing</CardTitle>
-              <CardDescription>Resume working on applications you've already started</CardDescription>
+              <CardTitle className="text-xl">{t("applicationChoice.continueExisting.title")}</CardTitle>
+              <CardDescription>{t("applicationChoice.continueExisting.description")}</CardDescription>
             </CardHeader>
             <CardContent>
               {incompleteApplications.filter((app) => !submittedApplications.includes(app.id)).length > 0 ? (
@@ -231,10 +233,11 @@ export default function ApplicationChoiceClient() {
                               </div>
                               <div className="space-y-1">
                                 <p className="text-sm text-gray-600">
-                                  Last saved: {new Date(app.updated_at).toLocaleDateString()}
+                                  {t("applicationChoice.continueExisting.lastSaved")}{" "}
+                                  {new Date(app.updated_at).toLocaleDateString()}
                                 </p>
                                 <p className="text-sm text-blue-600 font-medium">
-                                  Current step: {getStepName(app.current_step)}
+                                  {t("applicationChoice.continueExisting.currentStep")} {getStepName(app.current_step)}
                                 </p>
                               </div>
                             </div>
@@ -246,9 +249,9 @@ export default function ApplicationChoiceClient() {
                 </div>
               ) : (
                 <div className="text-center py-4">
-                  <p className="text-gray-500 text-sm mb-4">No applications in progress</p>
+                  <p className="text-gray-500 text-sm mb-4">{t("applicationChoice.continueExisting.noApplications")}</p>
                   <Button variant="outline" disabled className="w-full bg-transparent">
-                    No Applications to Continue
+                    {t("applicationChoice.continueExisting.noApplicationsButton")}
                   </Button>
                 </div>
               )}

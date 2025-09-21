@@ -25,14 +25,13 @@ import {
   DollarSign,
   Home,
   Shield,
-  TrendingUp,
   ArrowLeft,
   Send,
-  Menu,
 } from "lucide-react"
 import { signOut } from "@/lib/actions"
 import { createClient } from "@/lib/supabase/client"
 import Link from "next/link"
+import { useTranslation } from "@/contexts/translation-context"
 
 interface AccountDashboardClientProps {
   user: {
@@ -178,6 +177,7 @@ const getNotificationIcon = (type: string) => {
 }
 
 export default function AccountDashboardClient({ user }: AccountDashboardClientProps) {
+  const { t } = useTranslation()
   const searchParams = useSearchParams()
   const [applicationProgress, setApplicationProgress] = useState<any>(null)
   const [submittedApplications, setSubmittedApplications] = useState<any[]>([])
@@ -651,7 +651,7 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
       <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-card/50 flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin mx-auto mb-6"></div>
-          <p className="text-xl text-muted-foreground">Loading your dashboard...</p>
+          <p className="text-xl text-muted-foreground">{t("common.loading")}</p>
         </div>
       </div>
     )
@@ -667,15 +667,15 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
           <div className="bg-white rounded-lg p-6 shadow-sm border">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">Account Dashboard</h1>
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">{t("dashboard.title")}</h1>
                 <p className="text-gray-600">
-                  Welcome back, {user.user_metadata?.full_name || user.email?.split("@")[0] || "User"}
+                  {t("dashboard.welcome")}, {user.user_metadata?.full_name || user.email?.split("@")[0] || "User"}
                 </p>
               </div>
               <form action={signOut}>
                 <Button variant="outline" size="sm" type="submit" className="flex items-center gap-2 bg-transparent">
                   <LogOut className="w-4 h-4" />
-                  Sign Out
+                  {t("dashboard.settings.signOut")}
                 </Button>
               </form>
             </div>
@@ -692,14 +692,14 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
                   className="flex items-center gap-2 px-4 py-3 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-white rounded-md"
                 >
                   <FileText className="w-4 h-4" />
-                  Applications
+                  {t("dashboard.tabs.applications")}
                 </TabsTrigger>
                 <TabsTrigger
                   value="notifications"
                   className="flex items-center gap-2 px-4 py-3 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-white rounded-md"
                 >
                   <Bell className="w-4 h-4" />
-                  Notifications
+                  {t("dashboard.tabs.notifications")}
                 </TabsTrigger>
                 <TabsTrigger
                   value="report-changes"
@@ -713,75 +713,53 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
                   className="flex items-center gap-2 px-4 py-3 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-white rounded-md"
                 >
                   <Upload className="w-4 h-4" />
-                  Documents
+                  {t("dashboard.tabs.documents")}
                 </TabsTrigger>
                 <TabsTrigger
                   value="profile"
                   className="flex items-center gap-2 px-4 py-3 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-white rounded-md"
                 >
                   <Users className="w-4 h-4" />
-                  Profile
+                  {t("dashboard.tabs.profile")}
                 </TabsTrigger>
               </TabsList>
             </div>
 
             {/* Mobile Tab Navigation - Dropdown Style */}
             <div className="md:hidden">
-              <Select
-                value={activeTab}
-                onValueChange={(value) => {
-                  console.log("[v0] Mobile dropdown selection:", value)
-                  setActiveTab(value)
-                }}
-              >
-                <SelectTrigger className="w-full h-14 bg-white shadow-sm border rounded-xl px-4 text-base font-medium">
-                  <div className="flex items-center gap-3">
-                    <Menu className="w-5 h-5 text-gray-500" />
-                    <span>
-                      {activeTab === "overview" && "Overview"}
-                      {activeTab === "applications" && "Applications"}
-                      {activeTab === "notifications" && "Notifications"}
-                      {activeTab === "report-changes" && "Report Changes"}
-                      {activeTab === "documents" && "Documents"}
-                      {activeTab === "profile" && "Profile"}
-                    </span>
-                  </div>
+              <Select value={activeTab} onValueChange={setActiveTab}>
+                <SelectTrigger className="w-full bg-white border shadow-sm rounded-lg">
+                  <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="w-full z-50">
-                  <SelectItem value="overview" className="h-14 px-4 cursor-pointer touch-manipulation">
-                    <div className="flex items-center gap-3 w-full py-2">
-                      <TrendingUp className="w-5 h-5" />
-                      <span className="text-base">Overview</span>
+                <SelectContent>
+                  <SelectItem value="applications">
+                    <div className="flex items-center gap-2">
+                      <FileText className="w-4 h-4" />
+                      {t("dashboard.tabs.applications")}
                     </div>
                   </SelectItem>
-                  <SelectItem value="applications" className="h-14 px-4 cursor-pointer touch-manipulation">
-                    <div className="flex items-center gap-3 w-full py-2">
-                      <FileText className="w-5 h-5" />
-                      <span className="text-base">Applications</span>
+                  <SelectItem value="notifications">
+                    <div className="flex items-center gap-2">
+                      <Bell className="w-4 h-4" />
+                      {t("dashboard.tabs.notifications")}
                     </div>
                   </SelectItem>
-                  <SelectItem value="notifications" className="h-14 px-4 cursor-pointer touch-manipulation">
-                    <div className="flex items-center gap-3 w-full py-2">
-                      <Bell className="w-5 h-5" />
-                      <span className="text-base">Notifications</span>
+                  <SelectItem value="report-changes">
+                    <div className="flex items-center gap-2">
+                      <AlertTriangle className="w-4 h-4" />
+                      Report Changes
                     </div>
                   </SelectItem>
-                  <SelectItem value="report-changes" className="h-14 px-4 cursor-pointer touch-manipulation">
-                    <div className="flex items-center gap-3 w-full py-2">
-                      <AlertTriangle className="w-5 h-5" />
-                      <span className="text-base">Report Changes</span>
+                  <SelectItem value="documents">
+                    <div className="flex items-center gap-2">
+                      <Upload className="w-4 h-4" />
+                      {t("dashboard.tabs.documents")}
                     </div>
                   </SelectItem>
-                  <SelectItem value="documents" className="h-14 px-4 cursor-pointer touch-manipulation">
-                    <div className="flex items-center gap-3 w-full py-2">
-                      <Upload className="w-5 h-5" />
-                      <span className="text-base">Documents</span>
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="profile" className="h-14 px-4 cursor-pointer touch-manipulation">
-                    <div className="flex items-center gap-3 w-full py-2">
-                      <Users className="w-5 h-5" />
-                      <span className="text-base">Profile</span>
+                  <SelectItem value="profile">
+                    <div className="flex items-center gap-2">
+                      <Users className="w-4 h-4" />
+                      {t("dashboard.tabs.profile")}
                     </div>
                   </SelectItem>
                 </SelectContent>
@@ -794,7 +772,7 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
               <CardHeader className="pb-6 md:pb-4 px-6 md:px-6">
                 <CardTitle className="flex items-center gap-3 text-2xl md:text-xl font-bold">
                   <FileText className="w-7 h-7 md:w-6 md:h-6 text-primary" />
-                  Your Applications
+                  {t("dashboard.applications.title")}
                 </CardTitle>
                 <CardDescription className="text-base md:text-sm text-gray-600 leading-relaxed">
                   View and manage all your benefit applications in one place.
@@ -804,7 +782,7 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
                 {loading ? (
                   <div className="text-center py-8">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-                    <p className="mt-2 text-gray-600">Loading applications...</p>
+                    <p className="mt-2 text-gray-600">{t("common.loading")}</p>
                   </div>
                 ) : (
                   <>
@@ -960,7 +938,7 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
               <CardHeader className="pb-6 md:pb-4 px-6 md:px-6">
                 <CardTitle className="flex items-center gap-3 text-2xl md:text-xl font-bold">
                   <Bell className="w-7 h-7 md:w-6 md:h-6 text-primary" />
-                  Notifications
+                  {t("dashboard.notifications.title")}
                 </CardTitle>
                 <CardDescription className="text-base md:text-sm text-gray-600 leading-relaxed">
                   Stay updated with important information about your applications and benefits.
@@ -1225,7 +1203,7 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
               <CardHeader className="pb-6 md:pb-4 px-6 md:px-6">
                 <CardTitle className="flex items-center gap-3 text-2xl md:text-xl font-bold">
                   <Users className="w-7 h-7 md:w-6 md:h-6 text-primary" />
-                  Profile Information
+                  {t("dashboard.profile.title")}
                 </CardTitle>
                 <CardDescription className="text-base md:text-sm text-gray-600 leading-relaxed">
                   Manage your account information and preferences.
