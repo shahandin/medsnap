@@ -6,31 +6,25 @@ import type { NextRequest } from "next/server"
 const intlMiddleware = createIntlMiddleware(routing)
 
 export async function middleware(request: NextRequest) {
-  const intlResponse = intlMiddleware(request)
-
-  // If i18n middleware returns a redirect, return it immediately
-  if (intlResponse.status >= 300 && intlResponse.status < 400) {
-    return intlResponse
+  if (
+    request.nextUrl.pathname.startsWith("/api/") ||
+    request.nextUrl.pathname.startsWith("/_next/") ||
+    request.nextUrl.pathname.includes(".")
+  ) {
+    return
   }
 
-  const supabaseResponse = await updateSession(request)
+  const hasLocale = routing.locales.some((locale) => request.nextUrl.pathname.startsWith(`/${locale}`))
 
-  if (supabaseResponse) {
-    if (supabaseResponse.status >= 300 && supabaseResponse.status < 400) {
-      // If Supabase middleware is redirecting, return its response
-      return supabaseResponse
-    } else {
-      // Merge non-redirect headers from i18n response
-      intlResponse.headers.forEach((value, key) => {
-        if (key.toLowerCase() !== "location") {
-          supabaseResponse.headers.set(key, value)
-        }
-      })
-      return supabaseResponse
+  if (!hasLocale) {
+    const intlResponse = intlMiddleware(request)
+    if (intlResponse.status >= 300 && intlResponse.status < 400) {
+      return intlResponse
     }
   }
 
-  return intlResponse
+  const supabaseResponse = await updateSession(request)
+  return supabaseResponse
 }
 
 export const config = {
