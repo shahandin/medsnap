@@ -1,12 +1,9 @@
-"use client"
-
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
-import { useTranslations } from "next-intl"
 
 export const dynamic = "force-dynamic"
 
@@ -16,7 +13,7 @@ export default async function HomePage() {
     data: { user },
   } = await supabase.auth.getUser()
 
-  const t = useTranslations("homepage")
+  const t = await import("next-intl/server").then((mod) => mod.getTranslations("homepage"))
 
   return (
     <div className="min-h-screen flex flex-col">
