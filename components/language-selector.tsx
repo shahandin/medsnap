@@ -1,98 +1,81 @@
 "use client"
 
-import type React from "react"
-
-import { useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { useTranslation } from "@/contexts/translation-context"
 import { LANGUAGES, type Language } from "@/lib/translations"
 import { ChevronDown, Globe } from "lucide-react"
 
 export function LanguageSelector() {
   const { language, setLanguage, t } = useTranslation()
+  const [isOpen, setIsOpen] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    console.log("[v0] LanguageSelector mounted")
+    console.log("[v0] LanguageSelector mounted with custom dropdown")
     console.log("[v0] Current language:", language)
-    console.log("[v0] Available languages:", LANGUAGES)
-    console.log("[v0] setLanguage function:", typeof setLanguage)
   }, [])
 
   useEffect(() => {
-    console.log("[v0] Language changed to:", language)
-  }, [language])
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false)
+      }
+    }
+
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside)
+      return () => document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [isOpen])
 
   const currentLanguage = LANGUAGES[language]
 
+  const handleToggle = () => {
+    console.log("[v0] Toggle clicked, current isOpen:", isOpen)
+    setIsOpen(!isOpen)
+    console.log("[v0] Setting isOpen to:", !isOpen)
+  }
+
   const handleLanguageChange = (code: Language) => {
-    console.log("[v0] Language dropdown item clicked:", code)
-    console.log("[v0] Current language before change:", language)
-    console.log("[v0] About to call setLanguage with:", code)
-
-    try {
-      setLanguage(code)
-      console.log("[v0] setLanguage called successfully")
-    } catch (error) {
-      console.error("[v0] Error calling setLanguage:", error)
-    }
-  }
-
-  const handleTriggerClick = (e: React.MouseEvent) => {
-    console.log("[v0] Language selector trigger clicked")
-    console.log("[v0] Click event:", e)
-    console.log("[v0] Event target:", e.target)
-    console.log("[v0] Current target:", e.currentTarget)
-  }
-
-  const handleMouseDown = (e: React.MouseEvent) => {
-    console.log("[v0] Mouse down on language selector")
-  }
-
-  const handleMouseUp = (e: React.MouseEvent) => {
-    console.log("[v0] Mouse up on language selector")
-  }
-
-  const handlePointerDown = (e: React.PointerEvent) => {
-    console.log("[v0] Pointer down on language selector")
+    console.log("[v0] Language selected:", code)
+    setLanguage(code)
+    setIsOpen(false)
   }
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="flex items-center gap-2 text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg px-3 py-2 font-medium transition-all duration-200 text-sm relative z-50"
-          style={{ pointerEvents: "auto", position: "relative", zIndex: 9999 }}
-          onClick={handleTriggerClick}
-          onMouseDown={handleMouseDown}
-          onMouseUp={handleMouseUp}
-          onPointerDown={handlePointerDown}
-        >
-          <Globe className="h-4 w-4" />
-          <span className="hidden sm:inline">{currentLanguage.nativeName}</span>
-          <span className="sm:hidden">{currentLanguage.flag}</span>
-          <ChevronDown className="h-3 w-3" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-48 z-50">
-        {Object.entries(LANGUAGES).map(([code, lang]) => (
-          <DropdownMenuItem
-            key={code}
-            onClick={() => handleLanguageChange(code as Language)}
-            className={`flex items-center gap-3 cursor-pointer ${
-              language === code ? "bg-primary/10 text-primary" : ""
-            }`}
-          >
-            <span className="text-lg">{lang.flag}</span>
-            <div className="flex flex-col">
-              <span className="font-medium">{lang.nativeName}</span>
-              <span className="text-xs text-muted-foreground">{lang.name}</span>
-            </div>
-          </DropdownMenuItem>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <div className="relative" ref={dropdownRef}>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={handleToggle}
+        className="flex items-center gap-2 text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg px-3 py-2 font-medium transition-all duration-200 text-sm"
+      >
+        <Globe className="h-4 w-4" />
+        <span className="hidden sm:inline">{currentLanguage.nativeName}</span>
+        <span className="sm:hidden">{currentLanguage.flag}</span>
+        <ChevronDown className={`h-3 w-3 transition-transform ${isOpen ? "rotate-180" : ""}`} />
+      </Button>
+
+      {isOpen && (
+        <div className="absolute right-0 top-full mt-1 w-48 bg-background border border-border rounded-md shadow-lg z-50">
+          {Object.entries(LANGUAGES).map(([code, lang]) => (
+            <button
+              key={code}
+              onClick={() => handleLanguageChange(code as Language)}
+              className={`w-full flex items-center gap-3 px-3 py-2 text-left hover:bg-muted/50 first:rounded-t-md last:rounded-b-md transition-colors ${
+                language === code ? "bg-primary/10 text-primary" : ""
+              }`}
+            >
+              <span className="text-lg">{lang.flag}</span>
+              <div className="flex flex-col">
+                <span className="font-medium">{lang.nativeName}</span>
+                <span className="text-xs text-muted-foreground">{lang.name}</span>
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
   )
 }
