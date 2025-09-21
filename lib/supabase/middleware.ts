@@ -34,7 +34,13 @@ export async function updateSession(request: NextRequest) {
     request.nextUrl.pathname !== "/"
   ) {
     const url = request.nextUrl.clone()
-    url.pathname = "/signin"
+
+    // Check if current path has a locale prefix
+    const locales = ["en", "es"] // Should match your i18n routing config
+    const currentLocale = locales.find((locale) => request.nextUrl.pathname.startsWith(`/${locale}`))
+
+    // Redirect to signin with the same locale prefix if present
+    url.pathname = currentLocale ? `/${currentLocale}/signin` : "/signin"
     return NextResponse.redirect(url)
   }
 
