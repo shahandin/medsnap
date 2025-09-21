@@ -3,6 +3,7 @@ import type { Metadata } from "next"
 import { Inter, Manrope } from "next/font/google"
 import "./globals.css"
 import { GlobalAIChat } from "@/components/global-ai-chat"
+import { SessionTimeoutProvider } from "@/components/session-timeout-provider"
 
 const inter = Inter({
   subsets: ["latin"],
@@ -30,7 +31,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${manrope.variable} antialiased`}>
       <body>
-        {children}
+        <SessionTimeoutProvider>{children}</SessionTimeoutProvider>
         <GlobalAIChat />
       </body>
     </html>
