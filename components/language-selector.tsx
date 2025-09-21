@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { useTranslation } from "@/contexts/translation-context"
@@ -9,7 +9,6 @@ import { ChevronDown, Globe } from "lucide-react"
 
 export function LanguageSelector() {
   const { language, setLanguage, t } = useTranslation()
-  const [isOpen, setIsOpen] = useState(false)
 
   useEffect(() => {
     console.log("[v0] LanguageSelector mounted")
@@ -35,24 +34,14 @@ export function LanguageSelector() {
     } catch (error) {
       console.error("[v0] Error calling setLanguage:", error)
     }
-
-    setIsOpen(false)
-    console.log("[v0] Dropdown closed")
   }
 
   const handleTriggerClick = () => {
     console.log("[v0] Language selector trigger clicked")
-    console.log("[v0] Current isOpen state:", isOpen)
   }
 
   return (
-    <DropdownMenu
-      open={isOpen}
-      onOpenChange={(open) => {
-        console.log("[v0] Dropdown open state changing to:", open)
-        setIsOpen(open)
-      }}
-    >
+    <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
