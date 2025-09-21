@@ -3,7 +3,6 @@ import type { Metadata } from "next"
 import { Inter, Manrope } from "next/font/google"
 import "./globals.css"
 import { GlobalAIChat } from "@/components/global-ai-chat"
-import { TranslationProvider } from "@/lib/translations/context"
 
 const inter = Inter({
   subsets: ["latin"],
@@ -31,10 +30,8 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${manrope.variable} antialiased`}>
       <body>
-        <TranslationProvider>
-          {children}
-          <GlobalAIChat />
-        </TranslationProvider>
+        {children}
+        <GlobalAIChat />
       </body>
     </html>
   )
