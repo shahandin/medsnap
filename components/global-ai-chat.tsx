@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { MessageCircle, X, Send, Bot, User, Navigation, Lightbulb, HelpCircle } from "lucide-react"
 import { useRouter, usePathname } from "next/navigation"
 import { getProactiveAssistanceManager, generateContextualSuggestions } from "@/lib/proactive-assistance"
+import { useTranslation } from "@/lib/translations"
 
 interface Message {
   id: string
@@ -41,12 +42,12 @@ interface ProactiveMessage {
 }
 
 export function GlobalAIChat() {
+  const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
-      content:
-        "Hi! I'm your benefits assistant. I can help you navigate the application, answer questions about required documents, guide you through the process, and help you report changes to existing benefits. What can I help you with?",
+      content: t("chat.welcomeMessage"),
       role: "assistant",
       timestamp: new Date(),
     },
@@ -126,11 +127,22 @@ export function GlobalAIChat() {
   ) => {
     setIsNavigating(true)
 
+    const getNavigationMessage = (dest: string) => {
+      switch (dest) {
+        case "/account":
+          return t("chat.contexts.accountDashboard")
+        case "/":
+          return t("chat.contexts.homepage")
+        case "/about":
+          return t("chat.contexts.aboutPage")
+        default:
+          return t("chat.contexts.benefitsApplication")
+      }
+    }
+
     const navigationMessage: Message = {
       id: (Date.now() + 2).toString(),
-      content:
-        message ||
-        `Taking you to ${destination === "/account" ? "Dashboard" : destination === "/" ? "Homepage" : destination === "/about" ? "About page" : "Apply for Benefits"}...`,
+      content: message || `Taking you to ${getNavigationMessage(destination)}...`,
       role: "assistant",
       timestamp: new Date(),
     }
@@ -389,9 +401,7 @@ export function GlobalAIChat() {
 
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content:
-          data.message ||
-          "I received your message but couldn't generate a response. Please try rephrasing your question.",
+        content: data.message || t("chat.noResponse"),
         role: "assistant",
         timestamp: new Date(),
         action: data.action,
@@ -430,7 +440,7 @@ export function GlobalAIChat() {
     } catch (error) {
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: "I'm experiencing some technical difficulties. Please try again in a moment.",
+        content: t("chat.technicalDifficulties"),
         role: "assistant",
         timestamp: new Date(),
       }
@@ -448,17 +458,17 @@ export function GlobalAIChat() {
   }
 
   const getPageContext = () => {
-    if (pathname === "/") return "Homepage"
-    if (pathname === "/about") return "About Page"
-    if (pathname === "/account") return "Account Dashboard"
+    if (pathname === "/") return t("chat.contexts.homepage")
+    if (pathname === "/about") return t("chat.contexts.aboutPage")
+    if (pathname === "/account") return t("chat.contexts.accountDashboard")
     if (pathname.includes("/application")) {
       const appContext = (window as any).applicationContext
       if (appContext?.stepTitle) {
-        return `Step ${appContext.currentStep + 1}: ${appContext.stepTitle}`
+        return t("chat.stepContext", { step: appContext.currentStep + 1, title: appContext.stepTitle })
       }
-      return "Benefits Application"
+      return t("chat.contexts.benefitsApplication")
     }
-    return "Benefits Access"
+    return t("chat.contexts.benefitsAccess")
   }
 
   return (
@@ -484,8 +494,10 @@ export function GlobalAIChat() {
             <div className="flex items-center gap-3">
               <Bot className="h-5 w-5 sm:h-6 sm:w-6" />
               <div>
-                <h3 className="text-base sm:text-lg font-semibold">Benefits Assistant</h3>
-                <p className="text-sm sm:text-sm opacity-80">{isNavigating ? "Navigating..." : getPageContext()}</p>
+                <h3 className="text-base sm:text-lg font-semibold">{t("chat.title")}</h3>
+                <p className="text-sm sm:text-sm opacity-80">
+                  {isNavigating ? t("chat.navigating") : getPageContext()}
+                </p>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -516,7 +528,7 @@ export function GlobalAIChat() {
             <div className="border-b bg-gray-50 p-3">
               <div className="flex items-center gap-2 mb-2">
                 <HelpCircle className="h-4 w-4 text-gray-600" />
-                <span className="text-sm font-medium text-gray-700">Quick Help</span>
+                <span className="text-sm font-medium text-gray-700">{t("chat.quickHelp")}</span>
               </div>
               <div className="grid gap-2">
                 {contextualSuggestions.map((suggestion, index) => (
@@ -592,7 +604,7 @@ export function GlobalAIChat() {
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder="Ask me anything about benefits..."
+                placeholder={t("chat.placeholder")}
                 className="flex-1 min-h-[44px] sm:min-h-[40px] max-h-[120px] resize-none text-base sm:text-sm border-2 border-gray-200 focus:border-primary rounded-lg px-3 py-2"
                 disabled={isLoading || isNavigating}
                 rows={1}

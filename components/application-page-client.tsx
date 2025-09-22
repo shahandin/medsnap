@@ -8,8 +8,10 @@ import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import BenefitsApplicationClient from "@/components/benefits-application-client"
 import { createClient } from "@/lib/supabase/client"
+import { useTranslation } from "@/lib/translations"
 
 export function ApplicationPageClient() {
+  const { t } = useTranslation()
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -37,7 +39,7 @@ export function ApplicationPageClient() {
 
         if (authError) {
           console.error("[v0] ❌ Supabase auth error:", authError)
-          setError(`Authentication error: ${authError.message}`)
+          setError(`${t("errors.authenticationError")}: ${authError.message}`)
           setLoading(false)
           return
         }
@@ -53,7 +55,7 @@ export function ApplicationPageClient() {
         router.push("/signin")
       } catch (error) {
         console.error("[v0] ❌ Auth check failed with error:", error)
-        setError(`Authentication error: ${error.message}`)
+        setError(`${t("errors.authenticationError")}: ${error.message}`)
         setLoading(false)
       }
     }
@@ -112,7 +114,7 @@ export function ApplicationPageClient() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-lg">Loading...</div>
+        <div className="text-lg">{t("common.loading")}</div>
       </div>
     )
   }
@@ -121,12 +123,14 @@ export function ApplicationPageClient() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="text-red-600 mb-4">Error: {error}</div>
+          <div className="text-red-600 mb-4">
+            {t("errors.error")}: {error}
+          </div>
           <button
             onClick={() => window.location.reload()}
             className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
           >
-            Retry
+            {t("common.retry")}
           </button>
         </div>
       </div>

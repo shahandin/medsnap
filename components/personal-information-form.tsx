@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { useImperativeHandle, forwardRef } from "react"
+import { useTranslation } from "@/lib/translations"
 
 interface PersonalInfo {
   applyingFor: string
@@ -97,18 +98,12 @@ const LANGUAGE_OPTIONS = [
   { value: "scottish_gaelic", label: "Scottish Gaelic (Gàidhlig)" },
 ]
 
-const CITIZENSHIP_OPTIONS = [
-  { value: "us_citizen", label: "U.S. Citizen" },
-  { value: "permanent_resident", label: "Permanent Resident" },
-  { value: "refugee", label: "Refugee" },
-  { value: "asylee", label: "Asylee" },
-  { value: "other_qualified", label: "Other Qualified Alien" },
-]
-
 export const PersonalInformationForm = forwardRef<
   { validateAddress: () => Promise<{ isValid: boolean; suggestion: any | null }> },
   PersonalInformationFormProps
 >(({ personalInfo, onUpdate, onAddressValidation }, ref) => {
+  const { t } = useTranslation()
+
   const updateField = (field: string, value: string) => {
     if (field.includes(".")) {
       const [parent, child] = field.split(".")
@@ -171,9 +166,9 @@ export const PersonalInformationForm = forwardRef<
         <div className="w-10 h-10 sm:w-12 sm:h-12 text-blue-600 mx-auto mb-3 sm:mb-4 text-2xl sm:text-3xl flex items-center justify-center">
           👤
         </div>
-        <h3 className="text-lg sm:text-xl font-semibold mb-2">Personal Information</h3>
+        <h3 className="text-lg sm:text-xl font-semibold mb-2">{t("forms.personalInfo.title")}</h3>
         <p className="text-sm sm:text-base text-gray-600">
-          Please provide your basic personal information. All fields are required.
+          {t("forms.personalInfo.subtitle")}. {t("common.required")}.
         </p>
       </div>
 
@@ -183,15 +178,13 @@ export const PersonalInformationForm = forwardRef<
           <CardHeader className="pb-4 sm:pb-6">
             <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
               <span className="text-lg">👤</span>
-              Application Context
+              {t("forms.applicationContext.title")}
             </CardTitle>
-            <CardDescription className="text-sm">Help us understand who this application is for</CardDescription>
+            <CardDescription className="text-sm">{t("forms.applicationContext.subtitle")}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3 sm:space-y-4">
             <div className="space-y-3">
-              <Label className="text-sm sm:text-base font-medium">
-                Are you applying on behalf of yourself or someone else? *
-              </Label>
+              <Label className="text-sm sm:text-base font-medium">{t("forms.applicationContext.applyingFor")} *</Label>
               <RadioGroup
                 value={personalInfo.applyingFor}
                 onValueChange={(value) => updateField("applyingFor", value)}
@@ -203,7 +196,7 @@ export const PersonalInformationForm = forwardRef<
                     htmlFor="myself"
                     className="font-normal cursor-pointer text-base sm:text-sm flex-1 leading-relaxed"
                   >
-                    I am applying for myself
+                    {t("forms.applicationContext.myself")}
                   </Label>
                 </div>
                 <div className="flex items-center space-x-3 p-4 sm:p-3 rounded-lg hover:bg-gray-50 transition-colors touch-manipulation min-h-[56px] sm:min-h-[auto]">
@@ -212,13 +205,11 @@ export const PersonalInformationForm = forwardRef<
                     htmlFor="someone_else"
                     className="font-normal cursor-pointer text-base sm:text-sm flex-1 leading-relaxed"
                   >
-                    I am applying on behalf of someone else
+                    {t("forms.applicationContext.someoneElse")}
                   </Label>
                 </div>
               </RadioGroup>
-              <p className="text-sm sm:text-xs text-gray-600 leading-relaxed">
-                If you're applying for someone else, you'll need to provide their information in the following steps.
-              </p>
+              <p className="text-sm sm:text-xs text-gray-600 leading-relaxed">{t("forms.applicationContext.note")}</p>
             </div>
           </CardContent>
         </Card>
@@ -228,38 +219,36 @@ export const PersonalInformationForm = forwardRef<
           <CardHeader className="pb-4 sm:pb-6">
             <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
               <span className="text-lg">👤</span>
-              Basic Information
+              {t("forms.basicInformation.title")}
             </CardTitle>
-            <CardDescription className="text-sm">
-              Your legal name, date of birth, and language preference
-            </CardDescription>
+            <CardDescription className="text-sm">{t("forms.basicInformation.subtitle")}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-5 sm:space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-4">
               <div className="space-y-3 sm:space-y-2">
                 <Label htmlFor="firstName" className="text-base sm:text-sm font-medium">
-                  First Name *
+                  {t("forms.personalInfo.firstName")} *
                 </Label>
                 <Input
                   id="firstName"
                   type="text"
                   value={personalInfo.firstName}
                   onChange={(e) => updateField("firstName", e.target.value)}
-                  placeholder="Enter your first name"
+                  placeholder={t("forms.basicInformation.firstNamePlaceholder")}
                   required
                   className="h-14 sm:h-10 text-lg sm:text-base touch-manipulation px-4 sm:px-3"
                 />
               </div>
               <div className="space-y-3 sm:space-y-2">
                 <Label htmlFor="lastName" className="text-base sm:text-sm font-medium">
-                  Last Name *
+                  {t("forms.personalInfo.lastName")} *
                 </Label>
                 <Input
                   id="lastName"
                   type="text"
                   value={personalInfo.lastName}
                   onChange={(e) => updateField("lastName", e.target.value)}
-                  placeholder="Enter your last name"
+                  placeholder={t("forms.basicInformation.lastNamePlaceholder")}
                   required
                   className="h-14 sm:h-10 text-lg sm:text-base touch-manipulation px-4 sm:px-3"
                 />
@@ -267,7 +256,7 @@ export const PersonalInformationForm = forwardRef<
             </div>
             <div className="space-y-3 sm:space-y-2">
               <Label htmlFor="dateOfBirth" className="text-base sm:text-sm font-medium">
-                Date of Birth *
+                {t("forms.personalInfo.dateOfBirth")} *
               </Label>
               <Input
                 id="dateOfBirth"
@@ -280,14 +269,14 @@ export const PersonalInformationForm = forwardRef<
             </div>
             <div className="space-y-3 sm:space-y-2">
               <Label htmlFor="languagePreference" className="text-base sm:text-sm font-medium">
-                Preferred Language *
+                {t("forms.basicInformation.languagePreference")} *
               </Label>
               <Select
                 value={personalInfo.languagePreference}
                 onValueChange={(value) => updateField("languagePreference", value)}
               >
                 <SelectTrigger className="h-14 sm:h-10 text-lg sm:text-base touch-manipulation px-4 sm:px-3">
-                  <SelectValue placeholder="Select your preferred language" />
+                  <SelectValue placeholder={t("forms.basicInformation.languagePreferencePlaceholder")} />
                 </SelectTrigger>
                 <SelectContent>
                   {LANGUAGE_OPTIONS.map((language) => (
@@ -302,7 +291,7 @@ export const PersonalInformationForm = forwardRef<
                 </SelectContent>
               </Select>
               <p className="text-sm sm:text-xs text-gray-500 leading-relaxed">
-                This helps us provide documents and assistance in your preferred language.
+                {t("forms.basicInformation.languageNote")}
               </p>
             </div>
           </CardContent>
@@ -313,21 +302,21 @@ export const PersonalInformationForm = forwardRef<
           <CardHeader className="pb-4 sm:pb-6">
             <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
               <span className="text-lg">📍</span>
-              Address Information
+              {t("forms.addressInformation.title")}
             </CardTitle>
-            <CardDescription className="text-sm">Your current residential address</CardDescription>
+            <CardDescription className="text-sm">{t("forms.addressInformation.subtitle")}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-5 sm:space-y-4">
             <div className="space-y-3 sm:space-y-2">
               <Label htmlFor="street" className="text-base sm:text-sm font-medium">
-                Street Address *
+                {t("forms.personalInfo.address")} *
               </Label>
               <Input
                 id="street"
                 type="text"
                 value={personalInfo.address.street}
                 onChange={(e) => updateField("address.street", e.target.value)}
-                placeholder="Enter your street address"
+                placeholder={t("forms.addressInformation.streetPlaceholder")}
                 required
                 className="h-14 sm:h-10 text-lg sm:text-base touch-manipulation px-4 sm:px-3"
               />
@@ -335,42 +324,42 @@ export const PersonalInformationForm = forwardRef<
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 sm:gap-4">
               <div className="space-y-3 sm:space-y-2">
                 <Label htmlFor="city" className="text-base sm:text-sm font-medium">
-                  City *
+                  {t("forms.personalInfo.city")} *
                 </Label>
                 <Input
                   id="city"
                   type="text"
                   value={personalInfo.address.city}
                   onChange={(e) => updateField("address.city", e.target.value)}
-                  placeholder="Enter your city"
+                  placeholder={t("forms.addressInformation.cityPlaceholder")}
                   required
                   className="h-14 sm:h-10 text-lg sm:text-base touch-manipulation px-4 sm:px-3"
                 />
               </div>
               <div className="space-y-3 sm:space-y-2">
                 <Label htmlFor="addressState" className="text-base sm:text-sm font-medium">
-                  State *
+                  {t("forms.personalInfo.state")} *
                 </Label>
                 <Input
                   id="addressState"
                   type="text"
                   value={personalInfo.address.state}
                   onChange={(e) => updateField("address.state", e.target.value)}
-                  placeholder="State"
+                  placeholder={t("forms.addressInformation.statePlaceholder")}
                   disabled
                   className="bg-gray-50 h-14 sm:h-10 text-lg sm:text-base px-4 sm:px-3"
                 />
               </div>
               <div className="space-y-3 sm:space-y-2">
                 <Label htmlFor="zipCode" className="text-base sm:text-sm font-medium">
-                  ZIP Code *
+                  {t("forms.personalInfo.zipCode")} *
                 </Label>
                 <Input
                   id="zipCode"
                   type="text"
                   value={personalInfo.address.zipCode}
                   onChange={(e) => updateField("address.zipCode", e.target.value)}
-                  placeholder="12345"
+                  placeholder={t("forms.addressInformation.zipCodePlaceholder")}
                   maxLength={10}
                   required
                   className="h-14 sm:h-10 text-lg sm:text-base touch-manipulation px-4 sm:px-3"
@@ -385,22 +374,22 @@ export const PersonalInformationForm = forwardRef<
           <CardHeader className="pb-4 sm:pb-6">
             <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
               <span className="text-lg">📞</span>
-              Contact Information
+              {t("forms.contactInformation.title")}
             </CardTitle>
-            <CardDescription className="text-sm">How we can reach you</CardDescription>
+            <CardDescription className="text-sm">{t("forms.contactInformation.subtitle")}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-5 sm:space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-4">
               <div className="space-y-3 sm:space-y-2">
                 <Label htmlFor="phone" className="text-base sm:text-sm font-medium">
-                  Phone Number *
+                  {t("forms.personalInfo.phone")} *
                 </Label>
                 <Input
                   id="phone"
                   type="tel"
                   value={personalInfo.phone}
                   onChange={(e) => updateField("phone", formatPhone(e.target.value))}
-                  placeholder="(555) 123-4567"
+                  placeholder={t("forms.contactInformation.phonePlaceholder")}
                   maxLength={14}
                   required
                   className="h-14 sm:h-10 text-lg sm:text-base touch-manipulation px-4 sm:px-3"
@@ -408,14 +397,14 @@ export const PersonalInformationForm = forwardRef<
               </div>
               <div className="space-y-3 sm:space-y-2">
                 <Label htmlFor="email" className="text-base sm:text-sm font-medium">
-                  Email Address *
+                  {t("forms.personalInfo.email")} *
                 </Label>
                 <Input
                   id="email"
                   type="email"
                   value={personalInfo.email}
                   onChange={(e) => updateField("email", e.target.value)}
-                  placeholder="your.email@example.com"
+                  placeholder={t("forms.contactInformation.emailPlaceholder")}
                   required
                   className="h-14 sm:h-10 text-lg sm:text-base touch-manipulation px-4 sm:px-3"
                 />
@@ -429,38 +418,59 @@ export const PersonalInformationForm = forwardRef<
           <CardHeader className="pb-4 sm:pb-6">
             <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
               <span className="text-lg">🛡️</span>
-              Legal Information
+              {t("forms.legalInformation.title")}
             </CardTitle>
-            <CardDescription className="text-sm">Citizenship status and identification</CardDescription>
+            <CardDescription className="text-sm">{t("forms.legalInformation.subtitle")}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-5 sm:space-y-4">
             <div className="space-y-3 sm:space-y-2">
               <Label htmlFor="citizenshipStatus" className="text-base sm:text-sm font-medium">
-                U.S. Citizenship Status *
+                {t("forms.legalInformation.citizenshipStatus")} *
               </Label>
               <Select
                 value={personalInfo.citizenshipStatus}
                 onValueChange={(value) => updateField("citizenshipStatus", value)}
               >
                 <SelectTrigger className="h-14 sm:h-10 text-lg sm:text-base touch-manipulation px-4 sm:px-3">
-                  <SelectValue placeholder="Select your citizenship status" />
+                  <SelectValue placeholder={t("forms.legalInformation.citizenshipStatusPlaceholder")} />
                 </SelectTrigger>
                 <SelectContent>
-                  {CITIZENSHIP_OPTIONS.map((option) => (
-                    <SelectItem
-                      key={option.value}
-                      value={option.value}
-                      className="py-4 sm:py-3 touch-manipulation text-base sm:text-sm min-h-[52px] sm:min-h-[auto]"
-                    >
-                      {option.label}
-                    </SelectItem>
-                  ))}
+                  <SelectItem
+                    value="us_citizen"
+                    className="py-4 sm:py-3 touch-manipulation text-base sm:text-sm min-h-[52px] sm:min-h-[auto]"
+                  >
+                    {t("forms.legalInformation.citizenshipOptions.usCitizen")}
+                  </SelectItem>
+                  <SelectItem
+                    value="permanent_resident"
+                    className="py-4 sm:py-3 touch-manipulation text-base sm:text-sm min-h-[52px] sm:min-h-[auto]"
+                  >
+                    {t("forms.legalInformation.citizenshipOptions.permanentResident")}
+                  </SelectItem>
+                  <SelectItem
+                    value="refugee"
+                    className="py-4 sm:py-3 touch-manipulation text-base sm:text-sm min-h-[52px] sm:min-h-[auto]"
+                  >
+                    {t("forms.legalInformation.citizenshipOptions.refugee")}
+                  </SelectItem>
+                  <SelectItem
+                    value="asylee"
+                    className="py-4 sm:py-3 touch-manipulation text-base sm:text-sm min-h-[52px] sm:min-h-[auto]"
+                  >
+                    {t("forms.legalInformation.citizenshipOptions.asylee")}
+                  </SelectItem>
+                  <SelectItem
+                    value="other_qualified"
+                    className="py-4 sm:py-3 touch-manipulation text-base sm:text-sm min-h-[52px] sm:min-h-[auto]"
+                  >
+                    {t("forms.legalInformation.citizenshipOptions.otherQualified")}
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-3 sm:space-y-2">
               <Label htmlFor="ssn" className="text-base sm:text-sm font-medium">
-                Social Security Number *
+                {t("forms.personalInfo.ssn")} *
               </Label>
               <div className="flex items-center gap-4 sm:gap-3">
                 <span className="text-gray-400 text-xl sm:text-lg">💳</span>
@@ -469,15 +479,13 @@ export const PersonalInformationForm = forwardRef<
                   type="text"
                   value={personalInfo.socialSecurityNumber}
                   onChange={(e) => updateField("socialSecurityNumber", formatSSN(e.target.value))}
-                  placeholder="XXX-XX-XXXX"
+                  placeholder={t("forms.legalInformation.ssnPlaceholder")}
                   maxLength={11}
                   required
                   className="h-14 sm:h-10 text-lg sm:text-base touch-manipulation flex-1 px-4 sm:px-3"
                 />
               </div>
-              <p className="text-sm sm:text-xs text-gray-500 leading-relaxed">
-                Your SSN is required for benefit eligibility verification and will be kept secure.
-              </p>
+              <p className="text-sm sm:text-xs text-gray-500 leading-relaxed">{t("forms.legalInformation.ssnNote")}</p>
             </div>
           </CardContent>
         </Card>

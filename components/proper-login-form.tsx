@@ -10,8 +10,10 @@ import { Label } from "@/components/ui/label"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
+import { useTranslation } from "@/lib/translations"
 
 export default function Page() {
+  const { t } = useTranslation()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState<string | null>(null)
@@ -35,7 +37,7 @@ export default function Page() {
       if (error) throw error
       router.push("/protected")
     } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : "An error occurred")
+      setError(error instanceof Error ? error.message : t("auth.signIn.genericError"))
     } finally {
       setIsLoading(false)
     }
@@ -47,25 +49,25 @@ export default function Page() {
         <div className="flex flex-col gap-6">
           <Card>
             <CardHeader>
-              <CardTitle className="text-2xl">Login</CardTitle>
-              <CardDescription>Enter your email below to login to your account</CardDescription>
+              <CardTitle className="text-2xl">{t("auth.signIn.title")}</CardTitle>
+              <CardDescription>{t("auth.signIn.subtitle")}</CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleLogin}>
                 <div className="flex flex-col gap-6">
                   <div className="grid gap-2">
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="email">{t("auth.signIn.email")}</Label>
                     <Input
                       id="email"
                       type="email"
-                      placeholder="m@example.com"
+                      placeholder={t("auth.signIn.emailPlaceholder")}
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                     />
                   </div>
                   <div className="grid gap-2">
-                    <Label htmlFor="password">Password</Label>
+                    <Label htmlFor="password">{t("auth.signIn.password")}</Label>
                     <Input
                       id="password"
                       type="password"
@@ -76,13 +78,13 @@ export default function Page() {
                   </div>
                   {error && <p className="text-sm text-red-500">{error}</p>}
                   <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading ? "Logging in..." : "Login"}
+                    {isLoading ? t("auth.signIn.signingIn") : t("auth.signIn.signInButton")}
                   </Button>
                 </div>
                 <div className="mt-4 text-center text-sm">
-                  Don&apos;t have an account?{" "}
+                  {t("auth.signIn.noAccount")}{" "}
                   <Link href="/auth/sign-up" className="underline underline-offset-4">
-                    Sign up
+                    {t("auth.signIn.signUpLink")}
                   </Link>
                 </div>
               </form>

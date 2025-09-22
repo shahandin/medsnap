@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import { Trash2, DollarSign, Car, Shield } from "lucide-react"
+import { useTranslation } from "@/lib/translations"
 
 interface Asset {
   id: string
@@ -42,6 +43,7 @@ interface AssetsFormProps {
 }
 
 export function AssetsForm({ data, householdMembers, applicantName, onUpdate }: AssetsFormProps) {
+  const { t } = useTranslation()
   const [assets, setAssets] = useState<Asset[]>(data.assets || [])
 
   const allMembers = [
@@ -89,9 +91,9 @@ export function AssetsForm({ data, householdMembers, applicantName, onUpdate }: 
               {asset.type === "vehicle" && <Car className="h-5 w-5 text-blue-600" />}
               {asset.type === "life_insurance" && <Shield className="h-5 w-5 text-purple-600" />}
               <CardTitle className="text-lg">
-                {asset.type === "financial" && "Financial Asset"}
-                {asset.type === "vehicle" && "Vehicle"}
-                {asset.type === "life_insurance" && "Life Insurance Policy"}
+                {asset.type === "financial" && t("forms.assetTypes.financial")}
+                {asset.type === "vehicle" && t("forms.assetTypes.vehicle")}
+                {asset.type === "life_insurance" && t("forms.assetTypes.lifeInsurance")}
                 {displayName && ` - ${displayName}`}
               </CardTitle>
             </div>
@@ -107,10 +109,10 @@ export function AssetsForm({ data, householdMembers, applicantName, onUpdate }: 
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <Label htmlFor={`owner-${asset.id}`}>Asset Owner *</Label>
+            <Label htmlFor={`owner-${asset.id}`}>{t("forms.assets.assetOwner")} *</Label>
             <Select value={asset.owner} onValueChange={(value) => updateAsset(asset.id, { owner: value })}>
               <SelectTrigger>
-                <SelectValue placeholder="Select who owns this asset" />
+                <SelectValue placeholder={t("forms.assetOwnerPlaceholder")} />
               </SelectTrigger>
               <SelectContent>
                 {allMembers.map((member) => (
@@ -125,7 +127,7 @@ export function AssetsForm({ data, householdMembers, applicantName, onUpdate }: 
           {asset.type === "financial" && (
             <>
               <div>
-                <Label htmlFor={`account-type-${asset.id}`}>Account Type *</Label>
+                <Label htmlFor={`account-type-${asset.id}`}>{t("forms.assets.accountType")} *</Label>
                 <Select
                   value={asset.details.accountType || ""}
                   onValueChange={(value) =>
@@ -133,30 +135,30 @@ export function AssetsForm({ data, householdMembers, applicantName, onUpdate }: 
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select account type" />
+                    <SelectValue placeholder={t("common.selectOption")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="checking">Checking Account</SelectItem>
-                    <SelectItem value="savings">Savings Account</SelectItem>
-                    <SelectItem value="money_market">Money Market Account</SelectItem>
-                    <SelectItem value="cd">Certificate of Deposit (CD)</SelectItem>
-                    <SelectItem value="investment">Investment Account</SelectItem>
-                    <SelectItem value="cash">Cash on Hand</SelectItem>
-                    <SelectItem value="other">Other Financial Asset</SelectItem>
+                    <SelectItem value="checking">{t("forms.accountTypes.checking")}</SelectItem>
+                    <SelectItem value="savings">{t("forms.accountTypes.savings")}</SelectItem>
+                    <SelectItem value="money_market">{t("forms.accountTypes.moneyMarket")}</SelectItem>
+                    <SelectItem value="cd">{t("forms.accountTypes.cd")}</SelectItem>
+                    <SelectItem value="investment">{t("forms.accountTypes.investment")}</SelectItem>
+                    <SelectItem value="cash">{t("forms.accountTypes.cash")}</SelectItem>
+                    <SelectItem value="other">{t("forms.accountTypes.other")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div>
-                <Label htmlFor={`bank-name-${asset.id}`}>Bank/Institution Name</Label>
+                <Label htmlFor={`bank-name-${asset.id}`}>{t("forms.assets.bankName")}</Label>
                 <Input
                   id={`bank-name-${asset.id}`}
                   value={asset.details.bankName || ""}
                   onChange={(e) => updateAsset(asset.id, { details: { ...asset.details, bankName: e.target.value } })}
-                  placeholder="Enter bank or institution name"
+                  placeholder={t("forms.bankNamePlaceholder")}
                 />
               </div>
               <div>
-                <Label htmlFor={`balance-${asset.id}`}>Current Balance *</Label>
+                <Label htmlFor={`balance-${asset.id}`}>{t("forms.assets.currentBalance")} *</Label>
                 <Input
                   id={`balance-${asset.id}`}
                   type="number"
@@ -165,7 +167,7 @@ export function AssetsForm({ data, householdMembers, applicantName, onUpdate }: 
                   onChange={(e) =>
                     updateAsset(asset.id, { details: { ...asset.details, accountBalance: e.target.value } })
                   }
-                  placeholder="0.00"
+                  placeholder={t("forms.balancePlaceholder")}
                 />
               </div>
             </>
@@ -174,7 +176,7 @@ export function AssetsForm({ data, householdMembers, applicantName, onUpdate }: 
           {asset.type === "vehicle" && (
             <>
               <div>
-                <Label htmlFor={`vehicle-type-${asset.id}`}>Vehicle Type *</Label>
+                <Label htmlFor={`vehicle-type-${asset.id}`}>{t("forms.assets.vehicleType")} *</Label>
                 <Select
                   value={asset.details.vehicleType || ""}
                   onValueChange={(value) =>
@@ -182,41 +184,41 @@ export function AssetsForm({ data, householdMembers, applicantName, onUpdate }: 
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select vehicle type" />
+                    <SelectValue placeholder={t("common.selectOption")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="car">Car</SelectItem>
-                    <SelectItem value="truck">Truck</SelectItem>
-                    <SelectItem value="motorcycle">Motorcycle</SelectItem>
-                    <SelectItem value="van">Van</SelectItem>
-                    <SelectItem value="suv">SUV</SelectItem>
-                    <SelectItem value="rv">RV/Motorhome</SelectItem>
-                    <SelectItem value="boat">Boat</SelectItem>
-                    <SelectItem value="other">Other Vehicle</SelectItem>
+                    <SelectItem value="car">{t("forms.vehicleTypes.car")}</SelectItem>
+                    <SelectItem value="truck">{t("forms.vehicleTypes.truck")}</SelectItem>
+                    <SelectItem value="motorcycle">{t("forms.vehicleTypes.motorcycle")}</SelectItem>
+                    <SelectItem value="van">{t("forms.vehicleTypes.van")}</SelectItem>
+                    <SelectItem value="suv">{t("forms.vehicleTypes.suv")}</SelectItem>
+                    <SelectItem value="rv">{t("forms.vehicleTypes.rv")}</SelectItem>
+                    <SelectItem value="boat">{t("forms.vehicleTypes.boat")}</SelectItem>
+                    <SelectItem value="other">{t("forms.vehicleTypes.otherVehicle")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <Label htmlFor={`make-${asset.id}`}>Make *</Label>
+                  <Label htmlFor={`make-${asset.id}`}>{t("forms.assets.make")} *</Label>
                   <Input
                     id={`make-${asset.id}`}
                     value={asset.details.make || ""}
                     onChange={(e) => updateAsset(asset.id, { details: { ...asset.details, make: e.target.value } })}
-                    placeholder="e.g., Toyota"
+                    placeholder={t("forms.makePlaceholder")}
                   />
                 </div>
                 <div>
-                  <Label htmlFor={`model-${asset.id}`}>Model *</Label>
+                  <Label htmlFor={`model-${asset.id}`}>{t("forms.assets.model")} *</Label>
                   <Input
                     id={`model-${asset.id}`}
                     value={asset.details.model || ""}
                     onChange={(e) => updateAsset(asset.id, { details: { ...asset.details, model: e.target.value } })}
-                    placeholder="e.g., Camry"
+                    placeholder={t("forms.modelPlaceholder")}
                   />
                 </div>
                 <div>
-                  <Label htmlFor={`year-${asset.id}`}>Year *</Label>
+                  <Label htmlFor={`year-${asset.id}`}>{t("forms.assets.year")} *</Label>
                   <Input
                     id={`year-${asset.id}`}
                     type="number"
@@ -224,12 +226,12 @@ export function AssetsForm({ data, householdMembers, applicantName, onUpdate }: 
                     max="2025"
                     value={asset.details.year || ""}
                     onChange={(e) => updateAsset(asset.id, { details: { ...asset.details, year: e.target.value } })}
-                    placeholder="2020"
+                    placeholder={t("forms.yearPlaceholder")}
                   />
                 </div>
               </div>
               <div>
-                <Label htmlFor={`vehicle-value-${asset.id}`}>Estimated Current Value *</Label>
+                <Label htmlFor={`vehicle-value-${asset.id}`}>{t("forms.assets.estimatedValue")} *</Label>
                 <Input
                   id={`vehicle-value-${asset.id}`}
                   type="number"
@@ -238,11 +240,9 @@ export function AssetsForm({ data, householdMembers, applicantName, onUpdate }: 
                   onChange={(e) =>
                     updateAsset(asset.id, { details: { ...asset.details, estimatedValue: e.target.value } })
                   }
-                  placeholder="0.00"
+                  placeholder={t("forms.balancePlaceholder")}
                 />
-                <p className="text-sm text-gray-500 mt-1">
-                  You can use resources like KBB or Edmunds to estimate value
-                </p>
+                <p className="text-sm text-gray-500 mt-1">{t("forms.valueNote")}</p>
               </div>
             </>
           )}
@@ -250,58 +250,56 @@ export function AssetsForm({ data, householdMembers, applicantName, onUpdate }: 
           {asset.type === "life_insurance" && (
             <>
               <div>
-                <Label htmlFor={`policy-type-${asset.id}`}>Policy Type *</Label>
+                <Label htmlFor={`policy-type-${asset.id}`}>{t("forms.assets.policyType")} *</Label>
                 <Select
                   value={asset.details.policyType || ""}
                   onValueChange={(value) => updateAsset(asset.id, { details: { ...asset.details, policyType: value } })}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select policy type" />
+                    <SelectValue placeholder={t("common.selectOption")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="term">Term Life Insurance</SelectItem>
-                    <SelectItem value="whole">Whole Life Insurance</SelectItem>
-                    <SelectItem value="universal">Universal Life Insurance</SelectItem>
-                    <SelectItem value="variable">Variable Life Insurance</SelectItem>
-                    <SelectItem value="other">Other Life Insurance</SelectItem>
+                    <SelectItem value="term">{t("forms.policyTypes.term")}</SelectItem>
+                    <SelectItem value="whole">{t("forms.policyTypes.whole")}</SelectItem>
+                    <SelectItem value="universal">{t("forms.policyTypes.universal")}</SelectItem>
+                    <SelectItem value="variable">{t("forms.policyTypes.variable")}</SelectItem>
+                    <SelectItem value="other">{t("forms.policyTypes.otherInsurance")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div>
-                <Label htmlFor={`insurance-company-${asset.id}`}>Insurance Company *</Label>
+                <Label htmlFor={`insurance-company-${asset.id}`}>{t("forms.assets.insuranceCompany")} *</Label>
                 <Input
                   id={`insurance-company-${asset.id}`}
                   value={asset.details.insuranceCompany || ""}
                   onChange={(e) =>
                     updateAsset(asset.id, { details: { ...asset.details, insuranceCompany: e.target.value } })
                   }
-                  placeholder="Enter insurance company name"
+                  placeholder={t("forms.insuranceCompanyPlaceholder")}
                 />
               </div>
               <div>
-                <Label htmlFor={`face-value-${asset.id}`}>Face Value (Death Benefit) *</Label>
+                <Label htmlFor={`face-value-${asset.id}`}>{t("forms.faceValueLabel")} *</Label>
                 <Input
                   id={`face-value-${asset.id}`}
                   type="number"
                   step="0.01"
                   value={asset.details.faceValue || ""}
                   onChange={(e) => updateAsset(asset.id, { details: { ...asset.details, faceValue: e.target.value } })}
-                  placeholder="0.00"
+                  placeholder={t("forms.balancePlaceholder")}
                 />
               </div>
               <div>
-                <Label htmlFor={`cash-value-${asset.id}`}>Cash Value</Label>
+                <Label htmlFor={`cash-value-${asset.id}`}>{t("forms.assets.cashValue")}</Label>
                 <Input
                   id={`cash-value-${asset.id}`}
                   type="number"
                   step="0.01"
                   value={asset.details.cashValue || ""}
                   onChange={(e) => updateAsset(asset.id, { details: { ...asset.details, cashValue: e.target.value } })}
-                  placeholder="0.00"
+                  placeholder={t("forms.balancePlaceholder")}
                 />
-                <p className="text-sm text-gray-500 mt-1">
-                  Leave blank if this is term life insurance or has no cash value
-                </p>
+                <p className="text-sm text-gray-500 mt-1">{t("forms.cashValueNote")}</p>
               </div>
             </>
           )}
@@ -313,16 +311,13 @@ export function AssetsForm({ data, householdMembers, applicantName, onUpdate }: 
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h2 className="text-2xl font-semibold text-gray-900 mb-2">Asset Information</h2>
-        <p className="text-gray-600">
-          Please provide information about assets owned by you or members of your household. This includes financial
-          accounts, vehicles, and life insurance policies.
-        </p>
+        <h2 className="text-2xl font-semibold text-gray-900 mb-2">{t("forms.assets.title")}</h2>
+        <p className="text-gray-600">{t("forms.assets.subtitle")}</p>
       </div>
 
       {assets.length > 0 && (
         <div className="space-y-4">
-          <h3 className="text-lg font-medium text-gray-900">Current Assets</h3>
+          <h3 className="text-lg font-medium text-gray-900">{t("forms.assets.currentAssets")}</h3>
           {assets.map(renderAssetForm)}
         </div>
       )}
@@ -330,7 +325,7 @@ export function AssetsForm({ data, householdMembers, applicantName, onUpdate }: 
       <div className="space-y-4">
         <Separator />
         <div>
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Add New Asset</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-4">{t("forms.assets.addNewAsset")}</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Button
               variant="outline"
@@ -338,7 +333,7 @@ export function AssetsForm({ data, householdMembers, applicantName, onUpdate }: 
               className="h-20 md:h-28 flex flex-col items-center justify-center space-y-2 md:space-y-3 border-dashed border-2 hover:border-green-300 hover:bg-green-50"
             >
               <DollarSign className="h-6 w-6 md:h-7 md:w-7 text-green-600" />
-              <span className="md:text-base">Add Financial Asset</span>
+              <span className="md:text-base">{t("forms.assets.addFinancialAsset")}</span>
             </Button>
             <Button
               variant="outline"
@@ -346,7 +341,7 @@ export function AssetsForm({ data, householdMembers, applicantName, onUpdate }: 
               className="h-20 md:h-28 flex flex-col items-center justify-center space-y-2 md:space-y-3 border-dashed border-2 hover:border-blue-300 hover:bg-blue-50"
             >
               <Car className="h-6 w-6 md:h-7 md:w-7 text-blue-600" />
-              <span className="md:text-base">Add Vehicle</span>
+              <span className="md:text-base">{t("forms.assets.addVehicle")}</span>
             </Button>
             <Button
               variant="outline"
@@ -354,7 +349,7 @@ export function AssetsForm({ data, householdMembers, applicantName, onUpdate }: 
               className="h-20 md:h-28 flex flex-col items-center justify-center space-y-2 md:space-y-3 border-dashed border-2 hover:border-purple-300 hover:bg-purple-50"
             >
               <Shield className="h-6 w-6 md:h-7 md:w-7 text-purple-600" />
-              <span className="md:text-base">Add Life Insurance</span>
+              <span className="md:text-base">{t("forms.assets.addLifeInsurance")}</span>
             </Button>
           </div>
         </div>
@@ -362,10 +357,8 @@ export function AssetsForm({ data, householdMembers, applicantName, onUpdate }: 
 
       {assets.length === 0 && (
         <div className="text-center py-8 bg-gray-50 rounded-lg">
-          <p className="text-gray-500 mb-4">No assets added yet. Click the buttons above to add your first asset.</p>
-          <p className="text-sm text-gray-400">
-            If you don't have any assets to report, you can proceed to the next section.
-          </p>
+          <p className="text-gray-500 mb-4">{t("forms.assets.noAssetsMessage")}</p>
+          <p className="text-sm text-gray-400">{t("forms.assets.noAssetsNote")}</p>
         </div>
       )}
     </div>
