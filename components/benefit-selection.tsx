@@ -20,7 +20,11 @@ export function BenefitSelection({
   submittedApplications = [],
 }: BenefitSelectionProps) {
   const router = useRouter()
-  const { t } = useTranslation()
+  const { t, language } = useTranslation()
+
+  console.log("[v0] Current language:", language)
+  console.log("[v0] Translation function available:", typeof t)
+  console.log("[v0] Sample translation test:", t("benefitSelection.title"))
 
   const BENEFIT_OPTIONS = [
     {
@@ -42,6 +46,8 @@ export function BenefitSelection({
       details: t("benefitSelection.bothDetails"),
     },
   ]
+
+  console.log("[v0] BENEFIT_OPTIONS:", BENEFIT_OPTIONS)
 
   const isOptionDisabled = (optionId: string) => {
     if (submittedApplications.includes("both")) {
@@ -80,6 +86,23 @@ export function BenefitSelection({
 
   const nextStepsList = t("benefitSelection.nextStepsList", { returnObjects: true })
   const importantInfoList = t("benefitSelection.importantInfoList", { returnObjects: true })
+
+  console.log(
+    "[v0] nextStepsList:",
+    nextStepsList,
+    "Type:",
+    typeof nextStepsList,
+    "IsArray:",
+    Array.isArray(nextStepsList),
+  )
+  console.log(
+    "[v0] importantInfoList:",
+    importantInfoList,
+    "Type:",
+    typeof importantInfoList,
+    "IsArray:",
+    Array.isArray(importantInfoList),
+  )
 
   if (allOptionsDisabled) {
     return (
