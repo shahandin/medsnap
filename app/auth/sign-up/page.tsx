@@ -1,4 +1,5 @@
-import { createServerClient, isSupabaseConfigured } from "@/lib/supabase/server"
+import { createServerClient } from "@supabase/ssr"
+import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 import SignUpForm from "@/components/sign-up-form"
 import { Suspense } from "react"
@@ -34,8 +35,11 @@ function SignUpFormWrapper() {
 }
 
 export default async function SignUpPage() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
   // If Supabase is not configured, show setup message directly
-  if (!isSupabaseConfigured) {
+  if (!supabaseUrl || !supabaseAnonKey) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
         <h1 className="text-2xl font-bold mb-4 text-gray-900">Connect Supabase to get started</h1>
@@ -44,7 +48,15 @@ export default async function SignUpPage() {
   }
 
   // Check if user is already logged in
-  const supabase = createServerClient()
+  const cookieStore = cookies()
+  const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+    cookies: {
+      get(name: string) {
+        return cookieStore.get(name)?.value
+      },
+    },
+  })
+
   const {
     data: { session },
   } = await supabase.auth.getSession()

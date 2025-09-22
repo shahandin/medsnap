@@ -775,7 +775,7 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
                   {t("dashboard.applications.title")}
                 </CardTitle>
                 <CardDescription className="text-base md:text-sm text-gray-600 leading-relaxed">
-                  View and manage all your benefit applications in one place.
+                  {t("dashboard.applications.description")}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6 pt-0 px-6 md:px-6">
@@ -790,7 +790,9 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
                       <div className="space-y-4">
                         <div className="flex items-center gap-2">
                           <CheckCircle className="w-5 h-5 text-green-600" />
-                          <h3 className="text-lg font-semibold text-gray-900">Submitted Applications</h3>
+                          <h3 className="text-lg font-semibold text-gray-900">
+                            {t("dashboard.applications.submittedApplications")}
+                          </h3>
                         </div>
                         <div className="grid gap-4">
                           {submittedApplications.map((app, index) => (
@@ -810,7 +812,7 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
                                     <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
                                       <span className="flex items-center gap-1">
                                         <CheckCircle className="w-4 h-4 text-green-600" />
-                                        Submitted
+                                        {t("dashboard.applications.status.submitted")}
                                       </span>
                                       <span className="flex items-center gap-1">
                                         <Calendar className="w-4 h-4" />
@@ -818,12 +820,16 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
                                       </span>
                                     </div>
                                   </div>
-                                  <Badge className="bg-green-100 text-green-800 border-green-300">Complete</Badge>
+                                  <Badge className="bg-green-100 text-green-800 border-green-300">
+                                    {t("dashboard.applications.complete")}
+                                  </Badge>
                                 </div>
 
                                 <div className="space-y-3">
                                   <div className="flex justify-between text-sm">
-                                    <span className="text-gray-600">Status: {app.status || "Submitted"}</span>
+                                    <span className="text-gray-600">
+                                      Status: {app.status || t("dashboard.applications.status.submitted")}
+                                    </span>
                                     <span className="font-medium text-green-700">Application ID: {app.id}</span>
                                   </div>
                                   <div className="text-sm text-gray-600">
@@ -846,7 +852,9 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
                       <div className="space-y-4">
                         <div className="flex items-center gap-2">
                           <Clock className="w-5 h-5 text-yellow-600" />
-                          <h3 className="text-lg font-semibold text-gray-900">In Progress Applications</h3>
+                          <h3 className="text-lg font-semibold text-gray-900">
+                            {t("dashboard.applications.inProgressApplications")}
+                          </h3>
                         </div>
                         <div className="grid gap-4">
                           {applicationProgress.map((app, index) => {
@@ -880,7 +888,9 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
                                       <div className="text-2xl font-bold text-primary mb-1">
                                         {appProgressPercentage}%
                                       </div>
-                                      <div className="text-xs text-gray-500">Complete</div>
+                                      <div className="text-xs text-gray-500">
+                                        {t("dashboard.applications.complete")}
+                                      </div>
                                     </div>
                                   </div>
 
@@ -895,10 +905,11 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
 
                                     <div className="flex justify-between items-center pt-2">
                                       <div className="text-sm text-gray-600">
-                                        Last updated: {new Date(app.updated_at).toLocaleDateString()}
+                                        {t("dashboard.applications.lastUpdated")}{" "}
+                                        {new Date(app.updated_at).toLocaleDateString()}
                                       </div>
                                       <Button asChild size="sm" className="px-6">
-                                        <Link href="/application">Continue</Link>
+                                        <Link href="/application">{t("dashboard.applications.continue")}</Link>
                                       </Button>
                                     </div>
                                   </div>
@@ -918,12 +929,14 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
                           <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                             <FileText className="w-8 h-8 text-gray-400" />
                           </div>
-                          <h3 className="text-lg font-semibold text-gray-900 mb-2">No Applications Yet</h3>
+                          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                            {t("dashboard.applications.noApplicationsTitle")}
+                          </h3>
                           <p className="text-gray-600 mb-6 max-w-md mx-auto">
-                            Start your benefits application to see your progress and manage your applications here.
+                            {t("dashboard.applications.noApplicationsDescription")}
                           </p>
                           <Button asChild className="px-8">
-                            <Link href="/application-choice">Start New Application</Link>
+                            <Link href="/application-choice">{t("dashboard.applications.startNewApplication")}</Link>
                           </Button>
                         </div>
                       )}
@@ -941,7 +954,7 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
                   {t("dashboard.notifications.title")}
                 </CardTitle>
                 <CardDescription className="text-base md:text-sm text-gray-600 leading-relaxed">
-                  Stay updated with important information about your applications and benefits.
+                  {t("dashboard.notifications.description")}
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -997,72 +1010,96 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
                   <CardHeader className="pb-6 md:pb-4 px-6 md:px-6">
                     <CardTitle className="flex items-center gap-3 text-2xl md:text-xl font-bold">
                       <AlertTriangle className="w-7 h-7 md:w-6 md:h-6 text-primary" />
-                      Report Changes
+                      {t("dashboard.reportChanges.title")}
                     </CardTitle>
                     <CardDescription className="text-base md:text-sm text-gray-600 leading-relaxed">
-                      It's important to report changes that might affect your benefits within 10 days.
+                      {t("dashboard.reportChanges.description")}
                     </CardDescription>
                   </CardHeader>
                 </Card>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-4">
+                <div className="grid gap-6 md:grid-cols-2">
                   <Card
-                    className="rounded-2xl md:rounded-xl shadow-lg md:shadow-sm border-0 md:border cursor-pointer hover:shadow-xl md:hover:shadow-md transition-shadow"
+                    className="cursor-pointer hover:shadow-lg transition-shadow duration-200 border-2 hover:border-primary/30 rounded-2xl md:rounded-xl"
                     onClick={() => setSelectedChangeCategory("income-assets")}
                   >
-                    <CardContent className="p-6 md:p-4">
-                      <div className="flex items-center gap-4 mb-4 md:mb-3">
-                        <DollarSign className="w-8 h-8 md:w-6 md:h-6 text-primary" />
-                        <h3 className="text-xl md:text-lg font-semibold">Income & Assets</h3>
+                    <CardContent className="p-6">
+                      <div className="flex items-start gap-4">
+                        <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                          <DollarSign className="w-6 h-6 text-primary" />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                            {t("dashboard.reportChanges.categories.incomeAssets.title")}
+                          </h3>
+                          <p className="text-sm text-gray-600 leading-relaxed">
+                            {t("dashboard.reportChanges.categories.incomeAssets.description")}
+                          </p>
+                        </div>
                       </div>
-                      <p className="text-base md:text-sm text-gray-600">
-                        Report changes in employment, income, or assets like bank accounts and property.
-                      </p>
                     </CardContent>
                   </Card>
 
                   <Card
-                    className="rounded-2xl md:rounded-xl shadow-lg md:shadow-sm border-0 md:border cursor-pointer hover:shadow-xl md:hover:shadow-md transition-shadow"
+                    className="cursor-pointer hover:shadow-lg transition-shadow duration-200 border-2 hover:border-primary/30 rounded-2xl md:rounded-xl"
                     onClick={() => setSelectedChangeCategory("household")}
                   >
-                    <CardContent className="p-6 md:p-4">
-                      <div className="flex items-center gap-4 mb-4 md:mb-3">
-                        <Users className="w-8 h-8 md:w-6 md:h-6 text-secondary" />
-                        <h3 className="text-xl md:text-lg font-semibold">Household Changes</h3>
+                    <CardContent className="p-6">
+                      <div className="flex items-start gap-4">
+                        <div className="w-12 h-12 bg-secondary/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                          <Users className="w-6 h-6 text-secondary" />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                            {t("dashboard.reportChanges.categories.household.title")}
+                          </h3>
+                          <p className="text-sm text-gray-600 leading-relaxed">
+                            {t("dashboard.reportChanges.categories.household.description")}
+                          </p>
+                        </div>
                       </div>
-                      <p className="text-base md:text-sm text-gray-600">
-                        Report changes in household members, marriage, divorce, or family composition.
-                      </p>
                     </CardContent>
                   </Card>
 
                   <Card
-                    className="rounded-2xl md:rounded-xl shadow-lg md:shadow-sm border-0 md:border cursor-pointer hover:shadow-xl md:hover:shadow-md transition-shadow"
+                    className="cursor-pointer hover:shadow-lg transition-shadow duration-200 border-2 hover:border-primary/30 rounded-2xl md:rounded-xl"
                     onClick={() => setSelectedChangeCategory("address")}
                   >
-                    <CardContent className="p-6 md:p-4">
-                      <div className="flex items-center gap-4 mb-4 md:mb-3">
-                        <Home className="w-8 h-8 md:w-6 md:h-6 text-primary" />
-                        <h3 className="text-xl md:text-lg font-semibold">Address & Residency</h3>
+                    <CardContent className="p-6">
+                      <div className="flex items-start gap-4">
+                        <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                          <Home className="w-6 h-6 text-primary" />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                            {t("dashboard.reportChanges.categories.address.title")}
+                          </h3>
+                          <p className="text-sm text-gray-600 leading-relaxed">
+                            {t("dashboard.reportChanges.categories.address.description")}
+                          </p>
+                        </div>
                       </div>
-                      <p className="text-base md:text-sm text-gray-600">
-                        Report address changes or moves to a different state or county.
-                      </p>
                     </CardContent>
                   </Card>
 
                   <Card
-                    className="rounded-2xl md:rounded-xl shadow-lg md:shadow-sm border-0 md:border cursor-pointer hover:shadow-xl md:hover:shadow-md transition-shadow"
+                    className="cursor-pointer hover:shadow-lg transition-shadow duration-200 border-2 hover:border-primary/30 rounded-2xl md:rounded-xl"
                     onClick={() => setSelectedChangeCategory("insurance")}
                   >
-                    <CardContent className="p-6 md:p-4">
-                      <div className="flex items-center gap-4 mb-4 md:mb-3">
-                        <Shield className="w-8 h-8 md:w-6 md:h-6 text-secondary" />
-                        <h3 className="text-xl md:text-lg font-semibold">Health Insurance</h3>
+                    <CardContent className="p-6">
+                      <div className="flex items-start gap-4">
+                        <div className="w-12 h-12 bg-secondary/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                          <Shield className="w-6 h-6 text-secondary" />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                            {t("dashboard.reportChanges.categories.insurance.title")}
+                          </h3>
+                          <p className="text-sm text-gray-600 leading-relaxed">
+                            {t("dashboard.reportChanges.categories.insurance.description")}
+                          </p>
+                        </div>
                       </div>
-                      <p className="text-base md:text-sm text-gray-600">
-                        Report changes in health insurance coverage, Medicare eligibility, or job-based insurance.
-                      </p>
                     </CardContent>
                   </Card>
                 </div>
@@ -1075,123 +1112,128 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
               <CardHeader className="pb-6 md:pb-4 px-6 md:px-6">
                 <CardTitle className="flex items-center gap-3 text-2xl md:text-xl font-bold">
                   <Upload className="w-7 h-7 md:w-6 md:h-6 text-primary" />
-                  Document Upload
+                  {t("dashboard.documents.title")}
                 </CardTitle>
                 <CardDescription className="text-base md:text-sm text-gray-600 leading-relaxed">
-                  Upload required documents to support your benefits application.
+                  {t("dashboard.documents.description")}
                 </CardDescription>
               </CardHeader>
             </Card>
 
             <Card className="rounded-2xl md:rounded-xl shadow-lg md:shadow-sm border-0 md:border">
-              <CardHeader className="pb-6 md:pb-4 px-6 md:px-6">
-                <CardTitle className="text-xl md:text-lg">Upload New Document</CardTitle>
+              <CardHeader className="pb-4">
+                <CardTitle className="text-xl font-semibold">{t("dashboard.documents.uploadNewDocument")}</CardTitle>
               </CardHeader>
-              <CardContent className="pt-0 px-6 md:px-6">
-                {uploadSuccess ? (
-                  <div className="text-center py-8">
-                    <CheckCircle className="w-16 h-16 text-primary mx-auto mb-4" />
-                    <h3 className="text-2xl font-semibold text-gray-900 mb-2">Document Uploaded Successfully</h3>
-                    <p className="text-gray-600">Your document has been received and will be processed shortly.</p>
-                  </div>
-                ) : (
-                  <form onSubmit={handleDocumentUpload} className="space-y-6">
-                    <div className="space-y-2">
-                      <Label htmlFor="documentType" className="text-sm font-medium text-gray-700">
-                        Document Type
-                      </Label>
-                      <Select value={selectedDocumentType} onValueChange={setSelectedDocumentType} required>
-                        <SelectTrigger className="w-full border-gray-300 rounded-xl">
-                          <SelectValue placeholder="Select document type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {documentTypes.map((docType) => (
-                            <SelectItem key={docType.value} value={docType.value}>
-                              <div className="py-1">
-                                <div className="font-medium">{docType.label}</div>
-                                <div className="text-sm text-muted-foreground">{docType.description}</div>
-                              </div>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+              <CardContent>
+                {uploadSuccess && (
+                  <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="w-5 h-5 text-green-600" />
+                      <p className="text-green-800 font-medium">{t("dashboard.documents.uploadSuccess")}</p>
                     </div>
+                  </div>
+                )}
 
-                    <div className="space-y-2">
-                      <Label htmlFor="file" className="text-sm font-medium text-gray-700">
-                        Choose File
-                      </Label>
+                <form onSubmit={handleDocumentUpload} className="space-y-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="documentType" className="text-sm font-medium text-gray-700">
+                      {t("dashboard.documents.documentType")}
+                    </Label>
+                    <Select value={selectedDocumentType} onValueChange={setSelectedDocumentType}>
+                      <SelectTrigger className="w-full border-gray-300 rounded-xl">
+                        <SelectValue placeholder={t("dashboard.documents.selectDocumentType")} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {documentTypes.map((type) => (
+                          <SelectItem key={type.value} value={type.value}>
+                            <div className="py-1">
+                              <div className="font-medium">{type.label}</div>
+                              <div className="text-sm text-muted-foreground">{type.description}</div>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="file" className="text-sm font-medium text-gray-700">
+                      {t("dashboard.documents.chooseFile")}
+                    </Label>
+                    <div className="relative">
                       <Input
                         id="file"
                         type="file"
-                        onChange={(e) => setUploadedFile(e.target.files?.[0] || null)}
-                        className="border-gray-300 rounded-xl"
                         accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-                        required
+                        onChange={(e) => setUploadedFile(e.target.files?.[0] || null)}
+                        className="border-gray-300 rounded-xl file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-primary file:text-white hover:file:bg-primary/90"
                       />
-                      <p className="text-sm text-gray-500">Accepted formats: PDF, JPG, PNG, DOC, DOCX (Max 10MB)</p>
-                    </div>
-
-                    <Button
-                      type="submit"
-                      disabled={isUploading || !selectedDocumentType || !uploadedFile}
-                      className="w-full bg-primary hover:bg-primary/90 text-white rounded-xl"
-                    >
-                      {isUploading ? (
-                        <>
-                          <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin mr-2" />
-                          Uploading...
-                        </>
-                      ) : (
-                        <>
-                          <Upload className="w-4 h-4 mr-2" />
-                          Upload Document
-                        </>
+                      {!uploadedFile && (
+                        <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 pointer-events-none">
+                          {t("dashboard.documents.noFileChosen")}
+                        </span>
                       )}
-                    </Button>
-                  </form>
-                )}
+                    </div>
+                    <p className="text-xs text-gray-500">{t("dashboard.documents.acceptedFormats")}</p>
+                  </div>
+
+                  <Button
+                    type="submit"
+                    disabled={!selectedDocumentType || !uploadedFile || isUploading}
+                    className="w-full bg-primary hover:bg-primary/90 text-white rounded-xl py-3"
+                  >
+                    {isUploading ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin mr-2" />
+                        {t("dashboard.documents.uploading")}
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="w-4 h-4 mr-2" />
+                        {t("dashboard.documents.uploadDocument")}
+                      </>
+                    )}
+                  </Button>
+                </form>
               </CardContent>
             </Card>
 
             <Card className="rounded-2xl md:rounded-xl shadow-lg md:shadow-sm border-0 md:border">
-              <CardHeader className="pb-6 md:pb-4 px-6 md:px-6">
-                <CardTitle className="text-xl md:text-lg">Document History</CardTitle>
+              <CardHeader className="pb-4">
+                <CardTitle className="text-xl font-semibold">{t("dashboard.documents.documentHistory")}</CardTitle>
               </CardHeader>
-              <CardContent className="pt-0 px-6 md:px-6">
+              <CardContent>
                 {loadingDocuments ? (
                   <div className="text-center py-8">
-                    <div className="w-8 h-8 border-2 border-primary/20 border-t-primary rounded-full animate-spin mx-auto mb-4"></div>
-                    <p className="text-gray-600">Loading documents...</p>
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+                    <p className="mt-2 text-gray-600">{t("common.loading")}</p>
                   </div>
-                ) : documentHistory.length > 0 ? (
+                ) : documentHistory.length === 0 ? (
+                  <div className="text-center py-8">
+                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <FileText className="w-8 h-8 text-gray-400" />
+                    </div>
+                    <p className="text-gray-600">{t("dashboard.documents.noDocuments")}</p>
+                  </div>
+                ) : (
                   <div className="space-y-4">
-                    {documentHistory.map((doc, index) => (
-                      <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    {documentHistory.map((doc) => (
+                      <div
+                        key={doc.id}
+                        className="flex items-center justify-between p-4 border border-gray-200 rounded-xl"
+                      >
                         <div className="flex items-center gap-3">
-                          <FileText className="w-5 h-5 text-primary" />
+                          <FileText className="w-5 h-5 text-gray-500" />
                           <div>
-                            <p className="font-medium">{doc.file_name}</p>
+                            <p className="font-medium text-gray-900">{doc.file_name}</p>
                             <p className="text-sm text-gray-600">
-                              {documentTypes.find((type) => type.value === doc.document_type)?.label ||
-                                doc.document_type}
+                              {doc.document_type} • {new Date(doc.uploaded_at).toLocaleDateString()}
                             </p>
                           </div>
                         </div>
-                        <div className="text-right">
-                          <p className="text-sm text-gray-600">{new Date(doc.uploaded_at).toLocaleDateString()}</p>
-                          <Badge variant="outline" className="text-xs">
-                            Uploaded
-                          </Badge>
-                        </div>
+                        <div className="text-sm text-gray-500">{(doc.file_size / 1024 / 1024).toFixed(2)} MB</div>
                       </div>
                     ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">No Documents Yet</h3>
-                    <p className="text-gray-600">Upload your first document to get started.</p>
                   </div>
                 )}
               </CardContent>
@@ -1206,117 +1248,92 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
                   {t("dashboard.profile.title")}
                 </CardTitle>
                 <CardDescription className="text-base md:text-sm text-gray-600 leading-relaxed">
-                  Manage your account information and preferences.
+                  {t("dashboard.profile.description")}
                 </CardDescription>
               </CardHeader>
             </Card>
 
             <Card className="rounded-2xl md:rounded-xl shadow-lg md:shadow-sm border-0 md:border">
-              <CardHeader className="pb-6 md:pb-4 px-6 md:px-6">
-                <CardTitle className="text-xl md:text-lg">Account Details</CardTitle>
+              <CardHeader className="pb-4">
+                <CardTitle className="text-xl font-semibold">{t("dashboard.profile.accountDetails")}</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-6 pt-0 px-6 md:px-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <CardContent className="space-y-6">
+                <div className="grid gap-6 md:grid-cols-2">
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium text-gray-700">Email Address</Label>
-                    <Input value={user.email || ""} className="border-gray-300 rounded-xl" readOnly />
+                    <Label className="text-sm font-medium text-gray-700">{t("dashboard.profile.emailAddress")}</Label>
+                    <Input
+                      type="email"
+                      value={user.email || ""}
+                      disabled
+                      className="border-gray-300 rounded-xl bg-gray-50"
+                    />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium text-gray-700">Account Created</Label>
+                    <Label className="text-sm font-medium text-gray-700">{t("dashboard.profile.accountCreated")}</Label>
                     <Input
+                      type="text"
                       value={user.created_at ? new Date(user.created_at).toLocaleDateString() : ""}
-                      className="border-gray-300 rounded-xl"
-                      readOnly
+                      disabled
+                      className="border-gray-300 rounded-xl bg-gray-50"
                     />
                   </div>
                 </div>
 
-                <div className="pt-4 border-t">
-                  <Button variant="outline" className="rounded-xl bg-transparent">
-                    Reset Password
-                  </Button>
-                </div>
+                <Button variant="outline" className="border-gray-300 rounded-xl bg-transparent">
+                  {t("dashboard.profile.resetPassword")}
+                </Button>
               </CardContent>
             </Card>
 
             <Card className="rounded-2xl md:rounded-xl shadow-lg md:shadow-sm border-0 md:border">
-              <CardHeader className="pb-6 md:pb-4 px-6 md:px-6">
-                <CardTitle className="text-xl md:text-lg">Communication Preferences</CardTitle>
+              <CardHeader className="pb-4">
+                <CardTitle className="text-xl font-semibold">
+                  {t("dashboard.profile.communicationPreferences")}
+                </CardTitle>
                 <CardDescription className="text-sm text-gray-600">
-                  Choose how you'd like to receive important updates and notifications.
+                  {t("dashboard.profile.communicationDescription")}
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-6 pt-0 px-6 md:px-6">
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium text-gray-700">Preferred Contact Method</Label>
-                    <Select value={communicationPreference} onValueChange={setCommunicationPreference}>
-                      <SelectTrigger className="border-gray-300 rounded-xl">
-                        <SelectValue placeholder="Select contact method" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="email">Email</SelectItem>
-                        <SelectItem value="phone">Phone</SelectItem>
-                        <SelectItem value="mail">Mail</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {communicationPreference === "mail" && (
-                    <div className="space-y-4 p-4 bg-gray-50 rounded-xl">
-                      <Label className="text-sm font-medium text-gray-700">Mailing Address</Label>
-                      <div className="space-y-3">
-                        <Input
-                          placeholder="Street Address"
-                          value={mailingAddress.street}
-                          onChange={(e) => setMailingAddress((prev) => ({ ...prev, street: e.target.value }))}
-                          className="border-gray-300 rounded-xl"
-                        />
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                          <Input
-                            placeholder="City"
-                            value={mailingAddress.city}
-                            onChange={(e) => setMailingAddress((prev) => ({ ...prev, city: e.target.value }))}
-                            className="border-gray-300 rounded-xl"
-                          />
-                          <Input
-                            placeholder="State"
-                            value={mailingAddress.state}
-                            onChange={(e) => setMailingAddress((prev) => ({ ...prev, state: e.target.value }))}
-                            className="border-gray-300 rounded-xl"
-                          />
-                          <Input
-                            placeholder="ZIP Code"
-                            value={mailingAddress.zipCode}
-                            onChange={(e) => setMailingAddress((prev) => ({ ...prev, zipCode: e.target.value }))}
-                            className="border-gray-300 rounded-xl"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="rounded-2xl md:rounded-xl shadow-lg md:shadow-sm border-0 md:border">
-              <CardHeader className="pb-6 md:pb-4 px-6 md:px-6">
-                <CardTitle className="text-xl md:text-lg">Language Preferences</CardTitle>
-                <CardDescription className="text-sm text-gray-600">
-                  Select your preferred language for documents and communications.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6 pt-0 px-6 md:px-6">
+              <CardContent className="space-y-6">
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium text-gray-700">Preferred Language</Label>
-                  <Select value={languagePreference} onValueChange={setLanguagePreference}>
-                    <SelectTrigger className="border-gray-300 rounded-xl">
-                      <SelectValue placeholder="Select your preferred language" />
+                  <Label className="text-sm font-medium text-gray-700">
+                    {t("dashboard.profile.preferredContactMethod")}
+                  </Label>
+                  <Select value={communicationPreference} onValueChange={setCommunicationPreference}>
+                    <SelectTrigger className="w-full border-gray-300 rounded-xl">
+                      <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="max-h-60">
-                      {LANGUAGE_OPTIONS.map((language) => (
-                        <SelectItem key={language.value} value={language.value}>
-                          {language.label}
+                    <SelectContent>
+                      <SelectItem value="email">Email</SelectItem>
+                      <SelectItem value="phone">Phone</SelectItem>
+                      <SelectItem value="mail">Mail</SelectItem>
+                      <SelectItem value="text">Text Message</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="rounded-2xl md:rounded-xl shadow-lg md:shadow-sm border-0 md:border">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-xl font-semibold">{t("dashboard.profile.languagePreferences")}</CardTitle>
+                <CardDescription className="text-sm text-gray-600">
+                  {t("dashboard.profile.languageDescription")}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-gray-700">
+                    {t("dashboard.profile.preferredLanguage")}
+                  </Label>
+                  <Select value={languagePreference} onValueChange={setLanguagePreference}>
+                    <SelectTrigger className="w-full border-gray-300 rounded-xl">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {LANGUAGE_OPTIONS.map((lang) => (
+                        <SelectItem key={lang.value} value={lang.value}>
+                          {lang.label}
                         </SelectItem>
                       ))}
                     </SelectContent>
