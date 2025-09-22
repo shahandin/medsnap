@@ -369,7 +369,7 @@ export function IncomeEmploymentForm({ data, onUpdate, householdMembers, applica
                           </h4>
                           <p className="text-sm text-muted-foreground">
                             {hasEmployment
-                              ? `${memberEmployments.length} ${t("formFields.oneEmploymentEntry")}`
+                              ? `${memberEmployments.length} ${t("forms.income.currentJobs")}`
                               : t("forms.income.noEmploymentInformation")}
                           </p>
                         </div>
@@ -396,7 +396,7 @@ export function IncomeEmploymentForm({ data, onUpdate, householdMembers, applica
                       <div className="p-4 space-y-4 bg-background">
                         {memberEmployments.length === 0 ? (
                           <div className="text-center py-8 text-muted-foreground">
-                            <p>{t("forms.income.noEmploymentInformationAdded")}</p>
+                            <p>{t("forms.income.noEmploymentInformation")}</p>
                             <p className="text-sm mt-1">{t("forms.income.clickAddEmploymentToStart")}</p>
                           </div>
                         ) : (
@@ -592,7 +592,8 @@ export function IncomeEmploymentForm({ data, onUpdate, householdMembers, applica
                               <CardContent className="p-4">
                                 <div className="flex justify-between items-start mb-4">
                                   <h5 className="font-medium text-gray-900">
-                                    {t("formFields.incomeSource")} {memberIncome.length > 1 ? `#${index + 1}` : ""}
+                                    {t("forms.income.currentIncomeSource")}{" "}
+                                    {memberIncome.length > 1 ? `#${index + 1}` : ""}
                                   </h5>
                                   <Button
                                     variant="ghost"

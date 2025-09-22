@@ -384,6 +384,11 @@ export const en: TranslationData = {
       selectType: "Select type",
       additionalIncomeDetails: "Additional details about this income source",
       clickAddIncomeToStart: 'Click "Add Income" to get started',
+      noEmploymentInformation: "No employment information",
+      clickAddEmploymentToStart: 'Click "Add Employment" to get started',
+      noAdditionalIncomeSources: "No additional income sources",
+      noAdditionalIncomeSourcesAdded: "No additional income sources added yet",
+      incomeSource: "income source",
       expenseInformation: "Expense Information",
       currentExpenses: "Current Expenses",
       housingExpenses: "Housing Expenses",
@@ -780,6 +785,11 @@ export const en: TranslationData = {
     retry: "Retry",
     previous: "Previous",
     complete: "Complete",
+    you: "You",
+    applicant: "Applicant",
+    expenseType: "Expense Type",
+    clickNextToContinue: "Click Next to Continue to",
+    job: "Job",
   },
 
   // AI Chat Widget translations
@@ -886,7 +896,7 @@ export const en: TranslationData = {
     },
   },
 
-  // Site footer translations
+  // Footer translations
   footer: {
     companyName: "Benefit Bridge",
     description: "Streamlined applications for Medicaid and SNAP benefits.",
@@ -909,7 +919,7 @@ export const en: TranslationData = {
     copyright: "© 2024 Benefit Bridge. All rights reserved.",
   },
 
-  // Notifications modal translations
+  // Notifications translations
   notifications: {
     title: "Notifications",
     applicationProgressSaved: "Application Progress Saved",
@@ -917,11 +927,11 @@ export const en: TranslationData = {
     applicationSubmitted: "Application Submitted",
     progressSavedMessage: "Your benefits application has been automatically saved.",
     documentRequiredMessage: "Please upload proof of income to complete your application.",
-    applicationSubmittedMessage: "Your SNAP benefits application has been successfully submitted.",
+    applicationSubmittedMessage: "Your SNAP benefits application has been submitted successfully.",
     viewAllNotifications: "View All Notifications",
   },
 
-  // Application flow navigation translations
+  // Application Flow Navigation
   applicationFlow: {
     steps: [
       {
@@ -971,6 +981,7 @@ export const en: TranslationData = {
     },
   },
 
+  // Step navigation translations
   stepNavigation: {
     stepOf: "Step {{current}} of {{total}}",
     taxFilingStatus: "Tax Filing Status",
@@ -980,6 +991,7 @@ export const en: TranslationData = {
     healthAndDisability: "Health & Disability Information",
   },
 
+  // Form field translations
   formFields: {
     incomeSource: "Income Source",
     incomeType: "Income Type",
@@ -995,8 +1007,8 @@ export const en: TranslationData = {
     jobTitle: "Job Title",
     enterJobTitle: "Enter job title",
     monthlyIncome: "Monthly Income ($)",
-    hoursPerWeek: "Hours Per Week",
-    employedFullTime: "Employed Full-Time",
+    hoursPerWeek: "Hours per Week",
+    employedFullTime: "Employed Full Time",
     single: "Single",
     marriedFilingJointly: "Married Filing Jointly",
     marriedFilingSeparately: "Married Filing Separately",
@@ -1011,7 +1023,7 @@ export const en: TranslationData = {
     medicalBillsExpenses: "Medical Bills & Expenses",
     recentMedicalBills: "Recent medical bills and expenses for household members",
     anyMedicalBills:
-      "Does anyone in the household have any paid or unpaid medical bills with a date of service from this month or within the past 3 months?",
+      "Does anyone in the household have paid or unpaid medical bills with a service date from this month or within the last 3 months?",
     healthInsuranceInformation: "Health Insurance Information",
     currentHealthInsurance: "Current health insurance coverage for all household members",
     applicantYou: "Applicant (You)",
@@ -1035,6 +1047,7 @@ export const en: TranslationData = {
     remove: "Remove",
   },
 
+  // Review page translations
   reviewPage: {
     title: "Review Your Application",
     subtitle:
