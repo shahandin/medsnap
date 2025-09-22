@@ -1,4 +1,11 @@
 "use client"
+\
+w I'll update the personal information form to use translation keys for all hardcoded strings:
+
+<CodeProject id="medicaid-snap-app" taskNameActive="Updating personal info form" taskNameComplete="Updated personal info form">
+
+```tsx file="components/personal-information-form.tsx"
+"use client"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -31,85 +38,88 @@ interface PersonalInformationFormProps {
   onAddressValidation?: (isValidating: boolean, suggestion: any | null) => void
 }
 
-const LANGUAGE_OPTIONS = [
-  { value: "english", label: "English" },
-  { value: "spanish", label: "Spanish (Español)" },
-  { value: "chinese_mandarin", label: "Chinese - Mandarin (中文)" },
-  { value: "chinese_cantonese", label: "Chinese - Cantonese (粵語)" },
-  { value: "vietnamese", label: "Vietnamese (Tiếng Việt)" },
-  { value: "korean", label: "Korean (한국어)" },
-  { value: "russian", label: "Russian (Русский)" },
-  { value: "arabic", label: "Arabic (العربية)" },
-  { value: "french", label: "French (Français)" },
-  { value: "portuguese", label: "Portuguese (Português)" },
-  { value: "tagalog", label: "Tagalog" },
-  { value: "hindi", label: "Hindi (हिन्दी)" },
-  { value: "urdu", label: "Urdu (اردو)" },
-  { value: "bengali", label: "Bengali (বাংলা)" },
-  { value: "punjabi", label: "Punjabi (ਪੰਜਾਬੀ)" },
-  { value: "gujarati", label: "Gujarati (ગુજરાતી)" },
-  { value: "tamil", label: "Tamil (தமிழ்)" },
-  { value: "telugu", label: "Telugu (తెలుగు)" },
-  { value: "marathi", label: "Marathi (मराठी)" },
-  { value: "japanese", label: "Japanese (日本語)" },
-  { value: "thai", label: "Thai (ไทย)" },
-  { value: "laotian", label: "Laotian (ລາວ)" },
-  { value: "cambodian", label: "Cambodian (ខ្មែរ)" },
-  { value: "burmese", label: "Burmese (မြန်မာ)" },
-  { value: "nepali", label: "Nepali (नेपाली)" },
-  { value: "somali", label: "Somali" },
-  { value: "amharic", label: "Amharic (አማርኛ)" },
-  { value: "tigrinya", label: "Tigrinya (ትግርኛ)" },
-  { value: "oromo", label: "Oromo (Afaan Oromoo)" },
-  { value: "swahili", label: "Swahili (Kiswahili)" },
-  { value: "haitian_creole", label: "Haitian Creole (Kreyòl Ayisyen)" },
-  { value: "italian", label: "Italian (Italiano)" },
-  { value: "german", label: "German (Deutsch)" },
-  { value: "polish", label: "Polish (Polski)" },
-  { value: "ukrainian", label: "Ukrainian (Українська)" },
-  { value: "romanian", label: "Romanian (Română)" },
-  { value: "greek", label: "Greek (Ελληνικά)" },
-  { value: "serbian", label: "Serbian (Српски)" },
-  { value: "croatian", label: "Croatian (Hrvatski)" },
-  { value: "bosnian", label: "Bosnian (Bosanski)" },
-  { value: "albanian", label: "Albanian (Shqip)" },
-  { value: "armenian", label: "Armenian (Հայերեն)" },
-  { value: "persian", label: "Persian/Farsi (فارسی)" },
-  { value: "pashto", label: "Pashto (پښتو)" },
-  { value: "dari", label: "Dari (دری)" },
-  { value: "turkish", label: "Turkish (Türkçe)" },
-  { value: "kurdish", label: "Kurdish (Kurdî)" },
-  { value: "hebrew", label: "Hebrew (עברית)" },
-  { value: "dutch", label: "Dutch (Nederlands)" },
-  { value: "swedish", label: "Swedish (Svenska)" },
-  { value: "norwegian", label: "Norwegian (Norsk)" },
-  { value: "danish", label: "Danish (Dansk)" },
-  { value: "finnish", label: "Finnish (Suomi)" },
-  { value: "hungarian", label: "Hungarian (Magyar)" },
-  { value: "czech", label: "Czech (Čeština)" },
-  { value: "slovak", label: "Slovak (Slovenčina)" },
-  { value: "slovenian", label: "Slovenian (Slovenščina)" },
-  { value: "lithuanian", label: "Lithuanian (Lietuvių)" },
-  { value: "latvian", label: "Latvian (Latviešu)" },
-  { value: "estonian", label: "Estonian (Eesti)" },
-  { value: "maltese", label: "Maltese (Malti)" },
-  { value: "irish", label: "Irish (Gaeilge)" },
-  { value: "welsh", label: "Welsh (Cymraeg)" },
-  { value: "scottish_gaelic", label: "Scottish Gaelic (Gàidhlig)" },
-]
-
-const CITIZENSHIP_OPTIONS = [
-  { value: "us_citizen", label: "U.S. Citizen" },
-  { value: "permanent_resident", label: "Permanent Resident" },
-  { value: "refugee", label: "Refugee" },
-  { value: "asylee", label: "Asylee" },
-  { value: "other_qualified", label: "Other Qualified Alien" },
-]
-
 export const PersonalInformationForm = forwardRef<
   { validateAddress: () => Promise<{ isValid: boolean; suggestion: any | null }> },
   PersonalInformationFormProps
 >(({ personalInfo, onUpdate, onAddressValidation }, ref) => {
+  const { t } = useTranslation()
+
+  const LANGUAGE_OPTIONS = [
+    { value: "english", label: t("forms.personalInfo.languages.english") },
+    { value: "spanish", label: t("forms.personalInfo.languages.spanish") },
+    { value: "chinese_mandarin", label: t("forms.personalInfo.languages.chinese") },
+    { value: "chinese_cantonese", label: "Chinese - Cantonese (粵語)" },
+    { value: "vietnamese", label: t("forms.personalInfo.languages.vietnamese") },
+    { value: "korean", label: t("forms.personalInfo.languages.korean") },
+    { value: "russian", label: t("forms.personalInfo.languages.russian") },
+    { value: "arabic", label: t("forms.personalInfo.languages.arabic") },
+    { value: "french", label: t("forms.personalInfo.languages.french") },
+    { value: "portuguese", label: t("forms.personalInfo.languages.portuguese") },
+    { value: "tagalog", label: t("forms.personalInfo.languages.tagalog") },
+    { value: "hindi", label: t("forms.personalInfo.languages.hindi") },
+    { value: "urdu", label: "Urdu (اردو)" },
+    { value: "bengali", label: "Bengali (বাংলা)" },
+    { value: "punjabi", label: "Punjabi (ਪੰਜਾਬੀ)" },
+    { value: "gujarati", label: "Gujarati (ગુજરાતી)" },
+    { value: "tamil", label: "Tamil (தமிழ்)" },
+    { value: "telugu", label: "Telugu (తెలుగు)" },
+    { value: "marathi", label: "Marathi (मराठी)" },
+    { value: "japanese", label: t("forms.personalInfo.languages.japanese") },
+    { value: "thai", label: "Thai (ไทย)" },
+    { value: "laotian", label: "Laotian (ລາວ)" },
+    { value: "cambodian", label: "Cambodian (ខ្មែរ)" },
+    { value: "burmese", label: "Burmese (မြန်မာ)" },
+    { value: "nepali", label: "Nepali (नेपाली)" },
+    { value: "somali", label: "Somali" },
+    { value: "amharic", label: "Amharic (አማርኛ)" },
+    { value: "tigrinya", label: "Tigrinya (ትግርኛ)" },
+    { value: "oromo", label: "Oromo (Afaan Oromoo)" },
+    { value: "swahili", label: "Swahili (Kiswahili)" },
+    { value: "haitian_creole", label: "Haitian Creole (Kreyòl Ayisyen)" },
+    { value: "italian", label: t("forms.personalInfo.languages.italian") },
+    { value: "german", label: t("forms.personalInfo.languages.german") },
+    { value: "polish", label: "Polish (Polski)" },
+    { value: "ukrainian", label: "Ukrainian (Українська)" },
+    { value: "romanian", label: "Romanian (Română)" },
+    { value: "greek", label: "Greek (Ελληνικά)" },
+    { value: "serbian", label: "Serbian (Српски)" },
+    { value: "croatian", label: "Croatian (Hrvatski)" },
+    { value: "bosnian", label: "Bosnian (Bosanski)" },
+    { value: "albanian", label: "Albanian (Shqip)" },
+    { value: "armenian", label: "Armenian (Հայերեն)" },
+    { value: "persian", label: "Persian/Farsi (فارسی)" },
+    { value: "pashto", label: "Pashto (پښتو)" },
+    { value: "dari", label: "Dari (دری)" },
+    { value: "turkish", label: "Turkish (Türkçe)" },
+    { value: "kurdish", label: "Kurdish (Kurdî)" },
+    { value: "hebrew", label: "Hebrew (עברית)" },
+    { value: "dutch", label: "Dutch (Nederlands)" },
+    { value: "swedish", label: "Swedish (Svenska)" },
+    { value: "norwegian", label: "Norwegian (Norsk)" },
+    { value: "danish", label: "Danish (Dansk)" },
+    { value: "finnish", label: "Finnish (Suomi)" },
+    { value: "hungarian", label: "Hungarian (Magyar)" },
+    { value: "czech", label: "Czech (Čeština)" },
+    { value: "slovak", label: "Slovak (Slovenčina)" },
+    { value: "slovenian", label: "Slovenian (Slovenščina)" },
+    { value: "lithuanian", label: "Lithuanian (Lietuvių)" },
+    { value: "latvian", label: "Latvian (Latviešu)" },
+    { value: "estonian", label: "Estonian (Eesti)" },
+    { value: "maltese", label: "Maltese (Malti)" },
+    { value: "irish", label: "Irish (Gaeilge)" },
+    { value: "welsh", label: "Welsh (Cymraeg)" },
+    { value: "scottish_gaelic", label: "Scottish Gaelic (Gàidhlig)" },
+    { value: "other", label: t("forms.personalInfo.languages.other") },
+  ]
+
+  const CITIZENSHIP_OPTIONS = [
+    { value: "us_citizen", label: t("forms.personalInfo.citizenshipStatuses.usCitizen") },
+    { value: "permanent_resident", label: t("forms.personalInfo.citizenshipStatuses.permanentResident") },
+    { value: "refugee", label: t("forms.personalInfo.citizenshipStatuses.refugee") },
+    { value: "asylee", label: t("forms.personalInfo.citizenshipStatuses.asylee") },
+    { value: "other_qualified", label: t("forms.personalInfo.citizenshipStatuses.otherQualifiedAlien") },
+  ]
+
   const updateField = (field: string, value: string) => {
     if (field.includes(".")) {
       const [parent, child] = field.split(".")
@@ -166,8 +176,6 @@ export const PersonalInformationForm = forwardRef<
     [],
   )
 
-  const { t } = useTranslation()
-
   return (
     <div className="space-y-4 sm:space-y-6">
       <div className="text-center">
@@ -176,7 +184,7 @@ export const PersonalInformationForm = forwardRef<
         </div>
         <h3 className="text-lg sm:text-xl font-semibold mb-2">{t("forms.personalInfo.title")}</h3>
         <p className="text-sm sm:text-base text-gray-600">
-          {t("forms.personalInfo.subtitle")}. All fields are required.
+          {t("forms.personalInfo.subtitle")}. {t("forms.personalInfo.allFieldsRequired")}
         </p>
       </div>
 
@@ -248,7 +256,7 @@ export const PersonalInformationForm = forwardRef<
                   type="text"
                   value={personalInfo.firstName}
                   onChange={(e) => updateField("firstName", e.target.value)}
-                  placeholder="Enter your first name"
+                  placeholder={t("forms.personalInfo.firstNamePlaceholder")}
                   required
                   className="h-14 sm:h-10 text-lg sm:text-base touch-manipulation px-4 sm:px-3"
                 />
@@ -262,7 +270,7 @@ export const PersonalInformationForm = forwardRef<
                   type="text"
                   value={personalInfo.lastName}
                   onChange={(e) => updateField("lastName", e.target.value)}
-                  placeholder="Enter your last name"
+                  placeholder={t("forms.personalInfo.lastNamePlaceholder")}
                   required
                   className="h-14 sm:h-10 text-lg sm:text-base touch-manipulation px-4 sm:px-3"
                 />
@@ -283,14 +291,14 @@ export const PersonalInformationForm = forwardRef<
             </div>
             <div className="space-y-3 sm:space-y-2">
               <Label htmlFor="languagePreference" className="text-base sm:text-sm font-medium">
-                Preferred Language *
+                {t("forms.personalInfo.preferredLanguage")} *
               </Label>
               <Select
                 value={personalInfo.languagePreference}
                 onValueChange={(value) => updateField("languagePreference", value)}
               >
                 <SelectTrigger className="h-14 sm:h-10 text-lg sm:text-base touch-manipulation px-4 sm:px-3">
-                  <SelectValue placeholder="Select your preferred language" />
+                  <SelectValue placeholder={t("forms.personalInfo.selectPreferredLanguage")} />
                 </SelectTrigger>
                 <SelectContent>
                   {LANGUAGE_OPTIONS.map((language) => (
@@ -323,14 +331,14 @@ export const PersonalInformationForm = forwardRef<
           <CardContent className="space-y-5 sm:space-y-4">
             <div className="space-y-3 sm:space-y-2">
               <Label htmlFor="street" className="text-base sm:text-sm font-medium">
-                {t("forms.personalInfo.address")} *
+                {t("forms.personalInfo.streetAddress")} *
               </Label>
               <Input
                 id="street"
                 type="text"
                 value={personalInfo.address.street}
                 onChange={(e) => updateField("address.street", e.target.value)}
-                placeholder="Enter your street address"
+                placeholder={t("forms.personalInfo.streetAddressPlaceholder")}
                 required
                 className="h-14 sm:h-10 text-lg sm:text-base touch-manipulation px-4 sm:px-3"
               />
@@ -345,7 +353,7 @@ export const PersonalInformationForm = forwardRef<
                   type="text"
                   value={personalInfo.address.city}
                   onChange={(e) => updateField("address.city", e.target.value)}
-                  placeholder="Enter your city"
+                  placeholder={t("forms.personalInfo.cityPlaceholder")}
                   required
                   className="h-14 sm:h-10 text-lg sm:text-base touch-manipulation px-4 sm:px-3"
                 />
@@ -359,7 +367,7 @@ export const PersonalInformationForm = forwardRef<
                   type="text"
                   value={personalInfo.address.state}
                   onChange={(e) => updateField("address.state", e.target.value)}
-                  placeholder="State"
+                  placeholder={t("forms.personalInfo.statePlaceholder")}
                   disabled
                   className="bg-gray-50 h-14 sm:h-10 text-lg sm:text-base px-4 sm:px-3"
                 />
@@ -439,14 +447,14 @@ export const PersonalInformationForm = forwardRef<
           <CardContent className="space-y-5 sm:space-y-4">
             <div className="space-y-3 sm:space-y-2">
               <Label htmlFor="citizenshipStatus" className="text-base sm:text-sm font-medium">
-                U.S. Citizenship Status *
+                {t("forms.personalInfo.citizenshipStatus")} *
               </Label>
               <Select
                 value={personalInfo.citizenshipStatus}
                 onValueChange={(value) => updateField("citizenshipStatus", value)}
               >
                 <SelectTrigger className="h-14 sm:h-10 text-lg sm:text-base touch-manipulation px-4 sm:px-3">
-                  <SelectValue placeholder="Select your citizenship status" />
+                  <SelectValue placeholder={t("forms.personalInfo.selectCitizenshipStatus")} />
                 </SelectTrigger>
                 <SelectContent>
                   {CITIZENSHIP_OPTIONS.map((option) => (
