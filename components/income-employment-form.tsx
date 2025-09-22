@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
+import { useTranslation } from "@/contexts/translation-context"
 import {
   Briefcase,
   Plus,
@@ -82,83 +83,84 @@ interface IncomeEmploymentFormProps {
   applicantName: string
 }
 
-const TAX_FILING_OPTIONS = [
-  { value: "single", label: "Single" },
-  { value: "married_filing_jointly", label: "Married Filing Jointly" },
-  { value: "married_filing_separately", label: "Married Filing Separately" },
-  { value: "head_of_household", label: "Head of Household" },
-  { value: "qualifying_widow", label: "Qualifying Widow(er)" },
-]
-
-const EMPLOYMENT_STATUS_OPTIONS = [
-  { value: "employed_full_time", label: "Employed Full-Time" },
-  { value: "employed_part_time", label: "Employed Part-Time" },
-  { value: "self_employed", label: "Self-Employed" },
-  { value: "unemployed", label: "Unemployed" },
-  { value: "retired", label: "Retired" },
-  { value: "disabled", label: "Disabled/Unable to Work" },
-  { value: "student", label: "Student" },
-  { value: "homemaker", label: "Homemaker" },
-]
-
-const INCOME_TYPES = [
-  { value: "wages", label: "Wages/Salary (W-2)" },
-  { value: "self_employment", label: "Self-Employment Income" },
-  { value: "unemployment", label: "Unemployment Benefits" },
-  { value: "social_security", label: "Social Security Benefits" },
-  { value: "disability", label: "Disability Benefits" },
-  { value: "retirement", label: "Retirement/Pension" },
-  { value: "child_support", label: "Child Support" },
-  { value: "alimony", label: "Alimony" },
-  { value: "rental", label: "Rental Income" },
-  { value: "investment", label: "Investment Income" },
-  { value: "capital_gains", label: "Capital Gains" },
-  { value: "dividends", label: "Dividends" },
-  { value: "other", label: "Other Income" },
-]
-
-const EXPENSE_TYPES = [
-  { value: "medical", label: "Medical/Dental Expenses" },
-  { value: "childcare", label: "Childcare Expenses" },
-  { value: "dependent_care", label: "Dependent Care" },
-  { value: "student_loan", label: "Student Loan Interest" },
-  { value: "alimony_paid", label: "Alimony Paid" },
-  { value: "business", label: "Business Expenses" },
-  { value: "other_deductible", label: "Other Tax Deductible" },
-]
-
-const HOUSING_EXPENSE_TYPES = [
-  { value: "rent", label: "Rent" },
-  { value: "mortgage", label: "Mortgage Payment" },
-  { value: "property_tax", label: "Property Tax" },
-  { value: "homeowners_insurance", label: "Homeowners/Renters Insurance" },
-  { value: "utilities_electric", label: "Electric Bill" },
-  { value: "utilities_gas", label: "Gas Bill" },
-  { value: "utilities_water", label: "Water/Sewer Bill" },
-  { value: "utilities_phone", label: "Phone Bill" },
-  { value: "utilities_internet", label: "Internet Bill" },
-  { value: "utilities_trash", label: "Trash/Recycling" },
-  { value: "hoa_fees", label: "HOA Fees" },
-  { value: "maintenance", label: "Home Maintenance/Repairs" },
-]
-
-const FREQUENCY_OPTIONS = [
-  { value: "weekly", label: "Weekly" },
-  { value: "bi_weekly", label: "Bi-Weekly" },
-  { value: "monthly", label: "Monthly" },
-  { value: "quarterly", label: "Quarterly" },
-  { value: "annually", label: "Annually" },
-]
-
 export function IncomeEmploymentForm({ data, onUpdate, householdMembers, applicantName }: IncomeEmploymentFormProps) {
   const [currentSubStep, setCurrentSubStep] = useState(0)
   const [expandedMembers, setExpandedMembers] = useState<Set<string>>(new Set())
+  const { t } = useTranslation()
+
+  const TAX_FILING_OPTIONS = [
+    { value: "single", label: t("formFields.single") },
+    { value: "married_filing_jointly", label: t("formFields.marriedFilingJointly") },
+    { value: "married_filing_separately", label: t("formFields.marriedFilingSeparately") },
+    { value: "head_of_household", label: t("formFields.headOfHousehold") },
+    { value: "qualifying_widow", label: t("formFields.qualifyingWidow") },
+  ]
+
+  const EMPLOYMENT_STATUS_OPTIONS = [
+    { value: "employed_full_time", label: t("formFields.employedFullTime") },
+    { value: "employed_part_time", label: t("forms.income.employmentStatuses.employed") + " " + t("common.partTime") },
+    { value: "self_employed", label: t("forms.income.incomeTypes.selfEmployment") },
+    { value: "unemployed", label: t("forms.income.employmentStatuses.unemployed") },
+    { value: "retired", label: t("forms.income.employmentStatuses.retired") },
+    { value: "disabled", label: t("forms.income.employmentStatuses.disabled") },
+    { value: "student", label: t("forms.income.employmentStatuses.student") },
+    { value: "homemaker", label: t("forms.income.employmentStatuses.homemaker") },
+  ]
+
+  const INCOME_TYPES = [
+    { value: "wages", label: t("forms.income.incomeTypes.wages") },
+    { value: "self_employment", label: t("forms.income.incomeTypes.selfEmployment") },
+    { value: "unemployment", label: t("forms.income.incomeTypes.unemploymentBenefits") },
+    { value: "social_security", label: t("forms.income.incomeTypes.socialSecurityBenefits") },
+    { value: "disability", label: t("forms.income.incomeTypes.disabilityBenefits") },
+    { value: "retirement", label: t("forms.income.incomeTypes.pension") },
+    { value: "child_support", label: t("common.childSupport") },
+    { value: "alimony", label: t("forms.income.incomeTypes.alimony") },
+    { value: "rental", label: t("forms.income.incomeTypes.rentalIncome") },
+    { value: "investment", label: t("forms.income.incomeTypes.investmentIncome") },
+    { value: "capital_gains", label: t("forms.income.incomeTypes.capitalGains") },
+    { value: "dividends", label: t("forms.income.incomeTypes.dividends") },
+    { value: "other", label: t("forms.income.incomeTypes.other") },
+  ]
+
+  const EXPENSE_TYPES = [
+    { value: "medical", label: t("forms.income.expenseTypes.medicalDental") },
+    { value: "childcare", label: t("forms.income.expenseTypes.childcare") },
+    { value: "dependent_care", label: t("forms.income.expenseTypes.dependentCare") },
+    { value: "student_loan", label: t("common.studentLoan") },
+    { value: "alimony_paid", label: t("forms.income.expenseTypes.alimonyPaid") },
+    { value: "business", label: t("forms.income.expenseTypes.businessExpenses") },
+    { value: "other_deductible", label: t("forms.income.expenseTypes.otherTaxDeductible") },
+  ]
+
+  const HOUSING_EXPENSE_TYPES = [
+    { value: "rent", label: t("forms.income.expenseTypes.rent") },
+    { value: "mortgage", label: t("forms.income.expenseTypes.mortgagePayment") },
+    { value: "property_tax", label: t("forms.income.expenseTypes.propertyTax") },
+    { value: "homeowners_insurance", label: t("forms.income.expenseTypes.homeownersInsurance") },
+    { value: "utilities_electric", label: t("forms.income.expenseTypes.electricBill") },
+    { value: "utilities_gas", label: t("forms.income.expenseTypes.gasBill") },
+    { value: "utilities_water", label: t("forms.income.expenseTypes.waterSewerBill") },
+    { value: "utilities_phone", label: t("forms.income.expenseTypes.phoneBill") },
+    { value: "utilities_internet", label: t("forms.income.expenseTypes.internetBill") },
+    { value: "utilities_trash", label: t("forms.income.expenseTypes.trashRecycling") },
+    { value: "hoa_fees", label: t("forms.income.expenseTypes.hoaFees") },
+    { value: "maintenance", label: t("forms.income.expenseTypes.homeMaintenanceRepairs") },
+  ]
+
+  const FREQUENCY_OPTIONS = [
+    { value: "weekly", label: t("common.weekly") },
+    { value: "bi_weekly", label: t("common.biWeekly") },
+    { value: "monthly", label: t("formFields.monthly") },
+    { value: "quarterly", label: t("common.quarterly") },
+    { value: "annually", label: t("common.annually") },
+  ]
 
   // Create list of all household members including applicant
   const allMembers = [
     {
       id: "applicant",
-      firstName: applicantName.split(" ")[0] || "Applicant",
+      firstName: applicantName.split(" ")[0] || t("common.applicant"),
       lastName: applicantName.split(" ").slice(1).join(" ") || "",
       relationship: "self",
     },
@@ -308,14 +310,14 @@ export function IncomeEmploymentForm({ data, onUpdate, householdMembers, applica
                 <StepIcon className="w-5 h-5" />
                 {currentStep.title}
               </CardTitle>
-              <CardDescription>Select your tax filing status for the current year</CardDescription>
+              <CardDescription>{t("forms.income.selectTaxFilingStatus")}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                <Label htmlFor="taxFilingStatus">Tax Filing Status *</Label>
+                <Label htmlFor="taxFilingStatus">{t("forms.income.taxFilingStatus")} *</Label>
                 <Select value={data.taxFilingStatus} onValueChange={(value) => updateData({ taxFilingStatus: value })}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select your tax filing status" />
+                    <SelectValue placeholder={t("forms.income.selectTaxFilingStatus")} />
                   </SelectTrigger>
                   <SelectContent>
                     {TAX_FILING_OPTIONS.map((option) => (
@@ -338,7 +340,7 @@ export function IncomeEmploymentForm({ data, onUpdate, householdMembers, applica
                 <StepIcon className="w-5 h-5" />
                 {currentStep.title}
               </CardTitle>
-              <CardDescription>Employment status and details for all household members</CardDescription>
+              <CardDescription>{t("forms.income.employmentInformation")}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {allMembers.map((member) => {
@@ -362,12 +364,13 @@ export function IncomeEmploymentForm({ data, onUpdate, householdMembers, applica
                         )}
                         <div>
                           <h4 className="font-medium text-base">
-                            {memberName} {member.relationship === "self" ? "(You)" : `(${member.relationship})`}
+                            {memberName}{" "}
+                            {member.relationship === "self" ? `(${t("common.you")})` : `(${member.relationship})`}
                           </h4>
                           <p className="text-sm text-muted-foreground">
                             {hasEmployment
-                              ? `${memberEmployments.length} employment ${memberEmployments.length === 1 ? "entry" : "entries"}`
-                              : "No employment information"}
+                              ? `${memberEmployments.length} ${t("formFields.oneEmploymentEntry")}`
+                              : t("forms.income.noEmploymentInformation")}
                           </p>
                         </div>
                       </div>
@@ -384,7 +387,7 @@ export function IncomeEmploymentForm({ data, onUpdate, householdMembers, applica
                         className="shrink-0"
                       >
                         <Plus className="w-4 h-4 mr-2" />
-                        {hasEmployment ? "Add Job" : "Add Employment"}
+                        {hasEmployment ? t("forms.income.addJob") : t("forms.income.addEmployment")}
                       </Button>
                     </div>
 
@@ -393,8 +396,8 @@ export function IncomeEmploymentForm({ data, onUpdate, householdMembers, applica
                       <div className="p-4 space-y-4 bg-background">
                         {memberEmployments.length === 0 ? (
                           <div className="text-center py-8 text-muted-foreground">
-                            <p>No employment information added yet</p>
-                            <p className="text-sm mt-1">Click "Add Employment" above to get started</p>
+                            <p>{t("forms.income.noEmploymentInformationAdded")}</p>
+                            <p className="text-sm mt-1">{t("forms.income.clickAddEmploymentToStart")}</p>
                           </div>
                         ) : (
                           <div className="space-y-3">
@@ -405,7 +408,7 @@ export function IncomeEmploymentForm({ data, onUpdate, householdMembers, applica
                                   <div className="flex justify-between items-center">
                                     {memberEmployments.length > 1 && (
                                       <h5 className="font-medium text-sm text-muted-foreground">
-                                        Job #{employmentIndex + 1}
+                                        {t("common.job")} #{employmentIndex + 1}
                                       </h5>
                                     )}
                                     <Button
@@ -415,19 +418,19 @@ export function IncomeEmploymentForm({ data, onUpdate, householdMembers, applica
                                       className="text-red-600 hover:text-red-700 hover:bg-red-50 ml-auto"
                                     >
                                       <Trash2 className="w-4 h-4 mr-1" />
-                                      Remove
+                                      {t("common.remove")}
                                     </Button>
                                   </div>
 
                                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                      <Label>Employment Status *</Label>
+                                      <Label>{t("forms.income.employmentStatus")} *</Label>
                                       <Select
                                         value={memberEmployment.status}
                                         onValueChange={(value) => updateEmployment(globalIndex, { status: value })}
                                       >
                                         <SelectTrigger>
-                                          <SelectValue placeholder="Select status" />
+                                          <SelectValue placeholder={t("forms.income.selectStatus")} />
                                         </SelectTrigger>
                                         <SelectContent>
                                           {EMPLOYMENT_STATUS_OPTIONS.map((option) => (
@@ -444,7 +447,7 @@ export function IncomeEmploymentForm({ data, onUpdate, householdMembers, applica
                                       memberEmployment.status === "self_employed") && (
                                       <>
                                         <div className="space-y-2">
-                                          <Label>Employer/Business Name</Label>
+                                          <Label>{t("formFields.employerBusinessName")}</Label>
                                           <Input
                                             value={memberEmployment.employer || ""}
                                             onChange={(e) =>
@@ -452,11 +455,11 @@ export function IncomeEmploymentForm({ data, onUpdate, householdMembers, applica
                                                 employer: e.target.value,
                                               })
                                             }
-                                            placeholder="Enter employer name"
+                                            placeholder={t("formFields.enterEmployerName")}
                                           />
                                         </div>
                                         <div className="space-y-2">
-                                          <Label>Job Title</Label>
+                                          <Label>{t("formFields.jobTitle")}</Label>
                                           <Input
                                             value={memberEmployment.jobTitle || ""}
                                             onChange={(e) =>
@@ -464,11 +467,11 @@ export function IncomeEmploymentForm({ data, onUpdate, householdMembers, applica
                                                 jobTitle: e.target.value,
                                               })
                                             }
-                                            placeholder="Enter job title"
+                                            placeholder={t("formFields.enterJobTitle")}
                                           />
                                         </div>
                                         <div className="space-y-2">
-                                          <Label>Monthly Income ($)</Label>
+                                          <Label>{t("formFields.monthlyIncome")} ($)</Label>
                                           <Input
                                             type="number"
                                             value={memberEmployment.monthlyIncome || ""}
@@ -481,7 +484,7 @@ export function IncomeEmploymentForm({ data, onUpdate, householdMembers, applica
                                           />
                                         </div>
                                         <div className="space-y-2">
-                                          <Label>Hours Per Week</Label>
+                                          <Label>{t("formFields.hoursPerWeek")}</Label>
                                           <Input
                                             type="number"
                                             value={memberEmployment.hoursPerWeek || ""}
@@ -518,7 +521,7 @@ export function IncomeEmploymentForm({ data, onUpdate, householdMembers, applica
                 <StepIcon className="w-5 h-5" />
                 {currentStep.title}
               </CardTitle>
-              <CardDescription>All sources of income for household members</CardDescription>
+              <CardDescription>{t("forms.income.otherIncomeInformation")}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {allMembers.map((member) => {
@@ -553,12 +556,13 @@ export function IncomeEmploymentForm({ data, onUpdate, householdMembers, applica
                           </div>
                           <div>
                             <div className="font-medium text-gray-900">
-                              {memberName} {member.relationship === "self" ? "(You)" : `(${member.relationship})`}
+                              {memberName}{" "}
+                              {member.relationship === "self" ? `(${t("common.you")})` : `(${member.relationship})`}
                             </div>
                             <div className="text-sm text-gray-500">
                               {memberIncome.length === 0
-                                ? "No additional income sources"
-                                : `${memberIncome.length} income source${memberIncome.length !== 1 ? "s" : ""}`}
+                                ? t("forms.income.noAdditionalIncomeSources")
+                                : `${memberIncome.length} ${t("forms.income.incomeSource")}${memberIncome.length !== 1 ? "s" : ""}`}
                             </div>
                           </div>
                         </button>
@@ -569,7 +573,7 @@ export function IncomeEmploymentForm({ data, onUpdate, householdMembers, applica
                           className="ml-2"
                         >
                           <Plus className="w-4 h-4 mr-1" />
-                          {memberIncome.length === 0 ? "Add Income" : "Add More"}
+                          {memberIncome.length === 0 ? t("forms.income.addIncome") : t("forms.income.addMore")}
                         </Button>
                       </div>
                     </CardHeader>
@@ -579,8 +583,8 @@ export function IncomeEmploymentForm({ data, onUpdate, householdMembers, applica
                         {memberIncome.length === 0 ? (
                           <div className="text-center py-8 text-gray-500 border-2 border-dashed rounded-lg">
                             <TrendingUp className="w-8 h-8 mx-auto mb-2 text-gray-400" />
-                            <p>No additional income sources added yet</p>
-                            <p className="text-sm">Click "Add Income" to get started</p>
+                            <p>{t("forms.income.noAdditionalIncomeSourcesAdded")}</p>
+                            <p className="text-sm">{t("forms.income.clickAddIncomeToStart")}</p>
                           </div>
                         ) : (
                           memberIncome.map((income, index) => (
@@ -588,7 +592,7 @@ export function IncomeEmploymentForm({ data, onUpdate, householdMembers, applica
                               <CardContent className="p-4">
                                 <div className="flex justify-between items-start mb-4">
                                   <h5 className="font-medium text-gray-900">
-                                    Income Source {memberIncome.length > 1 ? `#${index + 1}` : ""}
+                                    {t("formFields.incomeSource")} {memberIncome.length > 1 ? `#${index + 1}` : ""}
                                   </h5>
                                   <Button
                                     variant="ghost"
@@ -602,13 +606,13 @@ export function IncomeEmploymentForm({ data, onUpdate, householdMembers, applica
 
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                                   <div className="space-y-2">
-                                    <Label>Income Type *</Label>
+                                    <Label>{t("formFields.incomeType")} *</Label>
                                     <Select
                                       value={income.type}
                                       onValueChange={(value) => updateIncome(income.id, { type: value })}
                                     >
                                       <SelectTrigger>
-                                        <SelectValue placeholder="Select type" />
+                                        <SelectValue placeholder={t("formFields.selectType")} />
                                       </SelectTrigger>
                                       <SelectContent>
                                         {INCOME_TYPES.map((option) => (
@@ -620,7 +624,7 @@ export function IncomeEmploymentForm({ data, onUpdate, householdMembers, applica
                                     </Select>
                                   </div>
                                   <div className="space-y-2">
-                                    <Label>Amount ($) *</Label>
+                                    <Label>{t("formFields.amount")} *</Label>
                                     <Input
                                       type="number"
                                       value={income.amount || ""}
@@ -631,7 +635,7 @@ export function IncomeEmploymentForm({ data, onUpdate, householdMembers, applica
                                     />
                                   </div>
                                   <div className="space-y-2">
-                                    <Label>Frequency *</Label>
+                                    <Label>{t("formFields.frequency")} *</Label>
                                     <Select
                                       value={income.frequency}
                                       onValueChange={(value) => updateIncome(income.id, { frequency: value })}
@@ -651,11 +655,11 @@ export function IncomeEmploymentForm({ data, onUpdate, householdMembers, applica
                                 </div>
 
                                 <div className="space-y-2">
-                                  <Label>Description (Optional)</Label>
+                                  <Label>{t("formFields.description")}</Label>
                                   <Input
                                     value={income.description || ""}
                                     onChange={(e) => updateIncome(income.id, { description: e.target.value })}
-                                    placeholder="Additional details about this income source"
+                                    placeholder={t("formFields.additionalDetails")}
                                   />
                                 </div>
                               </CardContent>
@@ -679,24 +683,24 @@ export function IncomeEmploymentForm({ data, onUpdate, householdMembers, applica
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Receipt className="w-5 h-5" />
-                  Housing & Living Expenses
+                  {t("formFields.housingLivingExpenses")}
                 </CardTitle>
-                <CardDescription>Monthly housing costs and living expenses for your household</CardDescription>
+                <CardDescription>{t("formFields.monthlyHousingCosts")}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex justify-between items-center">
-                  <p className="text-sm text-muted-foreground">Add your regular housing and utility expenses</p>
+                  <p className="text-sm text-muted-foreground">{t("formFields.addRegularExpenses")}</p>
                   <Button size="sm" onClick={addHousingExpense}>
                     <Plus className="w-4 h-4 mr-2" />
-                    Add Housing Expense
+                    {t("formFields.addHousingExpense")}
                   </Button>
                 </div>
 
                 {(data.housingExpenses || []).length === 0 ? (
                   <div className="text-center py-8 text-muted-foreground border-2 border-dashed rounded-lg">
                     <Receipt className="w-8 h-8 mx-auto mb-2 text-muted-foreground/50" />
-                    <p>No housing expenses added yet</p>
-                    <p className="text-sm">Click "Add Housing Expense" to get started</p>
+                    <p>{t("formFields.noHousingExpensesAdded")}</p>
+                    <p className="text-sm">{t("formFields.clickAddHousingExpense")}</p>
                   </div>
                 ) : (
                   <div className="space-y-3">
@@ -705,13 +709,13 @@ export function IncomeEmploymentForm({ data, onUpdate, householdMembers, applica
                         <div className="flex justify-between items-start">
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 flex-1">
                             <div className="space-y-2">
-                              <Label>Expense Type *</Label>
+                              <Label>{t("common.expenseType")} *</Label>
                               <Select
                                 value={expense.type}
                                 onValueChange={(value) => updateHousingExpense(expense.id, { type: value })}
                               >
                                 <SelectTrigger>
-                                  <SelectValue placeholder="Select expense type" />
+                                  <SelectValue placeholder={t("forms.income.selectExpenseType")} />
                                 </SelectTrigger>
                                 <SelectContent>
                                   {HOUSING_EXPENSE_TYPES.map((option) => (
@@ -723,7 +727,7 @@ export function IncomeEmploymentForm({ data, onUpdate, householdMembers, applica
                               </Select>
                             </div>
                             <div className="space-y-2">
-                              <Label>Amount ($) *</Label>
+                              <Label>{t("formFields.amount")} *</Label>
                               <Input
                                 type="number"
                                 value={expense.amount || ""}
@@ -736,7 +740,7 @@ export function IncomeEmploymentForm({ data, onUpdate, householdMembers, applica
                               />
                             </div>
                             <div className="space-y-2">
-                              <Label>Frequency *</Label>
+                              <Label>{t("formFields.frequency")} *</Label>
                               <Select
                                 value={expense.frequency}
                                 onValueChange={(value) => updateHousingExpense(expense.id, { frequency: value })}
@@ -764,11 +768,11 @@ export function IncomeEmploymentForm({ data, onUpdate, householdMembers, applica
                           </Button>
                         </div>
                         <div className="space-y-2">
-                          <Label>Description (Optional)</Label>
+                          <Label>{t("formFields.description")}</Label>
                           <Input
                             value={expense.description || ""}
                             onChange={(e) => updateHousingExpense(expense.id, { description: e.target.value })}
-                            placeholder="Additional details about this expense"
+                            placeholder={t("forms.income.additionalExpenseDetails")}
                           />
                         </div>
                       </div>
@@ -783,9 +787,9 @@ export function IncomeEmploymentForm({ data, onUpdate, householdMembers, applica
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <StepIcon className="w-5 h-5" />
-                  Tax Deductible Expenses
+                  {t("formFields.taxDeductibleExpenses")}
                 </CardTitle>
-                <CardDescription>Expenses that may reduce your taxable income</CardDescription>
+                <CardDescription>{t("formFields.expensesThatReduce")}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 {allMembers.map((member) => {
@@ -796,11 +800,12 @@ export function IncomeEmploymentForm({ data, onUpdate, householdMembers, applica
                     <div key={member.id} className="space-y-4">
                       <div className="flex items-center justify-between">
                         <h4 className="font-medium">
-                          {memberName} {member.relationship === "self" ? "(You)" : `(${member.relationship})`}
+                          {memberName}{" "}
+                          {member.relationship === "self" ? `(${t("common.you")})` : `(${member.relationship})`}
                         </h4>
                         <Button size="sm" onClick={() => addExpense(member.id, memberName)}>
                           <Plus className="w-4 h-4 mr-2" />
-                          Add Expense
+                          {t("formFields.addExpense")}
                         </Button>
                       </div>
 
@@ -809,13 +814,13 @@ export function IncomeEmploymentForm({ data, onUpdate, householdMembers, applica
                           <div className="flex justify-between items-start">
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 flex-1">
                               <div className="space-y-2">
-                                <Label>Expense Type *</Label>
+                                <Label>{t("common.expenseType")} *</Label>
                                 <Select
                                   value={expense.type}
                                   onValueChange={(value) => updateExpense(expense.id, { type: value })}
                                 >
                                   <SelectTrigger>
-                                    <SelectValue placeholder="Select type" />
+                                    <SelectValue placeholder={t("formFields.selectType")} />
                                   </SelectTrigger>
                                   <SelectContent>
                                     {EXPENSE_TYPES.map((option) => (
@@ -827,7 +832,7 @@ export function IncomeEmploymentForm({ data, onUpdate, householdMembers, applica
                                 </Select>
                               </div>
                               <div className="space-y-2">
-                                <Label>Amount ($) *</Label>
+                                <Label>{t("formFields.amount")} *</Label>
                                 <Input
                                   type="number"
                                   value={expense.amount || ""}
@@ -838,7 +843,7 @@ export function IncomeEmploymentForm({ data, onUpdate, householdMembers, applica
                                 />
                               </div>
                               <div className="space-y-2">
-                                <Label>Frequency *</Label>
+                                <Label>{t("formFields.frequency")} *</Label>
                                 <Select
                                   value={expense.frequency}
                                   onValueChange={(value) => updateExpense(expense.id, { frequency: value })}
@@ -866,11 +871,11 @@ export function IncomeEmploymentForm({ data, onUpdate, householdMembers, applica
                             </Button>
                           </div>
                           <div className="space-y-2">
-                            <Label>Description (Optional)</Label>
+                            <Label>{t("formFields.description")}</Label>
                             <Input
                               value={expense.description || ""}
                               onChange={(e) => updateExpense(expense.id, { description: e.target.value })}
-                              placeholder="Additional details about this expense"
+                              placeholder={t("forms.income.additionalExpenseDetails")}
                             />
                           </div>
                         </div>
@@ -891,10 +896,10 @@ export function IncomeEmploymentForm({ data, onUpdate, householdMembers, applica
   }
 
   const subSteps = [
-    { id: "tax-filing", title: "Tax Filing Status", icon: Receipt },
-    { id: "employment", title: "Employment Information", icon: Briefcase },
-    { id: "income", title: "Additional Income", icon: TrendingUp },
-    { id: "expenses", title: "Expenses", icon: Receipt },
+    { id: "tax-filing", title: t("stepNavigation.taxFilingStatus"), icon: Receipt },
+    { id: "employment", title: t("stepNavigation.employmentInformation"), icon: Briefcase },
+    { id: "income", title: t("stepNavigation.additionalIncome"), icon: TrendingUp },
+    { id: "expenses", title: t("stepNavigation.expenses"), icon: Receipt },
   ]
 
   return (
@@ -921,7 +926,8 @@ export function IncomeEmploymentForm({ data, onUpdate, householdMembers, applica
           ))}
         </div>
         <div className="text-sm text-gray-600">
-          Step {currentSubStep + 1} of {subSteps.length}: {subSteps[currentSubStep].title}
+          {t("stepNavigation.stepOf", { current: currentSubStep + 1, total: subSteps.length })}:{" "}
+          {subSteps[currentSubStep].title}
         </div>
       </div>
 
@@ -935,17 +941,17 @@ export function IncomeEmploymentForm({ data, onUpdate, householdMembers, applica
           className="flex items-center gap-2 bg-transparent"
         >
           <ChevronLeft className="w-4 h-4" />
-          Previous
+          {t("common.previous")}
         </Button>
 
         {currentSubStep < subSteps.length - 1 ? (
           <Button onClick={handleNextSubStep} disabled={!canProceedToNextSubStep()} className="flex items-center gap-2">
-            Continue
+            {t("common.continue")}
             <ChevronRight className="w-4 h-4" />
           </Button>
         ) : (
           <div className="text-sm text-gray-600 flex items-center">
-            Click "Next" below to continue to Health & Disability
+            {t("common.clickNextToContinue")} {t("stepNavigation.healthAndDisability")}
           </div>
         )}
       </div>
