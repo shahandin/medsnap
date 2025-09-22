@@ -57,16 +57,16 @@ export function BenefitSelection({
 
   const getErrorMessage = (optionId: string) => {
     if (submittedApplications.includes("both")) {
-      return t("benefitSelection.errors.alreadySubmittedBoth")
+      return t("benefitSelection.alreadySubmittedMessage")
     }
 
     if (optionId === "both" && (submittedApplications.includes("medicaid") || submittedApplications.includes("snap"))) {
-      return t("benefitSelection.errors.cannotApplyBothAfterIndividual")
+      return t("benefitSelection.cannotApplyBothError")
     }
 
     if (submittedApplications.includes(optionId)) {
       const benefitName = optionId === "medicaid" ? t("benefits.medicaid") : t("benefits.snap")
-      return t("benefitSelection.errors.alreadySubmittedIndividual", { benefitName })
+      return t("benefitSelection.alreadySubmittedError", { benefit: benefitName })
     }
 
     return null
@@ -82,36 +82,34 @@ export function BenefitSelection({
     return (
       <div className="space-y-6">
         <div className="text-center mb-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">{t("benefitSelection.applicationStatus.title")}</h2>
-          <p className="text-gray-600">{t("benefitSelection.applicationStatus.subtitle")}</p>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">{t("benefitSelection.title")}</h2>
+          <p className="text-gray-600">{t("benefitSelection.subtitle")}</p>
         </div>
 
         <Card className="bg-blue-50 border-blue-200">
           <CardHeader className="text-center">
             <CardTitle className="text-blue-900 flex items-center justify-center gap-2">
               <Check className="w-5 h-5" />
-              {t("benefitSelection.applicationStatus.submitted")}
+              {t("benefitSelection.applicationsSubmitted")}
             </CardTitle>
             <CardDescription className="text-blue-800">
-              {t("benefitSelection.applicationStatus.pendingReview")}
+              {t("benefitSelection.applicationsPendingReview")}
             </CardDescription>
           </CardHeader>
           <CardContent className="text-center space-y-4">
-            <p className="text-blue-800">{t("benefitSelection.applicationStatus.description")}</p>
+            <p className="text-blue-800">{t("benefitSelection.pendingReviewMessage")}</p>
             <Button onClick={handleViewApplications} className="bg-blue-600 hover:bg-blue-700 text-white">
-              {t("benefitSelection.applicationStatus.viewApplications")}
+              {t("benefitSelection.viewMyApplications")}
             </Button>
           </CardContent>
         </Card>
 
         <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-          <h3 className="font-medium text-gray-900 mb-2">{t("benefitSelection.applicationStatus.whatHappensNext")}</h3>
+          <h3 className="font-medium text-gray-900 mb-2">{t("benefitSelection.whatHappensNext")}</h3>
           <ul className="text-sm text-gray-700 space-y-1">
-            {t("benefitSelection.applicationStatus.nextSteps", { returnObjects: true }).map(
-              (step: string, index: number) => (
-                <li key={index}>• {step}</li>
-              ),
-            )}
+            {t("benefitSelection.nextStepsList", { returnObjects: true }).map((step: string, index: number) => (
+              <li key={index}>• {step}</li>
+            ))}
           </ul>
         </div>
       </div>
