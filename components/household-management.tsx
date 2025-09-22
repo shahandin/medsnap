@@ -107,7 +107,9 @@ export function HouseholdManagement({ householdMembers, onUpdate }: HouseholdMan
       <div className="text-center">
         <Users className="w-12 h-12 text-blue-600 mx-auto mb-4" />
         <h3 className="text-xl font-semibold mb-2">{t("forms.household.title")}</h3>
-        <p className="text-gray-600">{t("forms.household.subtitle")}. You can skip this step if you live alone.</p>
+        <p className="text-gray-600">
+          {t("forms.household.subtitle")}. {t("forms.household.skipIfLiveAlone")}
+        </p>
       </div>
 
       {/* Current Household Members */}
@@ -245,8 +247,8 @@ export function HouseholdManagement({ householdMembers, onUpdate }: HouseholdMan
           </Button>
           <p className="text-sm text-gray-500 mt-2">
             {householdMembers.length === 0
-              ? "No additional household members added yet"
-              : `${householdMembers.length} household member${householdMembers.length > 1 ? "s" : ""} added`}
+              ? t("forms.household.noAdditionalMembers")
+              : `${householdMembers.length} ${householdMembers.length > 1 ? t("forms.household.householdMembersAddedPlural") : t("forms.household.householdMembersAdded")}`}
           </p>
         </div>
       )}
@@ -259,11 +261,8 @@ export function HouseholdManagement({ householdMembers, onUpdate }: HouseholdMan
               <span className="text-white text-xs font-bold">i</span>
             </div>
             <div className="text-sm">
-              <p className="font-medium text-blue-900 mb-1">Who should I include?</p>
-              <p className="text-blue-800">
-                Include anyone who lives with you regularly, shares meals, or contributes to household expenses. This
-                includes spouses, children, parents, and other relatives or unrelated individuals living in your home.
-              </p>
+              <p className="font-medium text-blue-900 mb-1">{t("forms.household.whoShouldIInclude")}</p>
+              <p className="text-blue-800">{t("forms.household.householdInclusionInfo")}</p>
             </div>
           </div>
         </CardContent>
