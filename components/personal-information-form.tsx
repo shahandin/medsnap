@@ -1,11 +1,4 @@
 "use client"
-\
-w I'll update the personal information form to use translation keys for all hardcoded strings:
-
-<CodeProject id="medicaid-snap-app" taskNameActive="Updating personal info form" taskNameComplete="Updated personal info form">
-
-```tsx file="components/personal-information-form.tsx"
-"use client"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -194,15 +187,15 @@ export const PersonalInformationForm = forwardRef<
           <CardHeader className="pb-4 sm:pb-6">
             <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
               <span className="text-lg">👤</span>
-              Application Context
+              {t("forms.personalInfo.sections.applicationContext")}
             </CardTitle>
-            <CardDescription className="text-sm">Help us understand who this application is for</CardDescription>
+            <CardDescription className="text-sm">
+              {t("forms.personalInfo.sections.applicationContextDesc")}
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3 sm:space-y-4">
             <div className="space-y-3">
-              <Label className="text-sm sm:text-base font-medium">
-                Are you applying on behalf of yourself or someone else? *
-              </Label>
+              <Label className="text-sm sm:text-base font-medium">{t("forms.personalInfo.applyingFor")} *</Label>
               <RadioGroup
                 value={personalInfo.applyingFor}
                 onValueChange={(value) => updateField("applyingFor", value)}
@@ -214,7 +207,7 @@ export const PersonalInformationForm = forwardRef<
                     htmlFor="myself"
                     className="font-normal cursor-pointer text-base sm:text-sm flex-1 leading-relaxed"
                   >
-                    I am applying for myself
+                    {t("forms.personalInfo.applyingForMyself")}
                   </Label>
                 </div>
                 <div className="flex items-center space-x-3 p-4 sm:p-3 rounded-lg hover:bg-gray-50 transition-colors touch-manipulation min-h-[56px] sm:min-h-[auto]">
@@ -223,12 +216,12 @@ export const PersonalInformationForm = forwardRef<
                     htmlFor="someone_else"
                     className="font-normal cursor-pointer text-base sm:text-sm flex-1 leading-relaxed"
                   >
-                    I am applying on behalf of someone else
+                    {t("forms.personalInfo.applyingForSomeoneElse")}
                   </Label>
                 </div>
               </RadioGroup>
               <p className="text-sm sm:text-xs text-gray-600 leading-relaxed">
-                If you're applying for someone else, you'll need to provide their information in the following steps.
+                {t("forms.personalInfo.applyingForHelp")}
               </p>
             </div>
           </CardContent>
@@ -239,11 +232,9 @@ export const PersonalInformationForm = forwardRef<
           <CardHeader className="pb-4 sm:pb-6">
             <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
               <span className="text-lg">👤</span>
-              Basic Information
+              {t("forms.personalInfo.sections.basicInfo")}
             </CardTitle>
-            <CardDescription className="text-sm">
-              Your legal name, date of birth, and language preference
-            </CardDescription>
+            <CardDescription className="text-sm">{t("forms.personalInfo.sections.basicInfoDesc")}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-5 sm:space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-4">
@@ -312,9 +303,7 @@ export const PersonalInformationForm = forwardRef<
                   ))}
                 </SelectContent>
               </Select>
-              <p className="text-sm sm:text-xs text-gray-500 leading-relaxed">
-                This helps us provide documents and assistance in your preferred language.
-              </p>
+              <p className="text-sm sm:text-xs text-gray-500 leading-relaxed">{t("forms.personalInfo.languageHelp")}</p>
             </div>
           </CardContent>
         </Card>
@@ -324,9 +313,9 @@ export const PersonalInformationForm = forwardRef<
           <CardHeader className="pb-4 sm:pb-6">
             <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
               <span className="text-lg">📍</span>
-              Address Information
+              {t("forms.personalInfo.sections.addressInfo")}
             </CardTitle>
-            <CardDescription className="text-sm">Your current residential address</CardDescription>
+            <CardDescription className="text-sm">{t("forms.personalInfo.sections.addressInfoDesc")}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-5 sm:space-y-4">
             <div className="space-y-3 sm:space-y-2">
@@ -396,9 +385,9 @@ export const PersonalInformationForm = forwardRef<
           <CardHeader className="pb-4 sm:pb-6">
             <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
               <span className="text-lg">📞</span>
-              Contact Information
+              {t("forms.personalInfo.sections.contactInfo")}
             </CardTitle>
-            <CardDescription className="text-sm">How we can reach you</CardDescription>
+            <CardDescription className="text-sm">{t("forms.personalInfo.sections.contactInfoDesc")}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-5 sm:space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-4">
@@ -440,9 +429,9 @@ export const PersonalInformationForm = forwardRef<
           <CardHeader className="pb-4 sm:pb-6">
             <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
               <span className="text-lg">🛡️</span>
-              Legal Information
+              {t("forms.personalInfo.sections.legalInfo")}
             </CardTitle>
-            <CardDescription className="text-sm">Citizenship status and identification</CardDescription>
+            <CardDescription className="text-sm">{t("forms.personalInfo.sections.legalInfoDesc")}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-5 sm:space-y-4">
             <div className="space-y-3 sm:space-y-2">
@@ -486,9 +475,7 @@ export const PersonalInformationForm = forwardRef<
                   className="h-14 sm:h-10 text-lg sm:text-base touch-manipulation flex-1 px-4 sm:px-3"
                 />
               </div>
-              <p className="text-sm sm:text-xs text-gray-500 leading-relaxed">
-                Your SSN is required for benefit eligibility verification and will be kept secure.
-              </p>
+              <p className="text-sm sm:text-xs text-gray-500 leading-relaxed">{t("forms.personalInfo.ssnHelp")}</p>
             </div>
           </CardContent>
         </Card>
