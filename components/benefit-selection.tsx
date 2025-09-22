@@ -25,21 +25,21 @@ export function BenefitSelection({
   const BENEFIT_OPTIONS = [
     {
       id: "medicaid",
-      title: t("benefitSelection.medicaidOnly"),
-      description: t("benefitSelection.medicaidDescription"),
-      details: t("benefitSelection.medicaidDetails"),
+      title: t("forms.benefitSelection.medicaidOnly"),
+      description: t("forms.benefitSelection.medicaidDescription"),
+      details: t("forms.benefitSelection.medicaidDetails"),
     },
     {
       id: "snap",
-      title: t("benefitSelection.snapOnly"),
-      description: t("benefitSelection.snapDescription"),
-      details: t("benefitSelection.snapDetails"),
+      title: t("forms.benefitSelection.snapOnly"),
+      description: t("forms.benefitSelection.snapDescription"),
+      details: t("forms.benefitSelection.snapDetails"),
     },
     {
       id: "both",
-      title: t("benefitSelection.both"),
-      description: t("benefitSelection.bothDescription"),
-      details: t("benefitSelection.bothDetails"),
+      title: t("forms.benefitSelection.both"),
+      description: t("forms.benefitSelection.bothDescription"),
+      details: t("forms.benefitSelection.bothDetails"),
     },
   ]
 
@@ -57,16 +57,16 @@ export function BenefitSelection({
 
   const getErrorMessage = (optionId: string) => {
     if (submittedApplications.includes("both")) {
-      return t("benefitSelection.alreadySubmittedMessage")
+      return t("forms.benefitSelection.alreadySubmittedMessage")
     }
 
     if (optionId === "both" && (submittedApplications.includes("medicaid") || submittedApplications.includes("snap"))) {
-      return t("benefitSelection.cannotApplyBothError")
+      return t("forms.benefitSelection.cannotApplyBothError")
     }
 
     if (submittedApplications.includes(optionId)) {
       const benefitName = optionId === "medicaid" ? t("benefits.medicaid") : t("benefits.snap")
-      return t("benefitSelection.alreadySubmittedError", { benefit: benefitName })
+      return t("forms.benefitSelection.alreadySubmittedError", { benefit: benefitName })
     }
 
     return null
@@ -78,37 +78,37 @@ export function BenefitSelection({
     router.push("/account?tab=applications")
   }
 
-  const nextStepsList = t("benefitSelection.nextStepsList", { returnObjects: true })
-  const importantInfoList = t("benefitSelection.importantInfoList", { returnObjects: true })
+  const nextStepsList = t("forms.benefitSelection.nextStepsList", { returnObjects: true })
+  const importantInfoList = t("forms.benefitSelection.importantInfoList", { returnObjects: true })
 
   if (allOptionsDisabled) {
     return (
       <div className="space-y-6">
         <div className="text-center mb-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">{t("benefitSelection.title")}</h2>
-          <p className="text-gray-600">{t("benefitSelection.subtitle")}</p>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">{t("forms.benefitSelection.title")}</h2>
+          <p className="text-gray-600">{t("forms.benefitSelection.subtitle")}</p>
         </div>
 
         <Card className="bg-blue-50 border-blue-200">
           <CardHeader className="text-center">
             <CardTitle className="text-blue-900 flex items-center justify-center gap-2">
               <Check className="w-5 h-5" />
-              {t("benefitSelection.applicationsSubmitted")}
+              {t("forms.benefitSelection.applicationsSubmitted")}
             </CardTitle>
             <CardDescription className="text-blue-800">
-              {t("benefitSelection.applicationsPendingReview")}
+              {t("forms.benefitSelection.applicationsPendingReview")}
             </CardDescription>
           </CardHeader>
           <CardContent className="text-center space-y-4">
-            <p className="text-blue-800">{t("benefitSelection.pendingReviewMessage")}</p>
+            <p className="text-blue-800">{t("forms.benefitSelection.pendingReviewMessage")}</p>
             <Button onClick={handleViewApplications} className="bg-blue-600 hover:bg-blue-700 text-white">
-              {t("benefitSelection.viewMyApplications")}
+              {t("forms.benefitSelection.viewMyApplications")}
             </Button>
           </CardContent>
         </Card>
 
         <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-          <h3 className="font-medium text-gray-900 mb-2">{t("benefitSelection.whatHappensNext")}</h3>
+          <h3 className="font-medium text-gray-900 mb-2">{t("forms.benefitSelection.whatHappensNext")}</h3>
           <ul className="text-sm text-gray-700 space-y-1">
             {Array.isArray(nextStepsList) &&
               nextStepsList.map((step: string, index: number) => <li key={index}>• {step}</li>)}
@@ -121,8 +121,8 @@ export function BenefitSelection({
   return (
     <div className="space-y-6">
       <div className="text-center mb-8">
-        <h2 className="text-xl font-semibold text-gray-900 mb-2">{t("benefitSelection.title")}</h2>
-        <p className="text-gray-600">{t("benefitSelection.subtitle")}</p>
+        <h2 className="text-xl font-semibold text-gray-900 mb-2">{t("forms.benefitSelection.title")}</h2>
+        <p className="text-gray-600">{t("forms.benefitSelection.subtitle")}</p>
       </div>
 
       <div className="grid gap-4">
@@ -182,7 +182,7 @@ export function BenefitSelection({
       </div>
 
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-6">
-        <h3 className="font-medium text-blue-900 mb-2">{t("benefitSelection.importantInformation")}</h3>
+        <h3 className="font-medium text-blue-900 mb-2">{t("forms.benefitSelection.importantInformation")}</h3>
         <ul className="text-sm text-blue-800 space-y-1">
           {Array.isArray(importantInfoList) &&
             importantInfoList.map((info: string, index: number) => <li key={index}>• {info}</li>)}
