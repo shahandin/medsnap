@@ -71,17 +71,29 @@ interface HealthDisabilityFormProps {
 }
 
 const COMMON_CONDITIONS = [
-  "Diabetes",
-  "High Blood Pressure",
-  "Heart Disease",
-  "Asthma",
-  "Depression/Anxiety",
-  "Arthritis",
-  "Cancer",
-  "Kidney Disease",
-  "Mental Health Conditions",
-  "Substance Abuse",
-  "Other",
+  { value: "diabetes", label: "Diabetes" },
+  { value: "highBloodPressure", label: "High Blood Pressure" },
+  { value: "heartDisease", label: "Heart Disease" },
+  { value: "asthma", label: "Asthma" },
+  { value: "depressionAnxiety", label: "Depression/Anxiety" },
+  { value: "arthritis", label: "Arthritis" },
+  { value: "cancer", label: "Cancer" },
+  { value: "kidneyDisease", label: "Kidney Disease" },
+  { value: "mentalHealth", label: "Mental Health Conditions" },
+  { value: "substanceAbuse", label: "Substance Abuse" },
+  { value: "other", label: "Other" },
+]
+
+const INSURANCE_TYPES = [
+  { value: "employer", label: "Employer" },
+  { value: "marketplace", label: "Marketplace" },
+  { value: "medicare", label: "Medicare" },
+  { value: "medicaid", label: "Medicaid" },
+  { value: "private", label: "Private" },
+  { value: "cobra", label: "COBRA" },
+  { value: "tricare", label: "TRICARE" },
+  { value: "va", label: "VA Benefits" },
+  { value: "other", label: "Other" },
 ]
 
 export function HealthDisabilityForm({
@@ -98,23 +110,11 @@ export function HealthDisabilityForm({
   const allMembers = [
     {
       id: "applicant",
-      firstName: applicantName.split(" ")[0] || "Applicant",
+      firstName: applicantName.split(" ")[0] || t("householdQuestions.applicant"),
       lastName: applicantName.split(" ")[1] || "",
       relationship: "self",
     },
     ...householdMembers,
-  ]
-
-  const INSURANCE_TYPES = [
-    { value: "employer", label: t("forms.healthDisability.insuranceTypes.employer") },
-    { value: "marketplace", label: t("forms.healthDisability.insuranceTypes.marketplace") },
-    { value: "medicare", label: t("forms.healthDisability.insuranceTypes.medicare") },
-    { value: "medicaid", label: t("forms.healthDisability.insuranceTypes.medicaid") },
-    { value: "private", label: t("forms.healthDisability.insuranceTypes.private") },
-    { value: "cobra", label: "COBRA" },
-    { value: "tricare", label: "TRICARE" },
-    { value: "va", label: "VA Benefits" },
-    { value: "other", label: t("forms.healthDisability.insuranceTypes.other") },
   ]
 
   const updateData = (updates: Partial<HealthDisabilityData>) => {
@@ -157,12 +157,12 @@ export function HealthDisabilityForm({
     updateData({ medicalConditions: { ...data.medicalConditions, ...updates } })
   }
 
-  const handleConditionChange = (condition: string, checked: boolean) => {
+  const handleConditionChange = (conditionValue: string, checked: boolean) => {
     let newConditions: string[]
     if (checked) {
-      newConditions = [...selectedConditions, condition]
+      newConditions = [...selectedConditions, conditionValue]
     } else {
-      newConditions = selectedConditions.filter((c) => c !== condition)
+      newConditions = selectedConditions.filter((c) => c !== conditionValue)
     }
     setSelectedConditions(newConditions)
     updateMedicalConditions({ conditions: newConditions })
@@ -522,17 +522,17 @@ export function HealthDisabilityForm({
             {data.medicalConditions.hasChronicConditions && (
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label>{t("forms.healthDisability.selectAllThatApply")}:</Label>
+                  <Label>{t("forms.health.selectAllThatApply")}:</Label>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                     {COMMON_CONDITIONS.map((condition) => (
-                      <div key={condition} className="flex items-center space-x-2">
+                      <div key={condition.value} className="flex items-center space-x-2">
                         <Checkbox
-                          id={`condition-${condition}`}
-                          checked={selectedConditions.includes(condition)}
-                          onCheckedChange={(checked) => handleConditionChange(condition, checked as boolean)}
+                          id={`condition-${condition.value}`}
+                          checked={selectedConditions.includes(condition.value)}
+                          onCheckedChange={(checked) => handleConditionChange(condition.value, checked as boolean)}
                         />
-                        <Label htmlFor={`condition-${condition}`} className="text-sm">
-                          {condition}
+                        <Label htmlFor={`condition-${condition.value}`} className="text-sm">
+                          {condition.label}
                         </Label>
                       </div>
                     ))}

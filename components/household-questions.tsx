@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Separator } from "@/components/ui/separator"
 import { Checkbox } from "@/components/ui/checkbox"
+import { useTranslation } from "@/lib/translations"
 
 interface HouseholdMember {
   id: string
@@ -41,11 +42,17 @@ export default function HouseholdQuestions({
   applicantName,
   onUpdate,
 }: HouseholdQuestionsProps) {
+  const { t } = useTranslation()
   const isApplyingForSNAP = benefitTypes.includes("snap") || benefitTypes.includes("both")
 
   // Create a list of all household members including the applicant
   const allMembers = [
-    { id: "applicant", firstName: applicantName.split(" ")[0] || "You", lastName: "", relationship: "Applicant" },
+    {
+      id: "applicant",
+      firstName: applicantName.split(" ")[0] || t("householdQuestions.you"),
+      lastName: "",
+      relationship: t("householdQuestions.applicant"),
+    },
     ...householdMembers,
   ]
 
@@ -87,9 +94,7 @@ export default function HouseholdQuestions({
 
     return (
       <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-        <Label className="text-sm font-medium text-gray-700 mb-3 block">
-          Select which household members this applies to:
-        </Label>
+        <Label className="text-sm font-medium text-gray-700 mb-3 block">{t("householdQuestions.selectMembers")}</Label>
         <div className="space-y-2">
           {allMembers.map((member) => (
             <div key={member.id} className="flex items-center space-x-2">
@@ -114,20 +119,18 @@ export default function HouseholdQuestions({
         <CardContent className="space-y-6 pt-6">
           {/* Question 1: Applied with different name/SSN */}
           <div className="space-y-3">
-            <Label className="text-base font-medium">
-              Has anyone in your household ever applied for benefits using a different name or Social Security number?
-            </Label>
+            <Label className="text-base font-medium">{t("householdQuestions.appliedWithDifferentInfo")}</Label>
             <RadioGroup
               value={data.appliedWithDifferentInfo}
               onValueChange={(value) => updateField("appliedWithDifferentInfo", value)}
             >
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="yes" id="different-info-yes" />
-                <Label htmlFor="different-info-yes">Yes</Label>
+                <Label htmlFor="different-info-yes">{t("common.yes")}</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="no" id="different-info-no" />
-                <Label htmlFor="different-info-no">No</Label>
+                <Label htmlFor="different-info-no">{t("common.no")}</Label>
               </div>
             </RadioGroup>
             {renderMemberSelection("appliedWithDifferentInfo", data.appliedWithDifferentInfo)}
@@ -137,20 +140,18 @@ export default function HouseholdQuestions({
 
           {/* Question 2: Applied in other state */}
           <div className="space-y-3">
-            <Label className="text-base font-medium">
-              Has anyone in your household applied for or received benefits in another state?
-            </Label>
+            <Label className="text-base font-medium">{t("householdQuestions.appliedInOtherState")}</Label>
             <RadioGroup
               value={data.appliedInOtherState}
               onValueChange={(value) => updateField("appliedInOtherState", value)}
             >
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="yes" id="other-state-yes" />
-                <Label htmlFor="other-state-yes">Yes</Label>
+                <Label htmlFor="other-state-yes">{t("common.yes")}</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="no" id="other-state-no" />
-                <Label htmlFor="other-state-no">No</Label>
+                <Label htmlFor="other-state-no">{t("common.no")}</Label>
               </div>
             </RadioGroup>
             {renderMemberSelection("appliedInOtherState", data.appliedInOtherState)}
@@ -160,21 +161,18 @@ export default function HouseholdQuestions({
 
           {/* Question 3: Ever received benefits */}
           <div className="space-y-3">
-            <Label className="text-base font-medium">
-              Has anyone in your household ever received Medical Assistance, Cash Assistance, or SNAP (formerly Food
-              Stamps) benefits?
-            </Label>
+            <Label className="text-base font-medium">{t("householdQuestions.receivedBenefitsBefore")}</Label>
             <RadioGroup
               value={data.receivedBenefitsBefore}
               onValueChange={(value) => updateField("receivedBenefitsBefore", value)}
             >
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="yes" id="received-before-yes" />
-                <Label htmlFor="received-before-yes">Yes</Label>
+                <Label htmlFor="received-before-yes">{t("common.yes")}</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="no" id="received-before-no" />
-                <Label htmlFor="received-before-no">No</Label>
+                <Label htmlFor="received-before-no">{t("common.no")}</Label>
               </div>
             </RadioGroup>
             {renderMemberSelection("receivedBenefitsBefore", data.receivedBenefitsBefore)}
@@ -186,12 +184,12 @@ export default function HouseholdQuestions({
               <Separator />
 
               <div className="bg-blue-50 p-4 rounded-lg">
-                <h3 className="font-medium text-blue-900 mb-4">SNAP-Specific Questions</h3>
+                <h3 className="font-medium text-blue-900 mb-4">{t("householdQuestions.snapSpecificQuestions")}</h3>
 
                 {/* Question 4: Receiving SNAP this month */}
                 <div className="space-y-3 mb-6">
                   <Label className="text-base font-medium text-blue-900">
-                    Has anyone in your household had, or will receive, SNAP benefits from any state this month?
+                    {t("householdQuestions.receivingSNAPThisMonth")}
                   </Label>
                   <RadioGroup
                     value={data.receivingSNAPThisMonth}
@@ -199,11 +197,11 @@ export default function HouseholdQuestions({
                   >
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="yes" id="snap-this-month-yes" />
-                      <Label htmlFor="snap-this-month-yes">Yes</Label>
+                      <Label htmlFor="snap-this-month-yes">{t("common.yes")}</Label>
                     </div>
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="no" id="snap-this-month-no" />
-                      <Label htmlFor="snap-this-month-no">No</Label>
+                      <Label htmlFor="snap-this-month-no">{t("common.no")}</Label>
                     </div>
                   </RadioGroup>
                   {renderMemberSelection("receivingSNAPThisMonth", data.receivingSNAPThisMonth)}
@@ -212,8 +210,7 @@ export default function HouseholdQuestions({
                 {/* Question 5: Disqualified from benefits */}
                 <div className="space-y-3 mb-6">
                   <Label className="text-base font-medium text-blue-900">
-                    Has anyone in your household been disqualified or agreed to be disqualified from receiving SNAP
-                    benefits or Cash Assistance in another state?
+                    {t("householdQuestions.disqualifiedFromBenefits")}
                   </Label>
                   <RadioGroup
                     value={data.disqualifiedFromBenefits}
@@ -221,11 +218,11 @@ export default function HouseholdQuestions({
                   >
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="yes" id="disqualified-yes" />
-                      <Label htmlFor="disqualified-yes">Yes</Label>
+                      <Label htmlFor="disqualified-yes">{t("common.yes")}</Label>
                     </div>
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="no" id="disqualified-no" />
-                      <Label htmlFor="disqualified-no">No</Label>
+                      <Label htmlFor="disqualified-no">{t("common.no")}</Label>
                     </div>
                   </RadioGroup>
                   {renderMemberSelection("disqualifiedFromBenefits", data.disqualifiedFromBenefits)}
@@ -234,23 +231,20 @@ export default function HouseholdQuestions({
                 {/* Question 6: Someone else receive SNAP */}
                 <div className="space-y-3">
                   <Label className="text-base font-medium text-blue-900">
-                    Would you like to let someone else receive your SNAP benefits for you?
+                    {t("householdQuestions.wantSomeoneElseToReceiveSNAP")}
                   </Label>
-                  <p className="text-sm text-blue-700">
-                    This is called an "authorized representative" and they can help you apply for and manage your
-                    benefits.
-                  </p>
+                  <p className="text-sm text-blue-700">{t("householdQuestions.authorizedRepresentativeNote")}</p>
                   <RadioGroup
                     value={data.wantSomeoneElseToReceiveSNAP}
                     onValueChange={(value) => updateField("wantSomeoneElseToReceiveSNAP", value)}
                   >
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="yes" id="someone-else-snap-yes" />
-                      <Label htmlFor="someone-else-snap-yes">Yes</Label>
+                      <Label htmlFor="someone-else-snap-yes">{t("common.yes")}</Label>
                     </div>
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="no" id="someone-else-snap-no" />
-                      <Label htmlFor="someone-else-snap-no">No</Label>
+                      <Label htmlFor="someone-else-snap-no">{t("common.no")}</Label>
                     </div>
                   </RadioGroup>
                   {renderMemberSelection("wantSomeoneElseToReceiveSNAP", data.wantSomeoneElseToReceiveSNAP)}

@@ -62,13 +62,13 @@ export function LoginForm() {
       }
 
       if (!data.user || !data.session) {
-        setError("Authentication failed - no user session created")
+        setError(t("auth.signIn.errors.authenticationFailed"))
         return
       }
 
       router.push("/auth/callback")
     } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : "An error occurred")
+      setError(error instanceof Error ? error.message : t("auth.signIn.errors.genericError"))
     } finally {
       setIsLoading(false)
     }

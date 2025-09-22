@@ -31,7 +31,7 @@ import {
 import { signOut } from "@/lib/actions"
 import { createClient } from "@/lib/supabase/client"
 import Link from "next/link"
-import { useTranslation } from "@/contexts/translation-context"
+import { useTranslation } from "@/lib/translations"
 
 interface AccountDashboardClientProps {
   user: {
@@ -112,17 +112,17 @@ const documentTypes = [
   },
 ]
 
-const getApplicationStatus = (applicationProgress: any, submittedApplications: any[]) => {
+const getApplicationStatus = (applicationProgress: any, submittedApplications: any[], t: any) => {
   if (submittedApplications && submittedApplications.length > 0) {
-    return "Submitted"
+    return t("accountDashboard.status.submitted")
   }
   if (
     applicationProgress &&
     (Array.isArray(applicationProgress) ? applicationProgress.length > 0 : applicationProgress)
   ) {
-    return "In Progress"
+    return t("accountDashboard.status.inProgress")
   }
-  return "Not Started"
+  return t("accountDashboard.status.notStarted")
 }
 
 const getProgressPercentage = (applicationProgress: any) => {
@@ -146,21 +146,6 @@ const getStatusColor = (status: string) => {
     default:
       return "bg-gray-100 text-gray-800 border-gray-300"
   }
-}
-
-const getStepTitle = (step: number) => {
-  const stepTitles = {
-    1: "Personal Information",
-    2: "Household Information",
-    3: "Income Details",
-    4: "Assets Information",
-    5: "Expenses",
-    6: "Health Insurance",
-    7: "Additional Information",
-    8: "Review Application",
-    9: "Submit Application",
-  }
-  return `Step ${step}: ${stepTitles[step as keyof typeof stepTitles] || "Application Step"}`
 }
 
 const getNotificationIcon = (type: string) => {
@@ -408,7 +393,7 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
       }, 3000)
     } catch (error) {
       console.error("[v0] Error uploading document:", error)
-      alert("Failed to upload document. Please try again.")
+      alert(t("accountDashboard.errors.uploadFailed"))
     } finally {
       setIsUploading(false)
     }
@@ -547,7 +532,7 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
                   onValueChange={(value) => handleInputChange("changeType", value)}
                 >
                   <SelectTrigger className="w-full border-gray-300 rounded-xl">
-                    <SelectValue placeholder="Select the type of change" />
+                    <SelectValue placeholder={t("accountDashboard.changeType")} />
                   </SelectTrigger>
                   <SelectContent>
                     {config.changeTypes.map((changeType) => (
@@ -565,21 +550,21 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
               {selectedChangeCategory === "household" && formData.changeType === "add-member" && (
                 <div className="space-y-2">
                   <Label htmlFor="relationship" className="text-sm font-medium text-gray-700">
-                    Relationship to you
+                    {t("accountDashboard.relationshipToYou")}
                   </Label>
                   <Select
                     value={formData.relationship || ""}
                     onValueChange={(value) => handleInputChange("relationship", value)}
                   >
                     <SelectTrigger className="w-full border-gray-300 rounded-xl">
-                      <SelectValue placeholder="Select relationship" />
+                      <SelectValue placeholder={t("accountDashboard.selectRelationship")} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Child">Child</SelectItem>
-                      <SelectItem value="Spouse">Spouse</SelectItem>
-                      <SelectItem value="Parent">Parent</SelectItem>
-                      <SelectItem value="Sibling">Sibling</SelectItem>
-                      <SelectItem value="Other">Other</SelectItem>
+                      <SelectItem value="Child">{t("accountDashboard.relationships.child")}</SelectItem>
+                      <SelectItem value="Spouse">{t("accountDashboard.relationships.spouse")}</SelectItem>
+                      <SelectItem value="Parent">{t("accountDashboard.relationships.parent")}</SelectItem>
+                      <SelectItem value="Sibling">{t("accountDashboard.relationships.sibling")}</SelectItem>
+                      <SelectItem value="Other">{t("accountDashboard.relationships.other")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -587,7 +572,7 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
 
               <div className="space-y-2">
                 <Label htmlFor="changeDate" className="text-sm font-medium text-gray-700">
-                  When did this change occur?
+                  {t("accountDashboard.changeDate")}
                 </Label>
                 <Input
                   id="changeDate"
@@ -600,11 +585,11 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
 
               <div className="space-y-2">
                 <Label htmlFor="details" className="text-sm font-medium text-gray-700">
-                  Please provide additional details about this change
+                  {t("accountDashboard.changeDetails")}
                 </Label>
                 <Textarea
                   id="details"
-                  placeholder="Describe the change and any relevant information..."
+                  placeholder={t("accountDashboard.changeDetailsPlaceholder")}
                   value={formData.details || ""}
                   onChange={(e) => handleInputChange("details", e.target.value)}
                   className="border-gray-300 rounded-xl"
@@ -657,8 +642,26 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
     )
   }
 
-  const status = getApplicationStatus(applicationProgress, submittedApplications)
+  const status = getApplicationStatus(applicationProgress, submittedApplications, t)
   const progressPercentage = getProgressPercentage(applicationProgress)
+
+  const getStepTitle = (step: number) => {
+    const stepTitles = {
+      1: t("progressSteps.personalInformation"),
+      2: t("progressSteps.householdInformation"),
+      3: t("progressSteps.incomeDetails"),
+      4: t("progressSteps.assetsInformation"),
+      5: t("progressSteps.expenses"),
+      6: t("progressSteps.healthInsurance"),
+      7: t("progressSteps.additionalInformation"),
+      8: t("progressSteps.reviewApplication"),
+      9: t("progressSteps.submitApplication"),
+    }
+    return t("progressSteps.stepFormat", {
+      step: step,
+      title: stepTitles[step as keyof typeof stepTitles] || t("progressSteps.applicationStep"),
+    })
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -865,16 +868,14 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
                                           : "Benefits"}{" "}
                                         Application
                                       </h4>
-                                      <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
-                                        <span className="flex items-center gap-1">
-                                          <Clock className="w-4 h-4" />
-                                          Step {app.current_step || 1} of 9
-                                        </span>
-                                        <span className="flex items-center gap-1">
-                                          <Calendar className="w-4 h-4" />
-                                          {new Date(app.updated_at).toLocaleDateString()}
-                                        </span>
-                                      </div>
+                                      <span className="flex items-center gap-1">
+                                        <Clock className="w-4 h-4" />
+                                        {t("progressSteps.stepOfTotal", { current: app.current_step || 1, total: 9 })}
+                                      </span>
+                                      <span className="flex items-center gap-1">
+                                        <Calendar className="w-4 h-4" />
+                                        {new Date(app.updated_at).toLocaleDateString()}
+                                      </span>
                                     </div>
                                     <div className="text-right">
                                       <div className="text-2xl font-bold text-primary mb-1">
@@ -1098,11 +1099,11 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
                   <form onSubmit={handleDocumentUpload} className="space-y-6">
                     <div className="space-y-2">
                       <Label htmlFor="documentType" className="text-sm font-medium text-gray-700">
-                        Document Type
+                        {t("accountDashboard.documentType")}
                       </Label>
                       <Select value={selectedDocumentType} onValueChange={setSelectedDocumentType} required>
                         <SelectTrigger className="w-full border-gray-300 rounded-xl">
-                          <SelectValue placeholder="Select document type" />
+                          <SelectValue placeholder={t("accountDashboard.selectDocumentType")} />
                         </SelectTrigger>
                         <SelectContent>
                           {documentTypes.map((docType) => (
@@ -1119,7 +1120,7 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
 
                     <div className="space-y-2">
                       <Label htmlFor="file" className="text-sm font-medium text-gray-700">
-                        Choose File
+                        {t("accountDashboard.chooseFile")}
                       </Label>
                       <Input
                         id="file"
@@ -1249,44 +1250,48 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
               <CardContent className="space-y-6 pt-0 px-6 md:px-6">
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium text-gray-700">Preferred Contact Method</Label>
+                    <Label className="text-sm font-medium text-gray-700">
+                      {t("accountDashboard.preferredContactMethod")}
+                    </Label>
                     <Select value={communicationPreference} onValueChange={setCommunicationPreference}>
                       <SelectTrigger className="border-gray-300 rounded-xl">
-                        <SelectValue placeholder="Select contact method" />
+                        <SelectValue placeholder={t("accountDashboard.selectContactMethod")} />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="email">Email</SelectItem>
-                        <SelectItem value="phone">Phone</SelectItem>
-                        <SelectItem value="mail">Mail</SelectItem>
+                        <SelectItem value="email">{t("accountDashboard.contactMethods.email")}</SelectItem>
+                        <SelectItem value="phone">{t("accountDashboard.contactMethods.phone")}</SelectItem>
+                        <SelectItem value="mail">{t("accountDashboard.contactMethods.mail")}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
 
                   {communicationPreference === "mail" && (
                     <div className="space-y-4 p-4 bg-gray-50 rounded-xl">
-                      <Label className="text-sm font-medium text-gray-700">Mailing Address</Label>
+                      <Label className="text-sm font-medium text-gray-700">
+                        {t("accountDashboard.mailingAddress")}
+                      </Label>
                       <div className="space-y-3">
                         <Input
-                          placeholder="Street Address"
+                          placeholder={t("accountDashboard.streetAddress")}
                           value={mailingAddress.street}
                           onChange={(e) => setMailingAddress((prev) => ({ ...prev, street: e.target.value }))}
                           className="border-gray-300 rounded-xl"
                         />
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                           <Input
-                            placeholder="City"
+                            placeholder={t("accountDashboard.city")}
                             value={mailingAddress.city}
                             onChange={(e) => setMailingAddress((prev) => ({ ...prev, city: e.target.value }))}
                             className="border-gray-300 rounded-xl"
                           />
                           <Input
-                            placeholder="State"
+                            placeholder={t("accountDashboard.state")}
                             value={mailingAddress.state}
                             onChange={(e) => setMailingAddress((prev) => ({ ...prev, state: e.target.value }))}
                             className="border-gray-300 rounded-xl"
                           />
                           <Input
-                            placeholder="ZIP Code"
+                            placeholder={t("accountDashboard.zipCode")}
                             value={mailingAddress.zipCode}
                             onChange={(e) => setMailingAddress((prev) => ({ ...prev, zipCode: e.target.value }))}
                             className="border-gray-300 rounded-xl"
@@ -1308,10 +1313,10 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
               </CardHeader>
               <CardContent className="space-y-6 pt-0 px-6 md:px-6">
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium text-gray-700">Preferred Language</Label>
+                  <Label className="text-sm font-medium text-gray-700">{t("accountDashboard.preferredLanguage")}</Label>
                   <Select value={languagePreference} onValueChange={setLanguagePreference}>
                     <SelectTrigger className="border-gray-300 rounded-xl">
-                      <SelectValue placeholder="Select your preferred language" />
+                      <SelectValue placeholder={t("accountDashboard.selectPreferredLanguage")} />
                     </SelectTrigger>
                     <SelectContent className="max-h-60">
                       {LANGUAGE_OPTIONS.map((language) => (

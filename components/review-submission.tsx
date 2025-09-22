@@ -9,6 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { FileText, User, Users, DollarSign, Heart, Send, AlertCircle } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { useTranslation } from "@/lib/translations"
 
 interface ReviewSubmissionProps {
   applicationData: any
@@ -21,6 +22,7 @@ export function ReviewSubmission({ applicationData, onSubmit, onEdit }: ReviewSu
   const [certifyTruth, setCertifyTruth] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const router = useRouter()
+  const { t } = useTranslation()
 
   const handleSubmit = async () => {
     if (!agreedToTerms || !certifyTruth) return
@@ -69,12 +71,12 @@ export function ReviewSubmission({ applicationData, onSubmit, onEdit }: ReviewSu
 
         // Check if it's an authentication error
         if (response.status === 401 || result.error?.includes("logged in") || result.error?.includes("sign in")) {
-          alert("Your session has expired. Please sign in again and try submitting your application.")
+          alert(t("reviewSubmission.errors.sessionExpired"))
           router.push("/signin")
           return
         }
 
-        alert(`Error: ${result.error || "There was an error submitting your application. Please try again."}`)
+        alert(`Error: ${result.error || t("reviewSubmission.errors.submissionFailed")}`)
         setIsSubmitting(false)
         return
       }
@@ -93,7 +95,7 @@ export function ReviewSubmission({ applicationData, onSubmit, onEdit }: ReviewSu
       console.error("[v0] - Stack Trace:", error instanceof Error ? error.stack : "No stack")
       console.error("[v0] 👤 HUMAN: Network or client-side JavaScript error occurred")
 
-      alert("There was an unexpected error submitting your application. Please try again or contact support.")
+      alert(t("reviewSubmission.errors.unexpectedError"))
       setIsSubmitting(false)
     }
   }
@@ -120,11 +122,8 @@ export function ReviewSubmission({ applicationData, onSubmit, onEdit }: ReviewSu
     <div className="space-y-6">
       <div className="text-center">
         <FileText className="w-12 h-12 text-blue-600 mx-auto mb-4" />
-        <h3 className="text-xl font-semibold mb-2">Review Your Application</h3>
-        <p className="text-gray-600">
-          Please review all information before submitting your application. You can edit any section by clicking the
-          edit button.
-        </p>
+        <h3 className="text-xl font-semibold mb-2">{t("reviewSubmission.reviewYourApplication")}</h3>
+        <p className="text-gray-600">{t("reviewSubmission.reviewDescription")}</p>
       </div>
 
       {/* State Selection Review */}
@@ -133,16 +132,16 @@ export function ReviewSubmission({ applicationData, onSubmit, onEdit }: ReviewSu
           <div>
             <CardTitle className="flex items-center gap-2">
               <User className="w-5 h-5" />
-              State Selection
+              {t("reviewSubmission.stateSelection")}
             </CardTitle>
           </div>
           <Button variant="outline" size="sm" onClick={() => onEdit(0)}>
-            Edit
+            {t("common.edit")}
           </Button>
         </CardHeader>
         <CardContent>
           <p>
-            <strong>State:</strong> {applicationData.state || "Not selected"}
+            <strong>{t("common.state")}:</strong> {applicationData.state || t("common.notSelected")}
           </p>
         </CardContent>
       </Card>
@@ -153,36 +152,37 @@ export function ReviewSubmission({ applicationData, onSubmit, onEdit }: ReviewSu
           <div>
             <CardTitle className="flex items-center gap-2">
               <User className="w-5 h-5" />
-              Personal Information
+              {t("reviewSubmission.personalInformation")}
             </CardTitle>
           </div>
           <Button variant="outline" size="sm" onClick={() => onEdit(1)}>
-            Edit
+            {t("common.edit")}
           </Button>
         </CardHeader>
         <CardContent className="space-y-2">
           <p>
-            <strong>Name:</strong> {applicationData.personalInfo?.firstName} {applicationData.personalInfo?.lastName}
+            <strong>{t("common.name")}:</strong> {applicationData.personalInfo?.firstName}{" "}
+            {applicationData.personalInfo?.lastName}
           </p>
           <p>
-            <strong>Date of Birth:</strong>{" "}
+            <strong>{t("common.dateOfBirth")}:</strong>{" "}
             {applicationData.personalInfo?.dateOfBirth
               ? new Date(applicationData.personalInfo.dateOfBirth).toLocaleDateString()
-              : "Not provided"}
+              : t("common.notProvided")}
           </p>
           <p>
-            <strong>Address:</strong> {applicationData.personalInfo?.address?.street},{" "}
+            <strong>{t("common.address")}:</strong> {applicationData.personalInfo?.address?.street},{" "}
             {applicationData.personalInfo?.address?.city}, {applicationData.personalInfo?.address?.state}{" "}
             {applicationData.personalInfo?.address?.zipCode}
           </p>
           <p>
-            <strong>Phone:</strong> {applicationData.personalInfo?.phone}
+            <strong>{t("common.phone")}:</strong> {applicationData.personalInfo?.phone}
           </p>
           <p>
-            <strong>Email:</strong> {applicationData.personalInfo?.email}
+            <strong>{t("common.email")}:</strong> {applicationData.personalInfo?.email}
           </p>
           <p>
-            <strong>Citizenship Status:</strong> {applicationData.personalInfo?.citizenshipStatus}
+            <strong>{t("common.citizenshipStatus")}:</strong> {applicationData.personalInfo?.citizenshipStatus}
           </p>
         </CardContent>
       </Card>
@@ -193,11 +193,11 @@ export function ReviewSubmission({ applicationData, onSubmit, onEdit }: ReviewSu
           <div>
             <CardTitle className="flex items-center gap-2">
               <Users className="w-5 h-5" />
-              Household Members ({applicationData.householdMembers?.length || 0})
+              {t("reviewSubmission.householdMembers")} ({applicationData.householdMembers?.length || 0})
             </CardTitle>
           </div>
           <Button variant="outline" size="sm" onClick={() => onEdit(2)}>
-            Edit
+            {t("common.edit")}
           </Button>
         </CardHeader>
         <CardContent>
@@ -213,7 +213,7 @@ export function ReviewSubmission({ applicationData, onSubmit, onEdit }: ReviewSu
               ))}
             </div>
           ) : (
-            <p className="text-gray-500">No additional household members</p>
+            <p className="text-gray-500">{t("common.noAdditionalHouseholdMembers")}</p>
           )}
         </CardContent>
       </Card>
@@ -224,29 +224,34 @@ export function ReviewSubmission({ applicationData, onSubmit, onEdit }: ReviewSu
           <div>
             <CardTitle className="flex items-center gap-2">
               <DollarSign className="w-5 h-5" />
-              Income & Employment
+              {t("reviewSubmission.incomeEmployment")}
             </CardTitle>
           </div>
           <Button variant="outline" size="sm" onClick={() => onEdit(3)}>
-            Edit
+            {t("common.edit")}
           </Button>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
             <p>
-              <strong>Tax Filing Status:</strong> {applicationData.incomeEmployment?.taxFilingStatus || "Not specified"}
+              <strong>{t("common.taxFilingStatus")}:</strong>{" "}
+              {applicationData.incomeEmployment?.taxFilingStatus || t("common.notSpecified")}
             </p>
           </div>
 
           {applicationData.incomeEmployment?.employment?.length > 0 && (
             <div>
-              <p className="font-medium mb-2">Employment:</p>
+              <p className="font-medium mb-2">{t("common.employment")}:</p>
               {applicationData.incomeEmployment.employment.map((emp: any, index: number) => (
                 <div key={index} className="ml-4 mb-2">
                   <p>
                     {emp.memberName}: {emp.status}
                   </p>
-                  {emp.employer && <p className="text-sm text-gray-600">Employer: {emp.employer}</p>}
+                  {emp.employer && (
+                    <p className="text-sm text-gray-600">
+                      {t("common.employer")}: {emp.employer}
+                    </p>
+                  )}
                 </div>
               ))}
             </div>
@@ -254,7 +259,7 @@ export function ReviewSubmission({ applicationData, onSubmit, onEdit }: ReviewSu
 
           {applicationData.incomeEmployment?.income?.length > 0 && (
             <div>
-              <p className="font-medium mb-2">Additional Income:</p>
+              <p className="font-medium mb-2">{t("common.additionalIncome")}:</p>
               {applicationData.incomeEmployment.income.map((inc: any, index: number) => (
                 <div key={index} className="ml-4 mb-2">
                   <p>
@@ -267,7 +272,7 @@ export function ReviewSubmission({ applicationData, onSubmit, onEdit }: ReviewSu
 
           {applicationData.incomeEmployment?.expenses?.length > 0 && (
             <div>
-              <p className="font-medium mb-2">Deductible Expenses:</p>
+              <p className="font-medium mb-2">{t("common.deductibleExpenses")}:</p>
               {applicationData.incomeEmployment.expenses.map((exp: any, index: number) => (
                 <div key={index} className="ml-4 mb-2">
                   <p>
@@ -286,37 +291,39 @@ export function ReviewSubmission({ applicationData, onSubmit, onEdit }: ReviewSu
           <div>
             <CardTitle className="flex items-center gap-2">
               <Heart className="w-5 h-5" />
-              Health & Disability
+              {t("reviewSubmission.healthDisability")}
             </CardTitle>
           </div>
           <Button variant="outline" size="sm" onClick={() => onEdit(4)}>
-            Edit
+            {t("common.edit")}
           </Button>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
             <p>
-              <strong>Disability in Household:</strong>{" "}
-              {applicationData.healthDisability?.disabilities?.hasDisabled ? "Yes" : "No"}
+              <strong>{t("common.disabilityInHousehold")}:</strong>{" "}
+              {applicationData.healthDisability?.disabilities?.hasDisabled ? t("common.yes") : t("common.no")}
             </p>
             <p>
-              <strong>Long-term Care Needed:</strong>{" "}
-              {applicationData.healthDisability?.disabilities?.needsLongTermCare ? "Yes" : "No"}
+              <strong>{t("common.longTermCareNeeded")}:</strong>{" "}
+              {applicationData.healthDisability?.disabilities?.needsLongTermCare ? t("common.yes") : t("common.no")}
             </p>
             <p>
-              <strong>Incarceration in Household:</strong>{" "}
-              {applicationData.healthDisability?.disabilities?.hasIncarcerated ? "Yes" : "No"}
+              <strong>{t("common.incarcerationInHousehold")}:</strong>{" "}
+              {applicationData.healthDisability?.disabilities?.hasIncarcerated ? t("common.yes") : t("common.no")}
             </p>
           </div>
 
           {applicationData.healthDisability?.pregnancyInfo?.isPregnant && (
             <div>
               <p>
-                <strong>Pregnancy:</strong> Yes ({applicationData.healthDisability.pregnancyInfo.memberName})
+                <strong>{t("common.pregnancy")}:</strong> {t("common.yes")} (
+                {applicationData.healthDisability.pregnancyInfo.memberName})
               </p>
               {applicationData.healthDisability.pregnancyInfo.dueDate && (
                 <p className="text-sm text-gray-600">
-                  Due Date: {new Date(applicationData.healthDisability.pregnancyInfo.dueDate).toLocaleDateString()}
+                  {t("common.dueDate")}:{" "}
+                  {new Date(applicationData.healthDisability.pregnancyInfo.dueDate).toLocaleDateString()}
                 </p>
               )}
             </div>
@@ -325,11 +332,11 @@ export function ReviewSubmission({ applicationData, onSubmit, onEdit }: ReviewSu
           {applicationData.healthDisability?.medicalConditions?.hasChronicConditions && (
             <div>
               <p>
-                <strong>Chronic Conditions:</strong> Yes
+                <strong>{t("common.chronicConditions")}:</strong> {t("common.yes")}
               </p>
               {applicationData.healthDisability.medicalConditions.conditions?.length > 0 && (
                 <p className="text-sm text-gray-600">
-                  Conditions: {applicationData.healthDisability.medicalConditions.conditions.join(", ")}
+                  {t("common.conditions")}: {applicationData.healthDisability.medicalConditions.conditions.join(", ")}
                 </p>
               )}
             </div>
@@ -342,16 +349,13 @@ export function ReviewSubmission({ applicationData, onSubmit, onEdit }: ReviewSu
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-orange-800">
             <AlertCircle className="w-5 h-5" />
-            Certification and Agreement
+            {t("reviewSubmission.certificationAgreement")}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <Alert>
             <AlertCircle className="h-4 w-4" />
-            <AlertDescription>
-              By submitting this application, you are applying for Medicaid and/or SNAP benefits. False information may
-              result in denial of benefits or legal consequences.
-            </AlertDescription>
+            <AlertDescription>{t("reviewSubmission.certificationAlert")}</AlertDescription>
           </Alert>
 
           <div className="space-y-4">
@@ -362,8 +366,7 @@ export function ReviewSubmission({ applicationData, onSubmit, onEdit }: ReviewSu
                 onCheckedChange={(checked) => setAgreedToTerms(checked as boolean)}
               />
               <Label htmlFor="terms" className="text-sm leading-relaxed">
-                I agree to the terms and conditions and understand that this application will be processed according to
-                state and federal guidelines. I consent to verification of the information provided.
+                {t("reviewSubmission.agreeToTerms")}
               </Label>
             </div>
 
@@ -374,9 +377,7 @@ export function ReviewSubmission({ applicationData, onSubmit, onEdit }: ReviewSu
                 onCheckedChange={(checked) => setCertifyTruth(checked as boolean)}
               />
               <Label htmlFor="certify" className="text-sm leading-relaxed">
-                I certify that all information provided in this application is true and complete to the best of my
-                knowledge. I understand that providing false information may result in denial of benefits and/or legal
-                action.
+                {t("reviewSubmission.certifyTruth")}
               </Label>
             </div>
           </div>
@@ -394,17 +395,17 @@ export function ReviewSubmission({ applicationData, onSubmit, onEdit }: ReviewSu
           {isSubmitting ? (
             <>
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-              Submitting Application...
+              {t("reviewSubmission.submittingApplication")}
             </>
           ) : (
             <>
               <Send className="w-4 h-4 mr-2" />
-              Submit Application
+              {t("reviewSubmission.submitApplication")}
             </>
           )}
         </Button>
         <p className="text-sm text-gray-500 mt-2">
-          This will submit your application to {applicationData.state || "your state"} for processing.
+          {t("reviewSubmission.submitDescription", { state: applicationData.state || t("common.yourState") })}
         </p>
       </div>
     </div>

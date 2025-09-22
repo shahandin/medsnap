@@ -17,27 +17,46 @@ import { IncomeEmploymentForm } from "@/components/income-employment-form"
 import { AssetsForm } from "@/components/assets-form"
 import { HealthDisabilityForm } from "@/components/health-disability-form"
 import { ReviewSubmission } from "@/components/review-submission"
-
-const STEPS = [
-  { id: "benefits", title: "Benefit Selection", description: "Choose which benefits to apply for" },
-  { id: "state", title: "State Selection", description: "Select your state of residence" },
-  { id: "personal", title: "Personal Information", description: "Basic personal details and application context" },
-  { id: "household", title: "Household Members", description: "Add household members" },
-  { id: "household-questions", title: "Household Questions", description: "Questions about household benefit history" },
-  {
-    id: "income",
-    title: "Income & Expenses",
-    description: "Employment, income sources, housing costs, and tax-deductible expenses",
-  },
-  { id: "assets", title: "Assets", description: "Financial assets, vehicles, and life insurance" },
-  { id: "health", title: "Health & Disability", description: "Health insurance and disability information" },
-  { id: "review", title: "Review & Submit", description: "Review your application" },
-]
+import { useTranslation } from "@/lib/translations"
 
 export default function BenefitsApplicationClient({
   startFresh = false,
   continueId = null,
 }: { startFresh?: boolean; continueId?: string | null }) {
+  const { t } = useTranslation()
+
+  const STEPS = [
+    {
+      id: "benefits",
+      title: t("progressSteps.benefitSelection"),
+      description: t("progressSteps.benefitSelectionDesc"),
+    },
+    { id: "state", title: t("progressSteps.stateSelection"), description: t("progressSteps.stateSelectionDesc") },
+    {
+      id: "personal",
+      title: t("progressSteps.personalInformation"),
+      description: t("progressSteps.personalInformationDesc"),
+    },
+    {
+      id: "household",
+      title: t("progressSteps.householdMembers"),
+      description: t("progressSteps.householdMembersDesc"),
+    },
+    {
+      id: "household-questions",
+      title: t("progressSteps.householdQuestions"),
+      description: t("progressSteps.householdQuestionsDesc"),
+    },
+    {
+      id: "income",
+      title: t("progressSteps.incomeExpenses"),
+      description: t("progressSteps.incomeExpensesDesc"),
+    },
+    { id: "assets", title: t("progressSteps.assets"), description: t("progressSteps.assetsDesc") },
+    { id: "health", title: t("progressSteps.healthDisability"), description: t("progressSteps.healthDisabilityDesc") },
+    { id: "review", title: t("progressSteps.reviewSubmit"), description: t("progressSteps.reviewSubmitDesc") },
+  ]
+
   const [currentStep, setCurrentStep] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
@@ -51,6 +70,7 @@ export default function BenefitsApplicationClient({
   const touchStartX = useRef<number | null>(null)
   const touchStartY = useRef<number | null>(null)
   const personalInfoRef = useRef(null)
+
   const [applicationData, setApplicationData] = useState({
     benefitType: "",
     state: "",
@@ -688,7 +708,7 @@ export default function BenefitsApplicationClient({
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading your application...</p>
+          <p className="text-gray-600">{t("progressSteps.loadingApplication")}</p>
         </div>
       </div>
     )
@@ -701,12 +721,14 @@ export default function BenefitsApplicationClient({
           <div className="flex justify-between items-start mb-4 sm:mb-6">
             <div className="flex-1">
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-heading font-bold text-gray-900 mb-2 sm:mb-4 leading-tight">
-                {allApplicationsSubmitted ? "Application Status" : "Benefits Application"}
+                {allApplicationsSubmitted
+                  ? t("progressSteps.applicationStatus")
+                  : t("progressSteps.benefitsApplication")}
               </h1>
               {allApplicationsSubmitted ? (
-                <p className="text-lg sm:text-xl text-gray-600">Review your submitted applications</p>
+                <p className="text-lg sm:text-xl text-gray-600">{t("progressSteps.reviewSubmittedApplications")}</p>
               ) : (
-                <p className="text-lg sm:text-xl text-gray-600">Complete your Medicaid and SNAP application</p>
+                <p className="text-lg sm:text-xl text-gray-600">{t("progressSteps.completeMedicaidSNAP")}</p>
               )}
             </div>
           </div>
@@ -777,7 +799,7 @@ export default function BenefitsApplicationClient({
                   <div className="mt-4 sm:hidden">
                     <p className="text-xs text-gray-500 flex items-center gap-2">
                       <span>👆</span>
-                      Swipe left/right to navigate between steps
+                      {t("progressSteps.swipeNavigation")}
                     </p>
                   </div>
                 </CardHeader>
@@ -804,14 +826,14 @@ export default function BenefitsApplicationClient({
                   className="flex items-center justify-center gap-3 px-6 py-4 text-base font-semibold border-2 border-gray-300 hover:border-primary/50 rounded-2xl bg-white hover:bg-gray-50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed min-h-[56px] sm:min-h-[52px] touch-manipulation active:scale-95 shadow-md hover:shadow-lg"
                 >
                   <span className="text-lg">←</span>
-                  Previous
+                  {t("common.back")}
                 </Button>
                 <Button
                   onClick={handleNextStep}
                   disabled={currentStep === STEPS.length - 1 || !canProceed()}
                   className="flex items-center justify-center gap-3 px-8 py-4 text-base font-bold bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:via-primary/85 hover:to-primary/80 text-white rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed min-h-[56px] sm:min-h-[52px] touch-manipulation active:scale-95 hover:scale-[1.02]"
                 >
-                  Next
+                  {t("common.next")}
                   <span className="text-lg">→</span>
                 </Button>
               </div>
@@ -826,26 +848,25 @@ export default function BenefitsApplicationClient({
                 <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
                   <span className="text-2xl text-white">✓</span>
                 </div>
-                <CardTitle className="text-2xl font-bold text-green-800 mb-2">All Applications Submitted</CardTitle>
+                <CardTitle className="text-2xl font-bold text-green-800 mb-2">
+                  {t("progressSteps.allApplicationsSubmitted")}
+                </CardTitle>
                 <CardDescription className="text-lg text-green-700">
-                  Congratulations! You've successfully submitted all your benefit applications.
+                  {t("progressSteps.congratulationsMessage")}
                 </CardDescription>
               </CardHeader>
               <CardContent className="px-6 py-8 text-center">
                 <div className="space-y-6">
                   <div className="bg-white rounded-xl p-6 border border-green-200">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-3">What's Next?</h3>
-                    <p className="text-gray-600 mb-4">
-                      Your applications are being processed. You can track their status and view details in your
-                      dashboard.
-                    </p>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-3">{t("progressSteps.whatsNext")}</h3>
+                    <p className="text-gray-600 mb-4">{t("progressSteps.applicationsBeingProcessed")}</p>
                     <div className="flex justify-center">
                       <Button
                         onClick={() => router.push("/account?tab=applications")}
                         className="flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 font-semibold text-lg"
                       >
                         <span>📋</span>
-                        View Application Status
+                        {t("progressSteps.viewApplicationStatus")}
                       </Button>
                     </div>
                   </div>

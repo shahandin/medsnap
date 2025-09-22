@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Users, Plus, Trash2, User } from "lucide-react"
+import { useTranslation } from "@/lib/translations"
 
 interface HouseholdMember {
   id: string
@@ -24,20 +25,10 @@ interface HouseholdManagementProps {
   onUpdate: (members: HouseholdMember[]) => void
 }
 
-const RELATIONSHIP_OPTIONS = [
-  { value: "spouse", label: "Spouse" },
-  { value: "child", label: "Child" },
-  { value: "parent", label: "Parent" },
-  { value: "sibling", label: "Sibling" },
-  { value: "grandparent", label: "Grandparent" },
-  { value: "grandchild", label: "Grandchild" },
-  { value: "other_relative", label: "Other Relative" },
-  { value: "unrelated", label: "Unrelated Person" },
-]
-
 const generateId = () => uuidv4()
 
 export function HouseholdManagement({ householdMembers, onUpdate }: HouseholdManagementProps) {
+  const { t } = useTranslation()
   const [isAddingMember, setIsAddingMember] = useState(false)
   const [newMember, setNewMember] = useState<Omit<HouseholdMember, "id">>({
     firstName: "",
@@ -46,6 +37,17 @@ export function HouseholdManagement({ householdMembers, onUpdate }: HouseholdMan
     socialSecurityNumber: "",
     relationship: "",
   })
+
+  const RELATIONSHIP_OPTIONS = [
+    { value: "spouse", label: t("forms.household.relationships.spouse") },
+    { value: "child", label: t("forms.household.relationships.child") },
+    { value: "parent", label: t("forms.household.relationships.parent") },
+    { value: "sibling", label: t("forms.household.relationships.sibling") },
+    { value: "grandparent", label: t("householdManagement.relationships.grandparent") },
+    { value: "grandchild", label: t("householdManagement.relationships.grandchild") },
+    { value: "other_relative", label: t("householdManagement.relationships.otherRelative") },
+    { value: "unrelated", label: t("householdManagement.relationships.unrelated") },
+  ]
 
   const formatSSN = (value: string) => {
     const digits = value.replace(/\D/g, "")
@@ -103,11 +105,8 @@ export function HouseholdManagement({ householdMembers, onUpdate }: HouseholdMan
     <div className="space-y-6">
       <div className="text-center">
         <Users className="w-12 h-12 text-blue-600 mx-auto mb-4" />
-        <h3 className="text-xl font-semibold mb-2">Household Members</h3>
-        <p className="text-gray-600">
-          Add any additional people who live with you and should be included in your application. You can skip this step
-          if you live alone.
-        </p>
+        <h3 className="text-xl font-semibold mb-2">{t("householdManagement.title")}</h3>
+        <p className="text-gray-600">{t("householdManagement.description")}</p>
       </div>
 
       {/* Current Household Members */}
@@ -116,9 +115,9 @@ export function HouseholdManagement({ householdMembers, onUpdate }: HouseholdMan
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Users className="w-5 h-5" />
-              Current Household Members ({householdMembers.length})
+              {t("householdManagement.currentMembers", { count: householdMembers.length })}
             </CardTitle>
-            <CardDescription>People included in your application</CardDescription>
+            <CardDescription>{t("householdManagement.peopleIncluded")}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -131,7 +130,7 @@ export function HouseholdManagement({ householdMembers, onUpdate }: HouseholdMan
                         {member.firstName} {member.lastName}
                       </div>
                       <div className="text-sm text-gray-500">
-                        Born: {new Date(member.dateOfBirth).toLocaleDateString()}
+                        {t("householdManagement.born")}: {new Date(member.dateOfBirth).toLocaleDateString()}
                       </div>
                       <Badge variant="secondary" className="mt-1">
                         {RELATIONSHIP_OPTIONS.find((r) => r.value === member.relationship)?.label}
@@ -157,36 +156,36 @@ export function HouseholdManagement({ householdMembers, onUpdate }: HouseholdMan
       {isAddingMember ? (
         <Card>
           <CardHeader>
-            <CardTitle>Add Household Member</CardTitle>
-            <CardDescription>Enter information for the new household member</CardDescription>
+            <CardTitle>{t("householdManagement.addMemberTitle")}</CardTitle>
+            <CardDescription>{t("householdManagement.addMemberDescription")}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="memberFirstName">First Name *</Label>
+                <Label htmlFor="memberFirstName">{t("householdManagement.firstName")} *</Label>
                 <Input
                   id="memberFirstName"
                   type="text"
                   value={newMember.firstName}
                   onChange={(e) => updateNewMemberField("firstName", e.target.value)}
-                  placeholder="Enter first name"
+                  placeholder={t("householdManagement.firstNamePlaceholder")}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="memberLastName">Last Name *</Label>
+                <Label htmlFor="memberLastName">{t("householdManagement.lastName")} *</Label>
                 <Input
                   id="memberLastName"
                   type="text"
                   value={newMember.lastName}
                   onChange={(e) => updateNewMemberField("lastName", e.target.value)}
-                  placeholder="Enter last name"
+                  placeholder={t("householdManagement.lastNamePlaceholder")}
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="memberDob">Date of Birth *</Label>
+                <Label htmlFor="memberDob">{t("householdManagement.dateOfBirth")} *</Label>
                 <Input
                   id="memberDob"
                   type="date"
@@ -195,13 +194,13 @@ export function HouseholdManagement({ householdMembers, onUpdate }: HouseholdMan
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="memberRelationship">Relationship to You *</Label>
+                <Label htmlFor="memberRelationship">{t("householdManagement.relationshipToYou")} *</Label>
                 <Select
                   value={newMember.relationship}
                   onValueChange={(value) => updateNewMemberField("relationship", value)}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select relationship" />
+                    <SelectValue placeholder={t("householdManagement.selectRelationship")} />
                   </SelectTrigger>
                   <SelectContent>
                     {RELATIONSHIP_OPTIONS.map((option) => (
@@ -215,24 +214,24 @@ export function HouseholdManagement({ householdMembers, onUpdate }: HouseholdMan
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="memberSSN">Social Security Number *</Label>
+              <Label htmlFor="memberSSN">{t("householdManagement.socialSecurityNumber")} *</Label>
               <Input
                 id="memberSSN"
                 type="text"
                 value={newMember.socialSecurityNumber}
                 onChange={(e) => updateNewMemberField("socialSecurityNumber", formatSSN(e.target.value))}
-                placeholder="XXX-XX-XXXX"
+                placeholder={t("householdManagement.ssnPlaceholder")}
                 maxLength={11}
               />
-              <p className="text-xs text-gray-500">Required for benefit eligibility verification</p>
+              <p className="text-xs text-gray-500">{t("householdManagement.ssnNote")}</p>
             </div>
 
             <div className="flex gap-2 pt-4">
               <Button onClick={addMember} className="flex-1">
-                Add Member
+                {t("householdManagement.addMember")}
               </Button>
               <Button variant="outline" onClick={cancelAdd} className="flex-1 bg-transparent">
-                Cancel
+                {t("common.cancel")}
               </Button>
             </div>
           </CardContent>
@@ -241,12 +240,15 @@ export function HouseholdManagement({ householdMembers, onUpdate }: HouseholdMan
         <div className="text-center">
           <Button onClick={() => setIsAddingMember(true)} className="flex items-center gap-2">
             <Plus className="w-4 h-4" />
-            Add Household Member
+            {t("forms.household.addMember")}
           </Button>
           <p className="text-sm text-gray-500 mt-2">
             {householdMembers.length === 0
-              ? "No additional household members added yet"
-              : `${householdMembers.length} household member${householdMembers.length > 1 ? "s" : ""} added`}
+              ? t("householdManagement.noMembersAdded")
+              : t("householdManagement.membersAdded", {
+                  count: householdMembers.length,
+                  plural: householdMembers.length > 1 ? "s" : "",
+                })}
           </p>
         </div>
       )}
@@ -259,11 +261,8 @@ export function HouseholdManagement({ householdMembers, onUpdate }: HouseholdMan
               <span className="text-white text-xs font-bold">i</span>
             </div>
             <div className="text-sm">
-              <p className="font-medium text-blue-900 mb-1">Who should I include?</p>
-              <p className="text-blue-800">
-                Include anyone who lives with you regularly, shares meals, or contributes to household expenses. This
-                includes spouses, children, parents, and other relatives or unrelated individuals living in your home.
-              </p>
+              <p className="font-medium text-blue-900 mb-1">{t("householdManagement.whoToIncludeTitle")}</p>
+              <p className="text-blue-800">{t("householdManagement.whoToIncludeDescription")}</p>
             </div>
           </div>
         </CardContent>

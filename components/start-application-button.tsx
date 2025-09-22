@@ -1,8 +1,11 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
+import { useTranslation } from "@/contexts/translation-context"
 
 export function StartApplicationButton() {
+  const { t } = useTranslation()
+
   const handleStartApplication = async () => {
     try {
       const response = await fetch("/api/prescreening")
@@ -26,7 +29,7 @@ export function StartApplicationButton() {
       onClick={handleStartApplication}
     >
       <span className="flex items-center justify-center gap-3">
-        Start Your Application
+        {t("buttons.startApplication")}
         <span className="group-hover:translate-x-1 transition-transform duration-200">→</span>
       </span>
     </Button>

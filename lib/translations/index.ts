@@ -821,4 +821,4 @@ export const LANGUAGES: Record<Language, { name: string; nativeName: string; fla
 
 export const DEFAULT_LANGUAGE: Language = "en"
 
-export { useTranslation } from "@/contexts/translation-context"
+// All components should import directly from @/contexts/translation-context

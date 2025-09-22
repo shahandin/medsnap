@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { MapPin, Search, Check } from "lucide-react"
+import { useTranslation } from "@/lib/translations"
 
 const US_STATES = [
   { code: "AL", name: "Alabama" },
@@ -71,6 +72,7 @@ export function StateSelection({ selectedState, onStateSelect }: StateSelectionP
   const [showDropdown, setShowDropdown] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const { t } = useTranslation()
 
   const filteredStates = US_STATES.filter(
     (state) =>
@@ -112,16 +114,13 @@ export function StateSelection({ selectedState, onStateSelect }: StateSelectionP
     <div className="space-y-6">
       <div className="text-center">
         <MapPin className="w-12 h-12 text-blue-600 mx-auto mb-4" />
-        <h3 className="text-xl font-semibold mb-2">Select Your State</h3>
-        <p className="text-gray-600">
-          Choose the state where you reside and are applying for benefits. Each state has different requirements and
-          processes.
-        </p>
+        <h3 className="text-xl font-semibold mb-2">{t("stateSelection.title")}</h3>
+        <p className="text-gray-600">{t("stateSelection.description")}</p>
       </div>
 
       <div className="max-w-md mx-auto">
         <Label htmlFor="state-selector" className="text-sm font-medium mb-2 block">
-          State of Residence
+          {t("stateSelection.stateOfResidence")}
         </Label>
 
         <div className="relative">
@@ -130,7 +129,7 @@ export function StateSelection({ selectedState, onStateSelect }: StateSelectionP
             <Input
               ref={inputRef}
               type="text"
-              placeholder="Type to search states..."
+              placeholder={t("stateSelection.searchPlaceholder")}
               value={searchTerm}
               onChange={handleInputChange}
               onFocus={() => searchTerm.length > 0 && setShowDropdown(true)}
@@ -163,7 +162,7 @@ export function StateSelection({ selectedState, onStateSelect }: StateSelectionP
       {selectedState && (
         <div className="text-center">
           <Badge variant="secondary" className="text-sm px-4 py-2">
-            Selected: {selectedStateName} ({selectedState})
+            {t("stateSelection.selected")}: {selectedStateName} ({selectedState})
           </Badge>
         </div>
       )}

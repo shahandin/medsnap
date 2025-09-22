@@ -53,7 +53,7 @@ export default function ApplicationChoiceClient() {
       setIncompleteApplications(applications)
     } catch (error) {
       console.error("Error loading incomplete applications:", error)
-      setError("Failed to load applications. Please try again.")
+      setError(t("applicationChoice.errors.loadFailed"))
     } finally {
       setLoading(false)
     }
