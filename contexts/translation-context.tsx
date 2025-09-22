@@ -10,7 +10,7 @@ export type Language = "en" | "es"
 interface TranslationContextType {
   language: Language
   setLanguage: (lang: Language) => void
-  t: (key: string) => string
+  t: (key: string, variables?: Record<string, string | number>) => string
   isLoading: boolean
 }
 
@@ -89,13 +89,20 @@ export function TranslationProvider({ children }: TranslationProviderProps) {
     }
   }
 
-  const t = (key: string): string => {
+  const t = (key: string, variables?: Record<string, string | number>): string => {
     const currentLang = isHydrated ? language : DEFAULT_LANGUAGE
-    const result = getTranslation(translations[currentLang], key)
+    let result = getTranslation(translations[currentLang], key)
 
     // Only log if translation key is not found (to avoid spam)
     if (result === key) {
       console.log("[v0] Translation not found for key:", key, "in language:", currentLang)
+    }
+
+    if (variables && typeof result === "string") {
+      Object.entries(variables).forEach(([variableKey, value]) => {
+        const placeholder = `{{${variableKey}}}`
+        result = result.replace(new RegExp(placeholder, "g"), String(value))
+      })
     }
 
     return result
