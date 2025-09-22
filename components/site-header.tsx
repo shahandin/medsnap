@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import type { User } from "@/types/user"
+
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -13,10 +13,13 @@ import { LanguageSelector } from "./language-selector"
 import { useTranslation } from "@/contexts/translation-context"
 
 interface SiteHeaderProps {
-  user?: User | null
+  user?: {
+    email?: string
+    id?: string
+  } | null
 }
 
-export function SiteHeader({ user: initialUser }: SiteHeaderProps) {
+export function SiteHeader({ user }: SiteHeaderProps) {
   const pathname = usePathname()
   const router = useRouter()
   const { t } = useTranslation()
@@ -24,10 +27,6 @@ export function SiteHeader({ user: initialUser }: SiteHeaderProps) {
   const [showNotifications, setShowNotifications] = useState(false)
   const [hasUnreadNotifications, setHasUnreadNotifications] = useState(true) // Mock data - would come from API
   const [showMobileMenu, setShowMobileMenu] = useState(false)
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
-  const [user, setUser] = useState<User | null>(initialUser)
-  const [loading, setLoading] = useState(true)
 
   const handleApplyForBenefits = async (e: React.MouseEvent) => {
     e.preventDefault()
@@ -97,7 +96,6 @@ export function SiteHeader({ user: initialUser }: SiteHeaderProps) {
     }
 
     getUserInitials()
-    setLoading(false)
   }, [user])
 
   const publicNavigation = [{ name: t("nav.about"), href: "/about" }]
@@ -111,68 +109,76 @@ export function SiteHeader({ user: initialUser }: SiteHeaderProps) {
   const navigation = user ? authenticatedNavigation : publicNavigation
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <Link href="/" className="flex items-center space-x-2">
-            <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-sm">BB</span>
+    <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80 shadow-sm">
+      <div className="container flex h-16 sm:h-20 items-center justify-between px-4 sm:px-6">
+        <div className="flex items-center space-x-4 sm:space-x-10">
+          <Link
+            href="/"
+            className="flex items-center space-x-2 sm:space-x-3 hover:opacity-90 transition-all duration-200 group"
+          >
+            <div className="flex items-center">
+              <span className="font-heading font-bold text-xl sm:text-2xl text-foreground group-hover:text-primary transition-colors duration-200">
+                Benefit<span className="text-primary">Bridge</span>
+              </span>
             </div>
-            <span className="font-bold text-xl">{t("footer.brandName")}</span>
           </Link>
+
+          <nav className="hidden md:flex items-center space-x-8">
+            {navigation.map((item) =>
+              item.onClick ? (
+                <button
+                  key={item.name}
+                  onClick={item.onClick}
+                  className={cn(
+                    "text-sm font-medium transition-all duration-200 hover:text-primary relative py-2 px-3 rounded-lg cursor-pointer hover:bg-muted/50 hover:shadow-sm",
+                    pathname === item.href
+                      ? "text-primary font-semibold"
+                      : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  {item.name}
+                  {pathname === item.href && (
+                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full" />
+                  )}
+                </button>
+              ) : (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={cn(
+                    "text-sm font-medium transition-all duration-200 hover:text-primary relative py-2 px-3 rounded-lg cursor-pointer hover:bg-muted/50 hover:shadow-sm",
+                    pathname === item.href
+                      ? "text-primary font-semibold"
+                      : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  {item.name}
+                  {pathname === item.href && (
+                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full" />
+                  )}
+                </Link>
+              ),
+            )}
+          </nav>
+
+          <button
+            onClick={() => setShowMobileMenu(!showMobileMenu)}
+            className="md:hidden p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-all duration-200"
+            aria-label="Toggle mobile menu"
+          >
+            <div className="w-5 h-5 flex flex-col justify-center space-y-1">
+              <div
+                className={`w-full h-0.5 bg-current transition-all duration-200 ${showMobileMenu ? "rotate-45 translate-y-1.5" : ""}`}
+              />
+              <div
+                className={`w-full h-0.5 bg-current transition-all duration-200 ${showMobileMenu ? "opacity-0" : ""}`}
+              />
+              <div
+                className={`w-full h-0.5 bg-current transition-all duration-200 ${showMobileMenu ? "-rotate-45 -translate-y-1.5" : ""}`}
+              />
+            </div>
+          </button>
         </div>
-
-        <nav className="hidden md:flex items-center space-x-8">
-          {navigation.map((item) =>
-            item.onClick ? (
-              <button
-                key={item.name}
-                onClick={item.onClick}
-                className={cn(
-                  "text-sm font-medium transition-all duration-200 hover:text-primary relative py-2 px-3 rounded-lg cursor-pointer hover:bg-muted/50 hover:shadow-sm",
-                  pathname === item.href ? "text-primary font-semibold" : "text-muted-foreground hover:text-foreground",
-                )}
-              >
-                {item.name}
-                {pathname === item.href && (
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full" />
-                )}
-              </button>
-            ) : (
-              <Link
-                key={item.name}
-                href={item.href}
-                className={cn(
-                  "text-sm font-medium transition-all duration-200 hover:text-primary relative py-2 px-3 rounded-lg cursor-pointer hover:bg-muted/50 hover:shadow-sm",
-                  pathname === item.href ? "text-primary font-semibold" : "text-muted-foreground hover:text-foreground",
-                )}
-              >
-                {item.name}
-                {pathname === item.href && (
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full" />
-                )}
-              </Link>
-            ),
-          )}
-        </nav>
-
-        <button
-          onClick={() => setShowMobileMenu(!showMobileMenu)}
-          className="md:hidden p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-all duration-200"
-          aria-label={t("siteHeader.toggleMobileMenu")}
-        >
-          <div className="w-5 h-5 flex flex-col justify-center space-y-1">
-            <div
-              className={`w-full h-0.5 bg-current transition-all duration-200 ${showMobileMenu ? "rotate-45 translate-y-1.5" : ""}`}
-            />
-            <div
-              className={`w-full h-0.5 bg-current transition-all duration-200 ${showMobileMenu ? "opacity-0" : ""}`}
-            />
-            <div
-              className={`w-full h-0.5 bg-current transition-all duration-200 ${showMobileMenu ? "-rotate-45 -translate-y-1.5" : ""}`}
-            />
-          </div>
-        </button>
 
         <div className="flex items-center space-x-2 sm:space-x-4">
           <LanguageSelector />
@@ -180,7 +186,7 @@ export function SiteHeader({ user: initialUser }: SiteHeaderProps) {
             <div className="flex items-center space-x-2 sm:space-x-4">
               <div className="relative">
                 <button
-                  onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+                  onClick={() => setShowNotifications(!showNotifications)}
                   className="relative p-2 sm:p-3 text-muted-foreground hover:text-foreground hover:bg-muted rounded-xl transition-all duration-200 hover:shadow-sm"
                 >
                   <span className="text-base sm:text-lg">🔔</span>
@@ -188,7 +194,7 @@ export function SiteHeader({ user: initialUser }: SiteHeaderProps) {
                     <div className="absolute -top-1 -right-1 w-3 h-3 bg-destructive rounded-full shadow-sm animate-pulse"></div>
                   )}
                 </button>
-                {isNotificationsOpen && <NotificationsModal onClose={() => setIsNotificationsOpen(false)} />}
+                {showNotifications && <NotificationsModal onClose={() => setShowNotifications(false)} />}
               </div>
 
               <Link href="/account">

@@ -13,12 +13,12 @@ import { useState } from "react"
 import { useTranslation } from "@/contexts/translation-context"
 
 export default function Page() {
-  const { t } = useTranslation()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
+  const { t } = useTranslation()
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -37,7 +37,7 @@ export default function Page() {
       if (error) throw error
       router.push("/protected")
     } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : t("auth.signIn.genericError"))
+      setError(error instanceof Error ? error.message : "An error occurred")
     } finally {
       setIsLoading(false)
     }

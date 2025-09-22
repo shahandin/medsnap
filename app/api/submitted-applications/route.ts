@@ -2,12 +2,9 @@ import { type NextRequest, NextResponse } from "next/server"
 import { createServerClient } from "@supabase/ssr"
 import { cookies } from "next/headers"
 
-export const runtime = "nodejs"
-export const dynamic = "force-dynamic"
-
 export async function GET(request: NextRequest) {
   try {
-    const cookieStore = await cookies()
+    const cookieStore = cookies()
 
     const supabase = createServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, {
       cookies: {

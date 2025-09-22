@@ -11,7 +11,6 @@ import { Textarea } from "@/components/ui/textarea"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Separator } from "@/components/ui/separator"
 import { Heart, Shield, AlertTriangle, Plus, Trash2 } from "lucide-react"
-import { useTranslation } from "@/lib/translations"
 
 interface HealthInsuranceInfo {
   memberId: string
@@ -70,30 +69,30 @@ interface HealthDisabilityFormProps {
   onUpdate: (data: HealthDisabilityData) => void
 }
 
-const COMMON_CONDITIONS = [
-  { value: "diabetes", label: "Diabetes" },
-  { value: "highBloodPressure", label: "High Blood Pressure" },
-  { value: "heartDisease", label: "Heart Disease" },
-  { value: "asthma", label: "Asthma" },
-  { value: "depressionAnxiety", label: "Depression/Anxiety" },
-  { value: "arthritis", label: "Arthritis" },
-  { value: "cancer", label: "Cancer" },
-  { value: "kidneyDisease", label: "Kidney Disease" },
-  { value: "mentalHealth", label: "Mental Health Conditions" },
-  { value: "substanceAbuse", label: "Substance Abuse" },
-  { value: "other", label: "Other" },
-]
-
 const INSURANCE_TYPES = [
-  { value: "employer", label: "Employer" },
-  { value: "marketplace", label: "Marketplace" },
+  { value: "employer", label: "Employer-Sponsored" },
+  { value: "marketplace", label: "Marketplace/ACA Plan" },
   { value: "medicare", label: "Medicare" },
   { value: "medicaid", label: "Medicaid" },
-  { value: "private", label: "Private" },
+  { value: "private", label: "Private Insurance" },
   { value: "cobra", label: "COBRA" },
   { value: "tricare", label: "TRICARE" },
   { value: "va", label: "VA Benefits" },
   { value: "other", label: "Other" },
+]
+
+const COMMON_CONDITIONS = [
+  "Diabetes",
+  "High Blood Pressure",
+  "Heart Disease",
+  "Asthma",
+  "Depression/Anxiety",
+  "Arthritis",
+  "Cancer",
+  "Kidney Disease",
+  "Mental Health Conditions",
+  "Substance Abuse",
+  "Other",
 ]
 
 export function HealthDisabilityForm({
@@ -103,14 +102,13 @@ export function HealthDisabilityForm({
   benefitType,
   onUpdate,
 }: HealthDisabilityFormProps) {
-  const { t } = useTranslation()
   const [selectedConditions, setSelectedConditions] = useState<string[]>(data?.medicalConditions?.conditions || [])
 
   // Create list of all household members including applicant
   const allMembers = [
     {
       id: "applicant",
-      firstName: applicantName.split(" ")[0] || t("householdQuestions.applicant"),
+      firstName: applicantName.split(" ")[0] || "Applicant",
       lastName: applicantName.split(" ")[1] || "",
       relationship: "self",
     },
@@ -157,12 +155,12 @@ export function HealthDisabilityForm({
     updateData({ medicalConditions: { ...data.medicalConditions, ...updates } })
   }
 
-  const handleConditionChange = (conditionValue: string, checked: boolean) => {
+  const handleConditionChange = (condition: string, checked: boolean) => {
     let newConditions: string[]
     if (checked) {
-      newConditions = [...selectedConditions, conditionValue]
+      newConditions = [...selectedConditions, condition]
     } else {
-      newConditions = selectedConditions.filter((c) => c !== conditionValue)
+      newConditions = selectedConditions.filter((c) => c !== condition)
     }
     setSelectedConditions(newConditions)
     updateMedicalConditions({ conditions: newConditions })
@@ -182,8 +180,10 @@ export function HealthDisabilityForm({
     <div className="space-y-6">
       <div className="text-center">
         <Heart className="w-12 h-12 text-blue-600 mx-auto mb-4" />
-        <h3 className="text-xl font-semibold mb-2">{t("forms.healthDisability.title")}</h3>
-        <p className="text-gray-600">{t("forms.healthDisability.subtitle")}</p>
+        <h3 className="text-xl font-semibold mb-2">Health & Disability Information</h3>
+        <p className="text-gray-600">
+          Provide health insurance details and answer questions about disabilities and medical conditions.
+        </p>
       </div>
 
       {/* Health Insurance Section */}
@@ -191,9 +191,9 @@ export function HealthDisabilityForm({
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Shield className="w-5 h-5" />
-            {t("forms.healthDisability.healthInsuranceSection")}
+            Health Insurance Information
           </CardTitle>
-          <CardDescription>{t("forms.healthDisability.healthInsuranceDescription")}</CardDescription>
+          <CardDescription>Current health insurance coverage for all household members</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           {allMembers.map((member) => {
@@ -204,13 +204,12 @@ export function HealthDisabilityForm({
               <div key={member.id} className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h4 className="font-medium">
-                    {memberName}{" "}
-                    {member.relationship === "self" ? t("forms.incomeEmployment.you") : `(${member.relationship})`}
+                    {memberName} {member.relationship === "self" ? "(You)" : `(${member.relationship})`}
                   </h4>
                   {!memberInsurance && (
                     <Button size="sm" onClick={() => addHealthInsurance(member.id, memberName)}>
                       <Plus className="w-4 h-4 mr-2" />
-                      {t("forms.healthDisability.addInsurance")}
+                      Add Insurance Info
                     </Button>
                   )}
                 </div>
@@ -220,7 +219,7 @@ export function HealthDisabilityForm({
                     <div className="flex justify-between items-start">
                       <div className="space-y-4 flex-1">
                         <div className="space-y-3">
-                          <Label>{t("forms.healthDisability.hasInsurance")} *</Label>
+                          <Label>Do you have health insurance? *</Label>
                           <RadioGroup
                             value={memberInsurance.hasInsurance ? "yes" : "no"}
                             onValueChange={(value) =>
@@ -231,11 +230,11 @@ export function HealthDisabilityForm({
                           >
                             <div className="flex items-center space-x-2">
                               <RadioGroupItem value="yes" id={`insurance-yes-${member.id}`} />
-                              <Label htmlFor={`insurance-yes-${member.id}`}>{t("common.yes")}</Label>
+                              <Label htmlFor={`insurance-yes-${member.id}`}>Yes</Label>
                             </div>
                             <div className="flex items-center space-x-2">
                               <RadioGroupItem value="no" id={`insurance-no-${member.id}`} />
-                              <Label htmlFor={`insurance-no-${member.id}`}>{t("common.no")}</Label>
+                              <Label htmlFor={`insurance-no-${member.id}`}>No</Label>
                             </div>
                           </RadioGroup>
                         </div>
@@ -243,7 +242,7 @@ export function HealthDisabilityForm({
                         {memberInsurance.hasInsurance && (
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
-                              <Label>{t("forms.healthDisability.insuranceProvider")} *</Label>
+                              <Label>Insurance Provider *</Label>
                               <Input
                                 value={memberInsurance.provider || ""}
                                 onChange={(e) =>
@@ -251,11 +250,11 @@ export function HealthDisabilityForm({
                                     provider: e.target.value,
                                   })
                                 }
-                                placeholder={t("forms.healthDisability.insuranceProviderPlaceholder")}
+                                placeholder="e.g., Blue Cross Blue Shield"
                               />
                             </div>
                             <div className="space-y-2">
-                              <Label>{t("forms.healthDisability.coverageType")}</Label>
+                              <Label>Coverage Type</Label>
                               <Select
                                 value={memberInsurance.coverageType || ""}
                                 onValueChange={(value) =>
@@ -265,7 +264,7 @@ export function HealthDisabilityForm({
                                 }
                               >
                                 <SelectTrigger>
-                                  <SelectValue placeholder={t("common.selectOption")} />
+                                  <SelectValue placeholder="Select coverage type" />
                                 </SelectTrigger>
                                 <SelectContent>
                                   {INSURANCE_TYPES.map((type) => (
@@ -277,7 +276,7 @@ export function HealthDisabilityForm({
                               </Select>
                             </div>
                             <div className="space-y-2">
-                              <Label>{t("forms.healthDisability.policyNumber")}</Label>
+                              <Label>Policy Number</Label>
                               <Input
                                 value={memberInsurance.policyNumber || ""}
                                 onChange={(e) =>
@@ -285,11 +284,11 @@ export function HealthDisabilityForm({
                                     policyNumber: e.target.value,
                                   })
                                 }
-                                placeholder={t("forms.healthDisability.policyNumberPlaceholder")}
+                                placeholder="Policy number"
                               />
                             </div>
                             <div className="space-y-2">
-                              <Label>{t("forms.healthDisability.groupNumber")}</Label>
+                              <Label>Group Number</Label>
                               <Input
                                 value={memberInsurance.groupNumber || ""}
                                 onChange={(e) =>
@@ -297,11 +296,11 @@ export function HealthDisabilityForm({
                                     groupNumber: e.target.value,
                                   })
                                 }
-                                placeholder={t("forms.healthDisability.groupNumberPlaceholder")}
+                                placeholder="Group number"
                               />
                             </div>
                             <div className="space-y-2 md:col-span-2">
-                              <Label>{t("forms.healthDisability.monthlyPremium")} ($)</Label>
+                              <Label>Monthly Premium ($)</Label>
                               <Input
                                 type="number"
                                 value={memberInsurance.monthlyPremium || ""}
@@ -310,7 +309,7 @@ export function HealthDisabilityForm({
                                     monthlyPremium: Number.parseFloat(e.target.value) || 0,
                                   })
                                 }
-                                placeholder={t("forms.healthDisability.monthlyPremiumPlaceholder")}
+                                placeholder="0.00"
                               />
                             </div>
                           </div>
@@ -340,34 +339,34 @@ export function HealthDisabilityForm({
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <AlertTriangle className="w-5 h-5" />
-            {t("forms.healthDisability.disabilitySection")}
+            Disability & Special Circumstances
           </CardTitle>
-          <CardDescription>{t("forms.healthDisability.disabilityDescription")}</CardDescription>
+          <CardDescription>Answer these questions about household members</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="space-y-4">
             <div className="space-y-3">
-              <Label className="text-base font-medium">{t("forms.healthDisability.hasDisability")} *</Label>
+              <Label className="text-base font-medium">Is anyone in the household disabled? *</Label>
               <RadioGroup
                 value={data.disabilities.hasDisabled ? "yes" : "no"}
                 onValueChange={(value) => updateDisabilities({ hasDisabled: value === "yes" })}
               >
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="yes" id="disabled-yes" />
-                  <Label htmlFor="disabled-yes">{t("common.yes")}</Label>
+                  <Label htmlFor="disabled-yes">Yes</Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="no" id="disabled-no" />
-                  <Label htmlFor="disabled-no">{t("common.no")}</Label>
+                  <Label htmlFor="disabled-no">No</Label>
                 </div>
               </RadioGroup>
               {data.disabilities.hasDisabled && (
                 <div className="space-y-2">
-                  <Label>{t("forms.healthDisability.disabilityDetails")}</Label>
+                  <Label>Please provide details about the disability</Label>
                   <Textarea
                     value={data.disabilities.disabilityDetails || ""}
                     onChange={(e) => updateDisabilities({ disabilityDetails: e.target.value })}
-                    placeholder={t("forms.healthDisability.disabilityDetailsPlaceholder")}
+                    placeholder="Describe the disability and how it affects daily activities..."
                     rows={3}
                   />
                 </div>
@@ -377,27 +376,27 @@ export function HealthDisabilityForm({
             <Separator />
 
             <div className="space-y-3">
-              <Label className="text-base font-medium">{t("forms.healthDisability.needsAssistance")} *</Label>
+              <Label className="text-base font-medium">Is anyone in the household in need of long-term care? *</Label>
               <RadioGroup
                 value={data.disabilities.needsLongTermCare ? "yes" : "no"}
                 onValueChange={(value) => updateDisabilities({ needsLongTermCare: value === "yes" })}
               >
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="yes" id="longterm-yes" />
-                  <Label htmlFor="longterm-yes">{t("common.yes")}</Label>
+                  <Label htmlFor="longterm-yes">Yes</Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="no" id="longterm-no" />
-                  <Label htmlFor="longterm-no">{t("common.no")}</Label>
+                  <Label htmlFor="longterm-no">No</Label>
                 </div>
               </RadioGroup>
               {data.disabilities.needsLongTermCare && (
                 <div className="space-y-2">
-                  <Label>{t("forms.healthDisability.assistanceDetails")}</Label>
+                  <Label>Please provide details about long-term care needs</Label>
                   <Textarea
                     value={data.disabilities.longTermCareDetails || ""}
                     onChange={(e) => updateDisabilities({ longTermCareDetails: e.target.value })}
-                    placeholder={t("forms.healthDisability.assistanceDetailsPlaceholder")}
+                    placeholder="Describe the long-term care needs..."
                     rows={3}
                   />
                 </div>
@@ -407,27 +406,27 @@ export function HealthDisabilityForm({
             <Separator />
 
             <div className="space-y-3">
-              <Label className="text-base font-medium">{t("forms.healthDisability.isIncarcerated")} *</Label>
+              <Label className="text-base font-medium">Is anyone in the household incarcerated? *</Label>
               <RadioGroup
                 value={data.disabilities.hasIncarcerated ? "yes" : "no"}
                 onValueChange={(value) => updateDisabilities({ hasIncarcerated: value === "yes" })}
               >
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="yes" id="incarcerated-yes" />
-                  <Label htmlFor="incarcerated-yes">{t("common.yes")}</Label>
+                  <Label htmlFor="incarcerated-yes">Yes</Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="no" id="incarcerated-no" />
-                  <Label htmlFor="incarcerated-no">{t("common.no")}</Label>
+                  <Label htmlFor="incarcerated-no">No</Label>
                 </div>
               </RadioGroup>
               {data.disabilities.hasIncarcerated && (
                 <div className="space-y-2">
-                  <Label>{t("forms.healthDisability.incarcerationDetails")}</Label>
+                  <Label>Please provide details about incarceration</Label>
                   <Textarea
                     value={data.disabilities.incarcerationDetails || ""}
                     onChange={(e) => updateDisabilities({ incarcerationDetails: e.target.value })}
-                    placeholder={t("forms.healthDisability.incarcerationDetailsPlaceholder")}
+                    placeholder="Provide details about the incarceration status..."
                     rows={3}
                   />
                 </div>
@@ -440,55 +439,52 @@ export function HealthDisabilityForm({
       {/* Pregnancy Information */}
       <Card>
         <CardHeader>
-          <CardTitle>{t("forms.healthDisability.pregnancySection")}</CardTitle>
-          <CardDescription>{t("forms.healthDisability.pregnancyDescription")}</CardDescription>
+          <CardTitle>Pregnancy Information</CardTitle>
+          <CardDescription>Information about pregnancy in the household</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-3">
-            <Label className="text-base font-medium">{t("forms.healthDisability.isPregnant")}</Label>
+            <Label className="text-base font-medium">Is anyone in the household pregnant?</Label>
             <RadioGroup
               value={data.pregnancyInfo.isPregnant ? "yes" : "no"}
               onValueChange={(value) => updatePregnancy({ isPregnant: value === "yes" })}
             >
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="yes" id="pregnant-yes" />
-                <Label htmlFor="pregnant-yes">{t("common.yes")}</Label>
+                <Label htmlFor="pregnant-yes">Yes</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="no" id="pregnant-no" />
-                <Label htmlFor="pregnant-no">{t("common.no")}</Label>
+                <Label htmlFor="pregnant-no">No</Label>
               </div>
             </RadioGroup>
             {data.pregnancyInfo.isPregnant && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>{t("forms.healthDisability.whoIsPregnant")}</Label>
+                  <Label>Who is pregnant?</Label>
                   <Select
                     value={data.pregnancyInfo.memberName || ""}
                     onValueChange={(value) => updatePregnancy({ memberName: value })}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder={t("forms.healthDisability.selectHouseholdMember")} />
+                      <SelectValue placeholder="Select household member" />
                     </SelectTrigger>
                     <SelectContent>
                       {allMembers.map((member) => (
                         <SelectItem key={member.id} value={`${member.firstName} ${member.lastName}`.trim()}>
                           {`${member.firstName} ${member.lastName}`.trim()}{" "}
-                          {member.relationship === "self"
-                            ? t("forms.incomeEmployment.you")
-                            : `(${member.relationship})`}
+                          {member.relationship === "self" ? "(You)" : `(${member.relationship})`}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>{t("forms.healthDisability.dueDate")}</Label>
+                  <Label>Expected Due Date</Label>
                   <Input
                     type="date"
                     value={data.pregnancyInfo.dueDate || ""}
                     onChange={(e) => updatePregnancy({ dueDate: e.target.value })}
-                    placeholder={t("forms.healthDisability.dueDatePlaceholder")}
                   />
                 </div>
               </div>
@@ -500,52 +496,50 @@ export function HealthDisabilityForm({
       {/* Medical Conditions */}
       <Card>
         <CardHeader>
-          <CardTitle>{t("forms.healthDisability.medicalConditionsTitle")}</CardTitle>
-          <CardDescription>{t("forms.healthDisability.medicalConditionsDescription")}</CardDescription>
+          <CardTitle>Medical Conditions</CardTitle>
+          <CardDescription>Chronic conditions that may affect benefit eligibility</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-3">
-            <Label className="text-base font-medium">{t("forms.healthDisability.hasChronicConditions")}</Label>
+            <Label className="text-base font-medium">Does anyone have chronic medical conditions?</Label>
             <RadioGroup
               value={data.medicalConditions.hasChronicConditions ? "yes" : "no"}
               onValueChange={(value) => updateMedicalConditions({ hasChronicConditions: value === "yes" })}
             >
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="yes" id="conditions-yes" />
-                <Label htmlFor="conditions-yes">{t("common.yes")}</Label>
+                <Label htmlFor="conditions-yes">Yes</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="no" id="conditions-no" />
-                <Label htmlFor="conditions-no">{t("common.no")}</Label>
+                <Label htmlFor="conditions-no">No</Label>
               </div>
             </RadioGroup>
             {data.medicalConditions.hasChronicConditions && (
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label>{t("forms.health.selectAllThatApply")}:</Label>
+                  <Label>Select all that apply:</Label>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                     {COMMON_CONDITIONS.map((condition) => (
-                      <div key={condition.value} className="flex items-center space-x-2">
+                      <div key={condition} className="flex items-center space-x-2">
                         <Checkbox
-                          id={`condition-${condition.value}`}
-                          checked={selectedConditions.includes(condition.value)}
-                          onCheckedChange={(checked) => handleConditionChange(condition.value, checked as boolean)}
+                          id={`condition-${condition}`}
+                          checked={selectedConditions.includes(condition)}
+                          onCheckedChange={(checked) => handleConditionChange(condition, checked as boolean)}
                         />
-                        <Label htmlFor={`condition-${condition.value}`} className="text-sm">
-                          {condition.label}
+                        <Label htmlFor={`condition-${condition}`} className="text-sm">
+                          {condition}
                         </Label>
                       </div>
                     ))}
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label>
-                    {t("forms.healthDisability.additionalDetails")} ({t("common.optional")})
-                  </Label>
+                  <Label>Additional details (optional)</Label>
                   <Textarea
                     value={data.medicalConditions.details || ""}
                     onChange={(e) => updateMedicalConditions({ details: e.target.value })}
-                    placeholder={t("forms.healthDisability.additionalDetailsPlaceholder")}
+                    placeholder="Provide any additional details about medical conditions..."
                     rows={3}
                   />
                 </div>
@@ -558,35 +552,41 @@ export function HealthDisabilityForm({
       {/* Medical Bills & Expenses */}
       <Card>
         <CardHeader>
-          <CardTitle>{t("forms.healthDisability.medicalBillsTitle")}</CardTitle>
-          <CardDescription>{t("forms.healthDisability.medicalBillsDescription")}</CardDescription>
+          <CardTitle>Medical Bills & Expenses</CardTitle>
+          <CardDescription>Recent medical bills and expenses for household members</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-3">
-            <Label className="text-base font-medium">{t("forms.healthDisability.hasRecentBills")} *</Label>
+            <Label className="text-base font-medium">
+              Does anyone in the household have any paid or unpaid medical bills with a date of service from this month
+              or within the past 3 months? *
+            </Label>
             <RadioGroup
               value={data?.medicalBills?.hasRecentBills ? "yes" : "no"}
               onValueChange={(value) => updateMedicalBills({ hasRecentBills: value === "yes" })}
             >
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="yes" id="bills-yes" />
-                <Label htmlFor="bills-yes">{t("common.yes")}</Label>
+                <Label htmlFor="bills-yes">Yes</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="no" id="bills-no" />
-                <Label htmlFor="bills-no">{t("common.no")}</Label>
+                <Label htmlFor="bills-no">No</Label>
               </div>
             </RadioGroup>
             {data?.medicalBills?.hasRecentBills && (
               <div className="space-y-2">
-                <Label>{t("forms.healthDisability.billDetails")}</Label>
+                <Label>Please provide details about the medical bills</Label>
                 <Textarea
                   value={data?.medicalBills?.billDetails || ""}
                   onChange={(e) => updateMedicalBills({ billDetails: e.target.value })}
-                  placeholder={t("forms.healthDisability.billDetailsPlaceholder")}
+                  placeholder="Include details such as: provider name, approximate amount, date of service, whether paid or unpaid, and which household member the bill is for..."
                   rows={4}
                 />
-                <p className="text-sm text-gray-600">{t("forms.healthDisability.billDetailsNote")}</p>
+                <p className="text-sm text-gray-600">
+                  Include information about hospital bills, doctor visits, prescription costs, dental work, or any other
+                  medical expenses from the past 3 months.
+                </p>
               </div>
             )}
           </div>
@@ -599,28 +599,33 @@ export function HealthDisabilityForm({
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Heart className="w-5 h-5" />
-              {t("forms.healthDisability.longTermCareTitle")}
+              Long-Term Care Services
             </CardTitle>
-            <CardDescription>{t("forms.healthDisability.longTermCareDescription")}</CardDescription>
+            <CardDescription>Information about nursing home or long-term care services</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-3">
-              <Label className="text-base font-medium">{t("forms.healthDisability.needsNursingServices")} *</Label>
+              <Label className="text-base font-medium">
+                Are you applying for long-term nursing services from a nursing home or similar facility? *
+              </Label>
               <RadioGroup value={data.needsNursingServices} onValueChange={updateNursingServices} className="space-y-3">
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="yes" id="nursing_yes" />
                   <Label htmlFor="nursing_yes" className="font-normal cursor-pointer">
-                    {t("forms.healthDisability.yesNursingServices")}
+                    Yes, I need long-term nursing services
                   </Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="no" id="nursing_no" />
                   <Label htmlFor="nursing_no" className="font-normal cursor-pointer">
-                    {t("forms.healthDisability.noNursingServices")}
+                    No, I do not need long-term nursing services
                   </Label>
                 </div>
               </RadioGroup>
-              <p className="text-sm text-gray-600">{t("forms.healthDisability.nursingServicesNote")}</p>
+              <p className="text-sm text-gray-600">
+                Long-term nursing services include care in nursing homes, assisted living facilities, or similar
+                long-term care facilities.
+              </p>
             </div>
           </CardContent>
         </Card>

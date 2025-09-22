@@ -43,8 +43,8 @@ interface AssetsFormProps {
 }
 
 export function AssetsForm({ data, householdMembers, applicantName, onUpdate }: AssetsFormProps) {
-  const { t } = useTranslation()
   const [assets, setAssets] = useState<Asset[]>(data.assets || [])
+  const { t } = useTranslation()
 
   const allMembers = [
     {
@@ -91,9 +91,9 @@ export function AssetsForm({ data, householdMembers, applicantName, onUpdate }: 
               {asset.type === "vehicle" && <Car className="h-5 w-5 text-blue-600" />}
               {asset.type === "life_insurance" && <Shield className="h-5 w-5 text-purple-600" />}
               <CardTitle className="text-lg">
-                {asset.type === "financial" && t("forms.assetTypes.financial")}
-                {asset.type === "vehicle" && t("forms.assetTypes.vehicle")}
-                {asset.type === "life_insurance" && t("forms.assetTypes.lifeInsurance")}
+                {asset.type === "financial" && t("forms.assets.financialAsset")}
+                {asset.type === "vehicle" && t("forms.assets.vehicle")}
+                {asset.type === "life_insurance" && t("forms.assets.lifeInsurancePolicy")}
                 {displayName && ` - ${displayName}`}
               </CardTitle>
             </div>
@@ -112,7 +112,7 @@ export function AssetsForm({ data, householdMembers, applicantName, onUpdate }: 
             <Label htmlFor={`owner-${asset.id}`}>{t("forms.assets.assetOwner")} *</Label>
             <Select value={asset.owner} onValueChange={(value) => updateAsset(asset.id, { owner: value })}>
               <SelectTrigger>
-                <SelectValue placeholder={t("forms.assetOwnerPlaceholder")} />
+                <SelectValue placeholder="Select who owns this asset" />
               </SelectTrigger>
               <SelectContent>
                 {allMembers.map((member) => (
@@ -135,16 +135,16 @@ export function AssetsForm({ data, householdMembers, applicantName, onUpdate }: 
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder={t("common.selectOption")} />
+                    <SelectValue placeholder="Select account type" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="checking">{t("forms.accountTypes.checking")}</SelectItem>
-                    <SelectItem value="savings">{t("forms.accountTypes.savings")}</SelectItem>
-                    <SelectItem value="money_market">{t("forms.accountTypes.moneyMarket")}</SelectItem>
-                    <SelectItem value="cd">{t("forms.accountTypes.cd")}</SelectItem>
-                    <SelectItem value="investment">{t("forms.accountTypes.investment")}</SelectItem>
-                    <SelectItem value="cash">{t("forms.accountTypes.cash")}</SelectItem>
-                    <SelectItem value="other">{t("forms.accountTypes.other")}</SelectItem>
+                    <SelectItem value="checking">Checking Account</SelectItem>
+                    <SelectItem value="savings">Savings Account</SelectItem>
+                    <SelectItem value="money_market">Money Market Account</SelectItem>
+                    <SelectItem value="cd">Certificate of Deposit (CD)</SelectItem>
+                    <SelectItem value="investment">Investment Account</SelectItem>
+                    <SelectItem value="cash">Cash on Hand</SelectItem>
+                    <SelectItem value="other">Other Financial Asset</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -154,7 +154,7 @@ export function AssetsForm({ data, householdMembers, applicantName, onUpdate }: 
                   id={`bank-name-${asset.id}`}
                   value={asset.details.bankName || ""}
                   onChange={(e) => updateAsset(asset.id, { details: { ...asset.details, bankName: e.target.value } })}
-                  placeholder={t("forms.bankNamePlaceholder")}
+                  placeholder="Enter bank or institution name"
                 />
               </div>
               <div>
@@ -167,7 +167,7 @@ export function AssetsForm({ data, householdMembers, applicantName, onUpdate }: 
                   onChange={(e) =>
                     updateAsset(asset.id, { details: { ...asset.details, accountBalance: e.target.value } })
                   }
-                  placeholder={t("forms.balancePlaceholder")}
+                  placeholder="0.00"
                 />
               </div>
             </>
@@ -184,17 +184,17 @@ export function AssetsForm({ data, householdMembers, applicantName, onUpdate }: 
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder={t("common.selectOption")} />
+                    <SelectValue placeholder="Select vehicle type" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="car">{t("forms.vehicleTypes.car")}</SelectItem>
-                    <SelectItem value="truck">{t("forms.vehicleTypes.truck")}</SelectItem>
-                    <SelectItem value="motorcycle">{t("forms.vehicleTypes.motorcycle")}</SelectItem>
-                    <SelectItem value="van">{t("forms.vehicleTypes.van")}</SelectItem>
-                    <SelectItem value="suv">{t("forms.vehicleTypes.suv")}</SelectItem>
-                    <SelectItem value="rv">{t("forms.vehicleTypes.rv")}</SelectItem>
-                    <SelectItem value="boat">{t("forms.vehicleTypes.boat")}</SelectItem>
-                    <SelectItem value="other">{t("forms.vehicleTypes.otherVehicle")}</SelectItem>
+                    <SelectItem value="car">Car</SelectItem>
+                    <SelectItem value="truck">Truck</SelectItem>
+                    <SelectItem value="motorcycle">Motorcycle</SelectItem>
+                    <SelectItem value="van">Van</SelectItem>
+                    <SelectItem value="suv">SUV</SelectItem>
+                    <SelectItem value="rv">RV/Motorhome</SelectItem>
+                    <SelectItem value="boat">Boat</SelectItem>
+                    <SelectItem value="other">Other Vehicle</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -205,7 +205,7 @@ export function AssetsForm({ data, householdMembers, applicantName, onUpdate }: 
                     id={`make-${asset.id}`}
                     value={asset.details.make || ""}
                     onChange={(e) => updateAsset(asset.id, { details: { ...asset.details, make: e.target.value } })}
-                    placeholder={t("forms.makePlaceholder")}
+                    placeholder="e.g., Toyota"
                   />
                 </div>
                 <div>
@@ -214,7 +214,7 @@ export function AssetsForm({ data, householdMembers, applicantName, onUpdate }: 
                     id={`model-${asset.id}`}
                     value={asset.details.model || ""}
                     onChange={(e) => updateAsset(asset.id, { details: { ...asset.details, model: e.target.value } })}
-                    placeholder={t("forms.modelPlaceholder")}
+                    placeholder="e.g., Camry"
                   />
                 </div>
                 <div>
@@ -226,7 +226,7 @@ export function AssetsForm({ data, householdMembers, applicantName, onUpdate }: 
                     max="2025"
                     value={asset.details.year || ""}
                     onChange={(e) => updateAsset(asset.id, { details: { ...asset.details, year: e.target.value } })}
-                    placeholder={t("forms.yearPlaceholder")}
+                    placeholder="2020"
                   />
                 </div>
               </div>
@@ -240,9 +240,11 @@ export function AssetsForm({ data, householdMembers, applicantName, onUpdate }: 
                   onChange={(e) =>
                     updateAsset(asset.id, { details: { ...asset.details, estimatedValue: e.target.value } })
                   }
-                  placeholder={t("forms.balancePlaceholder")}
+                  placeholder="0.00"
                 />
-                <p className="text-sm text-gray-500 mt-1">{t("forms.valueNote")}</p>
+                <p className="text-sm text-gray-500 mt-1">
+                  You can use resources like KBB or Edmunds to estimate value
+                </p>
               </div>
             </>
           )}
@@ -256,14 +258,14 @@ export function AssetsForm({ data, householdMembers, applicantName, onUpdate }: 
                   onValueChange={(value) => updateAsset(asset.id, { details: { ...asset.details, policyType: value } })}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder={t("common.selectOption")} />
+                    <SelectValue placeholder="Select policy type" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="term">{t("forms.policyTypes.term")}</SelectItem>
-                    <SelectItem value="whole">{t("forms.policyTypes.whole")}</SelectItem>
-                    <SelectItem value="universal">{t("forms.policyTypes.universal")}</SelectItem>
-                    <SelectItem value="variable">{t("forms.policyTypes.variable")}</SelectItem>
-                    <SelectItem value="other">{t("forms.policyTypes.otherInsurance")}</SelectItem>
+                    <SelectItem value="term">Term Life Insurance</SelectItem>
+                    <SelectItem value="whole">Whole Life Insurance</SelectItem>
+                    <SelectItem value="universal">Universal Life Insurance</SelectItem>
+                    <SelectItem value="variable">Variable Life Insurance</SelectItem>
+                    <SelectItem value="other">Other Life Insurance</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -275,18 +277,18 @@ export function AssetsForm({ data, householdMembers, applicantName, onUpdate }: 
                   onChange={(e) =>
                     updateAsset(asset.id, { details: { ...asset.details, insuranceCompany: e.target.value } })
                   }
-                  placeholder={t("forms.insuranceCompanyPlaceholder")}
+                  placeholder="Enter insurance company name"
                 />
               </div>
               <div>
-                <Label htmlFor={`face-value-${asset.id}`}>{t("forms.faceValueLabel")} *</Label>
+                <Label htmlFor={`face-value-${asset.id}`}>{t("forms.assets.faceValue")} *</Label>
                 <Input
                   id={`face-value-${asset.id}`}
                   type="number"
                   step="0.01"
                   value={asset.details.faceValue || ""}
                   onChange={(e) => updateAsset(asset.id, { details: { ...asset.details, faceValue: e.target.value } })}
-                  placeholder={t("forms.balancePlaceholder")}
+                  placeholder="0.00"
                 />
               </div>
               <div>
@@ -297,9 +299,11 @@ export function AssetsForm({ data, householdMembers, applicantName, onUpdate }: 
                   step="0.01"
                   value={asset.details.cashValue || ""}
                   onChange={(e) => updateAsset(asset.id, { details: { ...asset.details, cashValue: e.target.value } })}
-                  placeholder={t("forms.balancePlaceholder")}
+                  placeholder="0.00"
                 />
-                <p className="text-sm text-gray-500 mt-1">{t("forms.cashValueNote")}</p>
+                <p className="text-sm text-gray-500 mt-1">
+                  Leave blank if this is term life insurance or has no cash value
+                </p>
               </div>
             </>
           )}

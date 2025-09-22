@@ -1,10 +1,7 @@
 import Link from "next/link"
 import { Shield } from "lucide-react"
-import { useTranslation } from "@/contexts/translation-context"
 
 export function SiteFooter() {
-  const { t } = useTranslation()
-
   return (
     <footer className="border-t bg-muted/50">
       <div className="container py-8 md:py-12">
@@ -14,65 +11,65 @@ export function SiteFooter() {
               <div className="h-6 w-6 rounded-full bg-primary flex items-center justify-center">
                 <span className="text-primary-foreground font-bold text-xs">BB</span>
               </div>
-              <span className="font-bold">{t("footer.brandName")}</span>
+              <span className="font-bold">Benefit Bridge</span>
             </div>
-            <p className="text-sm text-muted-foreground">{t("footer.tagline")}</p>
+            <p className="text-sm text-muted-foreground">Streamlined applications for Medicaid and SNAP benefits.</p>
           </div>
 
           <div className="space-y-4">
-            <h4 className="font-semibold">{t("footer.services")}</h4>
+            <h4 className="font-semibold">Services</h4>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link href="/prescreening" className="text-muted-foreground hover:text-primary">
-                  {t("footer.applyForBenefits")}
+                  Apply for Benefits
                 </Link>
               </li>
               <li>
                 <Link href="/about" className="text-muted-foreground hover:text-primary">
-                  {t("footer.learnMore")}
+                  Learn More
                 </Link>
               </li>
             </ul>
           </div>
 
           <div className="space-y-4">
-            <h4 className="font-semibold">{t("footer.support")}</h4>
+            <h4 className="font-semibold">Support</h4>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link href="/help" className="text-muted-foreground hover:text-primary">
-                  {t("footer.helpCenter")}
+                  Help Center
                 </Link>
               </li>
               <li>
                 <Link href="/contact" className="text-muted-foreground hover:text-primary">
-                  {t("footer.contactUs")}
+                  Contact Us
                 </Link>
               </li>
             </ul>
           </div>
 
           <div className="space-y-4">
-            <h4 className="font-semibold">{t("footer.legal")}</h4>
+            <h4 className="font-semibold">Legal</h4>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link href="/privacy" className="text-muted-foreground hover:text-primary">
-                  {t("footer.privacyPolicy")}
+                  Privacy Policy
                 </Link>
               </li>
               <li>
                 <Link href="/terms" className="text-muted-foreground hover:text-primary">
-                  {t("footer.termsOfService")}
+                  Terms of Service
                 </Link>
               </li>
               <li>
                 <Link href="/accessibility" className="text-muted-foreground hover:text-primary">
-                  {t("footer.accessibility")}
+                  Accessibility
                 </Link>
               </li>
               <li>
                 <div className="flex items-center space-x-1 text-muted-foreground">
                   <Shield className="h-3 w-3" />
-                  <span className="text-xs font-medium">{t("footer.hipaaCompliant")}</span>
+                  <span className="text-xs font-medium">HIPAA Compliant</span>
                 </div>
               </li>
             </ul>
@@ -84,10 +81,10 @@ export function SiteFooter() {
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2 px-3 py-1 bg-green-50 border border-green-200 rounded-full">
                 <Shield className="h-4 w-4 text-green-600" />
-                <span className="text-xs font-medium text-green-700">{t("footer.hipaaCompliantPlatform")}</span>
+                <span className="text-xs font-medium text-green-700">HIPAA Compliant Platform</span>
               </div>
             </div>
-            <p className="text-sm text-muted-foreground">{t("footer.copyright")}</p>
+            <p className="text-sm text-muted-foreground">&copy; 2024 Benefit Bridge. All rights reserved.</p>
           </div>
         </div>
       </div>

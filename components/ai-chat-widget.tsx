@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { MessageCircle, X, Send, Bot, User } from "lucide-react"
-import { useTranslation } from "@/contexts/translation-context"
 
 interface Message {
   id: string
@@ -24,12 +23,12 @@ interface ChatContextProps {
 }
 
 export function AIChatWidget({ currentStep, applicationData, stepTitle, stepDescription }: ChatContextProps) {
-  const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
-      content: t("chat.welcomeMessage"),
+      content:
+        "Hi! I'm your benefits assistant. I can help you navigate the application, answer questions about required documents, and guide you through the process. What can I help you with?",
       role: "assistant",
       timestamp: new Date(),
     },
@@ -89,7 +88,7 @@ export function AIChatWidget({ currentStep, applicationData, stepTitle, stepDesc
 
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: data.message || t("chat.couldNotProcess"),
+        content: data.message || "I'm sorry, I couldn't process that request. Please try again.",
         role: "assistant",
         timestamp: new Date(),
       }
@@ -105,7 +104,7 @@ export function AIChatWidget({ currentStep, applicationData, stepTitle, stepDesc
       console.error("Chat error:", error)
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: t("chat.technicalDifficulties"),
+        content: "I'm experiencing some technical difficulties. Please try again in a moment.",
         role: "assistant",
         timestamp: new Date(),
       }
@@ -141,12 +140,8 @@ export function AIChatWidget({ currentStep, applicationData, stepTitle, stepDesc
             <div className="flex items-center gap-2">
               <Bot className="h-5 w-5" />
               <div>
-                <h3 className="font-semibold">{t("chat.title")}</h3>
-                {stepTitle && (
-                  <p className="text-xs opacity-80">
-                    {t("chat.subtitle")} {stepTitle}
-                  </p>
-                )}
+                <h3 className="font-semibold">Benefits Assistant</h3>
+                {stepTitle && <p className="text-xs opacity-80">Help with: {stepTitle}</p>}
               </div>
             </div>
             <Button
@@ -218,7 +213,7 @@ export function AIChatWidget({ currentStep, applicationData, stepTitle, stepDesc
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder={stepTitle ? t("chat.stepPlaceholder", { stepTitle }) : t("chat.placeholder")}
+                placeholder={stepTitle ? `Ask about ${stepTitle}...` : "Ask me anything about benefits..."}
                 className="flex-1"
                 disabled={isLoading}
               />

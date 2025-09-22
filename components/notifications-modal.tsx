@@ -5,42 +5,40 @@ import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Bell, AlertCircle, CheckCircle } from "lucide-react"
 import Link from "next/link"
-import { useTranslation } from "@/contexts/translation-context"
 
 interface NotificationsModalProps {
   onClose: () => void
 }
 
+// Mock notifications data - would come from API in real implementation
+const mockNotifications = [
+  {
+    id: 1,
+    title: "Application Progress Saved",
+    summary: "Your benefits application has been automatically saved.",
+    type: "info",
+    timestamp: "2 hours ago",
+    read: false,
+  },
+  {
+    id: 2,
+    title: "Document Required",
+    summary: "Please upload proof of income to complete your application.",
+    type: "warning",
+    timestamp: "1 day ago",
+    read: false,
+  },
+  {
+    id: 3,
+    title: "Application Submitted",
+    summary: "Your SNAP benefits application has been successfully submitted.",
+    type: "success",
+    timestamp: "3 days ago",
+    read: true,
+  },
+]
+
 export function NotificationsModal({ onClose }: NotificationsModalProps) {
-  const { t } = useTranslation()
-
-  const mockNotifications = [
-    {
-      id: 1,
-      title: t("notifications.applicationSaved.title"),
-      summary: t("notifications.applicationSaved.summary"),
-      type: "info",
-      timestamp: t("notifications.timeAgo.hoursAgo", { count: 2 }),
-      read: false,
-    },
-    {
-      id: 2,
-      title: t("notifications.documentRequired.title"),
-      summary: t("notifications.documentRequired.summary"),
-      type: "warning",
-      timestamp: t("notifications.timeAgo.daysAgo", { count: 1 }),
-      read: false,
-    },
-    {
-      id: 3,
-      title: t("notifications.applicationSubmitted.title"),
-      summary: t("notifications.applicationSubmitted.summary"),
-      type: "success",
-      timestamp: t("notifications.timeAgo.daysAgo", { count: 3 }),
-      read: true,
-    },
-  ]
-
   const getIcon = (type: string) => {
     switch (type) {
       case "success":
@@ -68,7 +66,7 @@ export function NotificationsModal({ onClose }: NotificationsModalProps) {
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2 text-base">
             <Bell className="w-4 h-4" />
-            {t("notifications.title")}
+            Notifications
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
@@ -96,7 +94,7 @@ export function NotificationsModal({ onClose }: NotificationsModalProps) {
 
           <div className="p-4 border-t">
             <Button variant="outline" size="sm" className="w-full bg-transparent" asChild>
-              <Link href="/account?tab=notifications">{t("notifications.viewAll")}</Link>
+              <Link href="/account?tab=notifications">View All Notifications</Link>
             </Button>
           </div>
         </CardContent>

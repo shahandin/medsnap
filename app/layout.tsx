@@ -3,7 +3,7 @@ import type { Metadata } from "next"
 import { Inter, Manrope } from "next/font/google"
 import "./globals.css"
 import { GlobalAIChat } from "@/components/global-ai-chat"
-import { TranslationProvider } from "@/lib/translations"
+import { TranslationProvider } from "@/contexts/translation-context"
 
 const inter = Inter({
   subsets: ["latin"],

@@ -14,6 +14,27 @@ interface BenefitSelectionProps {
   submittedApplications?: string[]
 }
 
+const BENEFIT_OPTIONS = [
+  {
+    id: "medicaid",
+    title: "Medicaid Only",
+    description: "Health insurance coverage for eligible individuals and families",
+    details: "Covers medical expenses including doctor visits, hospital stays, prescriptions, and preventive care",
+  },
+  {
+    id: "snap",
+    title: "SNAP Only",
+    description: "Supplemental Nutrition Assistance Program (Food Stamps)",
+    details: "Monthly benefits to help purchase nutritious food for you and your family",
+  },
+  {
+    id: "both",
+    title: "Both Medicaid and SNAP",
+    description: "Apply for both health insurance and food assistance",
+    details: "Get comprehensive support with both healthcare coverage and nutrition assistance",
+  },
+]
+
 export function BenefitSelection({
   selectedBenefits,
   onBenefitSelect,
@@ -21,27 +42,6 @@ export function BenefitSelection({
 }: BenefitSelectionProps) {
   const router = useRouter()
   const { t } = useTranslation()
-
-  const BENEFIT_OPTIONS = [
-    {
-      id: "medicaid",
-      title: t("benefitSelection.medicaidOnly"),
-      description: t("benefitSelection.medicaidDescription"),
-      details: t("benefitSelection.medicaidDetails"),
-    },
-    {
-      id: "snap",
-      title: t("benefitSelection.snapOnly"),
-      description: t("benefitSelection.snapDescription"),
-      details: t("benefitSelection.snapDetails"),
-    },
-    {
-      id: "both",
-      title: t("benefitSelection.bothBenefits"),
-      description: t("benefitSelection.bothDescription"),
-      details: t("benefitSelection.bothDetails"),
-    },
-  ]
 
   const isOptionDisabled = (optionId: string) => {
     if (submittedApplications.includes("both")) {
@@ -57,16 +57,16 @@ export function BenefitSelection({
 
   const getErrorMessage = (optionId: string) => {
     if (submittedApplications.includes("both")) {
-      return t("benefitSelection.alreadySubmittedBoth")
+      return "You have already submitted an application for both Medicaid and SNAP benefits."
     }
 
     if (optionId === "both" && (submittedApplications.includes("medicaid") || submittedApplications.includes("snap"))) {
-      return t("benefitSelection.cannotApplyBothAfterIndividual")
+      return "You have already submitted an application for one of these benefits. You cannot apply for both after submitting individual applications."
     }
 
     if (submittedApplications.includes(optionId)) {
-      const benefitName = optionId === "medicaid" ? t("benefitSelection.medicaid") : t("benefitSelection.snap")
-      return t("benefitSelection.alreadySubmittedSingle", { benefit: benefitName })
+      const benefitName = optionId === "medicaid" ? "Medicaid" : "SNAP"
+      return `You have already submitted an application for ${benefitName} benefits.`
     }
 
     return null
@@ -82,33 +82,38 @@ export function BenefitSelection({
     return (
       <div className="space-y-6">
         <div className="text-center mb-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">{t("benefitSelection.applicationStatus")}</h2>
-          <p className="text-gray-600">{t("benefitSelection.allApplicationsSubmitted")}</p>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Application Status</h2>
+          <p className="text-gray-600">You have already submitted applications for all available benefits.</p>
         </div>
 
         <Card className="bg-blue-50 border-blue-200">
           <CardHeader className="text-center">
             <CardTitle className="text-blue-900 flex items-center justify-center gap-2">
               <Check className="w-5 h-5" />
-              {t("benefitSelection.applicationsSubmittedTitle")}
+              Applications Submitted
             </CardTitle>
-            <CardDescription className="text-blue-800">{t("benefitSelection.applicationsUnderReview")}</CardDescription>
+            <CardDescription className="text-blue-800">
+              Your applications are currently pending review by the state
+            </CardDescription>
           </CardHeader>
           <CardContent className="text-center space-y-4">
-            <p className="text-blue-800">{t("benefitSelection.reviewNotification")}</p>
+            <p className="text-blue-800">
+              You have submitted applications for Medicaid and SNAP benefits that are currently being reviewed by state
+              officials. You will be notified of the status of your applications via email and mail.
+            </p>
             <Button onClick={handleViewApplications} className="bg-blue-600 hover:bg-blue-700 text-white">
-              {t("benefitSelection.viewApplications")}
+              View My Applications
             </Button>
           </CardContent>
         </Card>
 
         <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-          <h3 className="font-medium text-gray-900 mb-2">{t("benefitSelection.whatHappensNext")}</h3>
+          <h3 className="font-medium text-gray-900 mb-2">What happens next?</h3>
           <ul className="text-sm text-gray-700 space-y-1">
-            <li>• {t("benefitSelection.reviewWithin30Days")}</li>
-            <li>• {t("benefitSelection.mayContactForDocs")}</li>
-            <li>• {t("benefitSelection.checkAccountRegularly")}</li>
-            <li>• {t("benefitSelection.receiveNotification")}</li>
+            <li>• State officials will review your applications within 30 days</li>
+            <li>• You may be contacted for additional documentation</li>
+            <li>• Check your account regularly for updates on application status</li>
+            <li>• You will receive notification of approval or denial by mail and email</li>
           </ul>
         </div>
       </div>
@@ -118,8 +123,8 @@ export function BenefitSelection({
   return (
     <div className="space-y-6">
       <div className="text-center mb-8">
-        <h2 className="text-xl font-semibold text-gray-900 mb-2">{t("benefitSelection.whatBenefitsApplying")}</h2>
-        <p className="text-gray-600">{t("benefitSelection.selectAssistanceType")}</p>
+        <h2 className="text-xl font-semibold text-gray-900 mb-2">What benefits are you applying for?</h2>
+        <p className="text-gray-600">Select the type of assistance you need. You can apply for one or both programs.</p>
       </div>
 
       <div className="grid gap-4">
@@ -179,11 +184,11 @@ export function BenefitSelection({
       </div>
 
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-6">
-        <h3 className="font-medium text-blue-900 mb-2">{t("benefitSelection.importantInformation")}</h3>
+        <h3 className="font-medium text-blue-900 mb-2">Important Information</h3>
         <ul className="text-sm text-blue-800 space-y-1">
-          <li>• {t("benefitSelection.canApplyBoth")}</li>
-          <li>• {t("benefitSelection.differentRequirements")}</li>
-          <li>• {t("benefitSelection.increasesChances")}</li>
+          <li>• You can apply for both programs in a single application</li>
+          <li>• Each program has different eligibility requirements</li>
+          <li>• Applying for both may increase your chances of receiving assistance</li>
         </ul>
       </div>
     </div>

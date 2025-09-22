@@ -98,12 +98,18 @@ const LANGUAGE_OPTIONS = [
   { value: "scottish_gaelic", label: "Scottish Gaelic (Gàidhlig)" },
 ]
 
+const CITIZENSHIP_OPTIONS = [
+  { value: "us_citizen", label: "U.S. Citizen" },
+  { value: "permanent_resident", label: "Permanent Resident" },
+  { value: "refugee", label: "Refugee" },
+  { value: "asylee", label: "Asylee" },
+  { value: "other_qualified", label: "Other Qualified Alien" },
+]
+
 export const PersonalInformationForm = forwardRef<
   { validateAddress: () => Promise<{ isValid: boolean; suggestion: any | null }> },
   PersonalInformationFormProps
 >(({ personalInfo, onUpdate, onAddressValidation }, ref) => {
-  const { t } = useTranslation()
-
   const updateField = (field: string, value: string) => {
     if (field.includes(".")) {
       const [parent, child] = field.split(".")
@@ -160,6 +166,8 @@ export const PersonalInformationForm = forwardRef<
     [],
   )
 
+  const { t } = useTranslation()
+
   return (
     <div className="space-y-4 sm:space-y-6">
       <div className="text-center">
@@ -168,7 +176,7 @@ export const PersonalInformationForm = forwardRef<
         </div>
         <h3 className="text-lg sm:text-xl font-semibold mb-2">{t("forms.personalInfo.title")}</h3>
         <p className="text-sm sm:text-base text-gray-600">
-          {t("forms.personalInfo.subtitle")}. {t("common.required")}.
+          {t("forms.personalInfo.subtitle")}. All fields are required.
         </p>
       </div>
 
@@ -178,13 +186,15 @@ export const PersonalInformationForm = forwardRef<
           <CardHeader className="pb-4 sm:pb-6">
             <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
               <span className="text-lg">👤</span>
-              {t("forms.applicationContext.title")}
+              Application Context
             </CardTitle>
-            <CardDescription className="text-sm">{t("forms.applicationContext.subtitle")}</CardDescription>
+            <CardDescription className="text-sm">Help us understand who this application is for</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3 sm:space-y-4">
             <div className="space-y-3">
-              <Label className="text-sm sm:text-base font-medium">{t("forms.applicationContext.applyingFor")} *</Label>
+              <Label className="text-sm sm:text-base font-medium">
+                Are you applying on behalf of yourself or someone else? *
+              </Label>
               <RadioGroup
                 value={personalInfo.applyingFor}
                 onValueChange={(value) => updateField("applyingFor", value)}
@@ -196,7 +206,7 @@ export const PersonalInformationForm = forwardRef<
                     htmlFor="myself"
                     className="font-normal cursor-pointer text-base sm:text-sm flex-1 leading-relaxed"
                   >
-                    {t("forms.applicationContext.myself")}
+                    I am applying for myself
                   </Label>
                 </div>
                 <div className="flex items-center space-x-3 p-4 sm:p-3 rounded-lg hover:bg-gray-50 transition-colors touch-manipulation min-h-[56px] sm:min-h-[auto]">
@@ -205,11 +215,13 @@ export const PersonalInformationForm = forwardRef<
                     htmlFor="someone_else"
                     className="font-normal cursor-pointer text-base sm:text-sm flex-1 leading-relaxed"
                   >
-                    {t("forms.applicationContext.someoneElse")}
+                    I am applying on behalf of someone else
                   </Label>
                 </div>
               </RadioGroup>
-              <p className="text-sm sm:text-xs text-gray-600 leading-relaxed">{t("forms.applicationContext.note")}</p>
+              <p className="text-sm sm:text-xs text-gray-600 leading-relaxed">
+                If you're applying for someone else, you'll need to provide their information in the following steps.
+              </p>
             </div>
           </CardContent>
         </Card>
@@ -219,9 +231,11 @@ export const PersonalInformationForm = forwardRef<
           <CardHeader className="pb-4 sm:pb-6">
             <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
               <span className="text-lg">👤</span>
-              {t("forms.basicInformation.title")}
+              Basic Information
             </CardTitle>
-            <CardDescription className="text-sm">{t("forms.basicInformation.subtitle")}</CardDescription>
+            <CardDescription className="text-sm">
+              Your legal name, date of birth, and language preference
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-5 sm:space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-4">
@@ -234,7 +248,7 @@ export const PersonalInformationForm = forwardRef<
                   type="text"
                   value={personalInfo.firstName}
                   onChange={(e) => updateField("firstName", e.target.value)}
-                  placeholder={t("forms.basicInformation.firstNamePlaceholder")}
+                  placeholder="Enter your first name"
                   required
                   className="h-14 sm:h-10 text-lg sm:text-base touch-manipulation px-4 sm:px-3"
                 />
@@ -248,7 +262,7 @@ export const PersonalInformationForm = forwardRef<
                   type="text"
                   value={personalInfo.lastName}
                   onChange={(e) => updateField("lastName", e.target.value)}
-                  placeholder={t("forms.basicInformation.lastNamePlaceholder")}
+                  placeholder="Enter your last name"
                   required
                   className="h-14 sm:h-10 text-lg sm:text-base touch-manipulation px-4 sm:px-3"
                 />
@@ -269,14 +283,14 @@ export const PersonalInformationForm = forwardRef<
             </div>
             <div className="space-y-3 sm:space-y-2">
               <Label htmlFor="languagePreference" className="text-base sm:text-sm font-medium">
-                {t("forms.basicInformation.languagePreference")} *
+                Preferred Language *
               </Label>
               <Select
                 value={personalInfo.languagePreference}
                 onValueChange={(value) => updateField("languagePreference", value)}
               >
                 <SelectTrigger className="h-14 sm:h-10 text-lg sm:text-base touch-manipulation px-4 sm:px-3">
-                  <SelectValue placeholder={t("forms.basicInformation.languagePreferencePlaceholder")} />
+                  <SelectValue placeholder="Select your preferred language" />
                 </SelectTrigger>
                 <SelectContent>
                   {LANGUAGE_OPTIONS.map((language) => (
@@ -291,7 +305,7 @@ export const PersonalInformationForm = forwardRef<
                 </SelectContent>
               </Select>
               <p className="text-sm sm:text-xs text-gray-500 leading-relaxed">
-                {t("forms.basicInformation.languageNote")}
+                This helps us provide documents and assistance in your preferred language.
               </p>
             </div>
           </CardContent>
@@ -302,9 +316,9 @@ export const PersonalInformationForm = forwardRef<
           <CardHeader className="pb-4 sm:pb-6">
             <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
               <span className="text-lg">📍</span>
-              {t("forms.addressInformation.title")}
+              Address Information
             </CardTitle>
-            <CardDescription className="text-sm">{t("forms.addressInformation.subtitle")}</CardDescription>
+            <CardDescription className="text-sm">Your current residential address</CardDescription>
           </CardHeader>
           <CardContent className="space-y-5 sm:space-y-4">
             <div className="space-y-3 sm:space-y-2">
@@ -316,7 +330,7 @@ export const PersonalInformationForm = forwardRef<
                 type="text"
                 value={personalInfo.address.street}
                 onChange={(e) => updateField("address.street", e.target.value)}
-                placeholder={t("forms.addressInformation.streetPlaceholder")}
+                placeholder="Enter your street address"
                 required
                 className="h-14 sm:h-10 text-lg sm:text-base touch-manipulation px-4 sm:px-3"
               />
@@ -331,7 +345,7 @@ export const PersonalInformationForm = forwardRef<
                   type="text"
                   value={personalInfo.address.city}
                   onChange={(e) => updateField("address.city", e.target.value)}
-                  placeholder={t("forms.addressInformation.cityPlaceholder")}
+                  placeholder="Enter your city"
                   required
                   className="h-14 sm:h-10 text-lg sm:text-base touch-manipulation px-4 sm:px-3"
                 />
@@ -345,7 +359,7 @@ export const PersonalInformationForm = forwardRef<
                   type="text"
                   value={personalInfo.address.state}
                   onChange={(e) => updateField("address.state", e.target.value)}
-                  placeholder={t("forms.addressInformation.statePlaceholder")}
+                  placeholder="State"
                   disabled
                   className="bg-gray-50 h-14 sm:h-10 text-lg sm:text-base px-4 sm:px-3"
                 />
@@ -359,7 +373,7 @@ export const PersonalInformationForm = forwardRef<
                   type="text"
                   value={personalInfo.address.zipCode}
                   onChange={(e) => updateField("address.zipCode", e.target.value)}
-                  placeholder={t("forms.addressInformation.zipCodePlaceholder")}
+                  placeholder="12345"
                   maxLength={10}
                   required
                   className="h-14 sm:h-10 text-lg sm:text-base touch-manipulation px-4 sm:px-3"
@@ -374,9 +388,9 @@ export const PersonalInformationForm = forwardRef<
           <CardHeader className="pb-4 sm:pb-6">
             <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
               <span className="text-lg">📞</span>
-              {t("forms.contactInformation.title")}
+              Contact Information
             </CardTitle>
-            <CardDescription className="text-sm">{t("forms.contactInformation.subtitle")}</CardDescription>
+            <CardDescription className="text-sm">How we can reach you</CardDescription>
           </CardHeader>
           <CardContent className="space-y-5 sm:space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-4">
@@ -389,7 +403,7 @@ export const PersonalInformationForm = forwardRef<
                   type="tel"
                   value={personalInfo.phone}
                   onChange={(e) => updateField("phone", formatPhone(e.target.value))}
-                  placeholder={t("forms.contactInformation.phonePlaceholder")}
+                  placeholder="(555) 123-4567"
                   maxLength={14}
                   required
                   className="h-14 sm:h-10 text-lg sm:text-base touch-manipulation px-4 sm:px-3"
@@ -404,7 +418,7 @@ export const PersonalInformationForm = forwardRef<
                   type="email"
                   value={personalInfo.email}
                   onChange={(e) => updateField("email", e.target.value)}
-                  placeholder={t("forms.contactInformation.emailPlaceholder")}
+                  placeholder="your.email@example.com"
                   required
                   className="h-14 sm:h-10 text-lg sm:text-base touch-manipulation px-4 sm:px-3"
                 />
@@ -418,53 +432,32 @@ export const PersonalInformationForm = forwardRef<
           <CardHeader className="pb-4 sm:pb-6">
             <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
               <span className="text-lg">🛡️</span>
-              {t("forms.legalInformation.title")}
+              Legal Information
             </CardTitle>
-            <CardDescription className="text-sm">{t("forms.legalInformation.subtitle")}</CardDescription>
+            <CardDescription className="text-sm">Citizenship status and identification</CardDescription>
           </CardHeader>
           <CardContent className="space-y-5 sm:space-y-4">
             <div className="space-y-3 sm:space-y-2">
               <Label htmlFor="citizenshipStatus" className="text-base sm:text-sm font-medium">
-                {t("forms.legalInformation.citizenshipStatus")} *
+                U.S. Citizenship Status *
               </Label>
               <Select
                 value={personalInfo.citizenshipStatus}
                 onValueChange={(value) => updateField("citizenshipStatus", value)}
               >
                 <SelectTrigger className="h-14 sm:h-10 text-lg sm:text-base touch-manipulation px-4 sm:px-3">
-                  <SelectValue placeholder={t("forms.legalInformation.citizenshipStatusPlaceholder")} />
+                  <SelectValue placeholder="Select your citizenship status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem
-                    value="us_citizen"
-                    className="py-4 sm:py-3 touch-manipulation text-base sm:text-sm min-h-[52px] sm:min-h-[auto]"
-                  >
-                    {t("forms.legalInformation.citizenshipOptions.usCitizen")}
-                  </SelectItem>
-                  <SelectItem
-                    value="permanent_resident"
-                    className="py-4 sm:py-3 touch-manipulation text-base sm:text-sm min-h-[52px] sm:min-h-[auto]"
-                  >
-                    {t("forms.legalInformation.citizenshipOptions.permanentResident")}
-                  </SelectItem>
-                  <SelectItem
-                    value="refugee"
-                    className="py-4 sm:py-3 touch-manipulation text-base sm:text-sm min-h-[52px] sm:min-h-[auto]"
-                  >
-                    {t("forms.legalInformation.citizenshipOptions.refugee")}
-                  </SelectItem>
-                  <SelectItem
-                    value="asylee"
-                    className="py-4 sm:py-3 touch-manipulation text-base sm:text-sm min-h-[52px] sm:min-h-[auto]"
-                  >
-                    {t("forms.legalInformation.citizenshipOptions.asylee")}
-                  </SelectItem>
-                  <SelectItem
-                    value="other_qualified"
-                    className="py-4 sm:py-3 touch-manipulation text-base sm:text-sm min-h-[52px] sm:min-h-[auto]"
-                  >
-                    {t("forms.legalInformation.citizenshipOptions.otherQualified")}
-                  </SelectItem>
+                  {CITIZENSHIP_OPTIONS.map((option) => (
+                    <SelectItem
+                      key={option.value}
+                      value={option.value}
+                      className="py-4 sm:py-3 touch-manipulation text-base sm:text-sm min-h-[52px] sm:min-h-[auto]"
+                    >
+                      {option.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -479,13 +472,15 @@ export const PersonalInformationForm = forwardRef<
                   type="text"
                   value={personalInfo.socialSecurityNumber}
                   onChange={(e) => updateField("socialSecurityNumber", formatSSN(e.target.value))}
-                  placeholder={t("forms.legalInformation.ssnPlaceholder")}
+                  placeholder="XXX-XX-XXXX"
                   maxLength={11}
                   required
                   className="h-14 sm:h-10 text-lg sm:text-base touch-manipulation flex-1 px-4 sm:px-3"
                 />
               </div>
-              <p className="text-sm sm:text-xs text-gray-500 leading-relaxed">{t("forms.legalInformation.ssnNote")}</p>
+              <p className="text-sm sm:text-xs text-gray-500 leading-relaxed">
+                Your SSN is required for benefit eligibility verification and will be kept secure.
+              </p>
             </div>
           </CardContent>
         </Card>
