@@ -22,28 +22,6 @@ export function BenefitSelection({
   const router = useRouter()
   const { t } = useTranslation()
 
-  console.log("[v0] BenefitSelection component rendering")
-  console.log("[v0] Translation function available:", typeof t)
-
-  // Debug individual translation calls
-  console.log("[v0] Testing basic translation:", t("benefitSelection.title"))
-  console.log("[v0] Testing nextStepsList translation:", t("benefitSelection.nextStepsList", { returnObjects: true }))
-  console.log("[v0] nextStepsList type:", typeof t("benefitSelection.nextStepsList", { returnObjects: true }))
-  console.log(
-    "[v0] nextStepsList isArray:",
-    Array.isArray(t("benefitSelection.nextStepsList", { returnObjects: true })),
-  )
-
-  console.log(
-    "[v0] Testing importantInfoList translation:",
-    t("benefitSelection.importantInfoList", { returnObjects: true }),
-  )
-  console.log("[v0] importantInfoList type:", typeof t("benefitSelection.importantInfoList", { returnObjects: true }))
-  console.log(
-    "[v0] importantInfoList isArray:",
-    Array.isArray(t("benefitSelection.importantInfoList", { returnObjects: true })),
-  )
-
   const BENEFIT_OPTIONS = [
     {
       id: "medicaid",
@@ -64,8 +42,6 @@ export function BenefitSelection({
       details: t("benefitSelection.bothDetails"),
     },
   ]
-
-  console.log("[v0] BENEFIT_OPTIONS created:", BENEFIT_OPTIONS)
 
   const isOptionDisabled = (optionId: string) => {
     if (submittedApplications.includes("both")) {
@@ -102,14 +78,10 @@ export function BenefitSelection({
     router.push("/account?tab=applications")
   }
 
-  const nextStepsList = t("benefitSelection.nextStepsList", { returnObjects: true }) as string[]
-  const importantInfoList = t("benefitSelection.importantInfoList", { returnObjects: true }) as string[]
-
-  console.log("[v0] nextStepsList direct access:", nextStepsList)
-  console.log("[v0] importantInfoList direct access:", importantInfoList)
+  const nextStepsList = t("benefitSelection.nextStepsList", { returnObjects: true })
+  const importantInfoList = t("benefitSelection.importantInfoList", { returnObjects: true })
 
   if (allOptionsDisabled) {
-    console.log("[v0] Rendering allOptionsDisabled view")
     return (
       <div className="space-y-6">
         <div className="text-center mb-8">
@@ -146,7 +118,6 @@ export function BenefitSelection({
     )
   }
 
-  console.log("[v0] Rendering main benefit selection view")
   return (
     <div className="space-y-6">
       <div className="text-center mb-8">
