@@ -21,6 +21,14 @@ const translations: Record<Language, TranslationData> = {
   es,
 }
 
+console.log("[v0] IMMEDIATE IMPORT TEST:")
+console.log("[v0] en object keys:", Object.keys(en))
+console.log("[v0] en.benefitSelection exists:", !!en.benefitSelection)
+console.log("[v0] en.benefitSelection keys:", en.benefitSelection ? Object.keys(en.benefitSelection) : "NOT FOUND")
+console.log("[v0] es object keys:", Object.keys(es))
+console.log("[v0] es.benefitSelection exists:", !!es.benefitSelection)
+console.log("[v0] es.benefitSelection keys:", es.benefitSelection ? Object.keys(es.benefitSelection) : "NOT FOUND")
+
 console.log("[v0] Translation data loaded:", {
   enKeys: Object.keys(en),
   esKeys: Object.keys(es),
