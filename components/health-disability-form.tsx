@@ -104,6 +104,26 @@ export function HealthDisabilityForm({
 }: HealthDisabilityFormProps) {
   const [selectedConditions, setSelectedConditions] = useState<string[]>(data?.medicalConditions?.conditions || [])
 
+  const safeData = {
+    ...data,
+    healthInsurance: data?.healthInsurance || [],
+    disabilities: data?.disabilities || {
+      hasDisabled: false,
+      needsLongTermCare: false,
+      hasIncarcerated: false,
+    },
+    pregnancyInfo: data?.pregnancyInfo || {
+      isPregnant: false,
+    },
+    medicalConditions: data?.medicalConditions || {
+      hasChronicConditions: false,
+    },
+    medicalBills: data?.medicalBills || {
+      hasRecentBills: false,
+    },
+    needsNursingServices: data?.needsNursingServices || "",
+  }
+
   // Create list of all household members including applicant
   const allMembers = [
     {
@@ -116,7 +136,7 @@ export function HealthDisabilityForm({
   ]
 
   const updateData = (updates: Partial<HealthDisabilityData>) => {
-    onUpdate({ ...data, ...updates })
+    onUpdate({ ...safeData, ...updates })
   }
 
   const addHealthInsurance = (memberId: string, memberName: string) => {
@@ -130,29 +150,29 @@ export function HealthDisabilityForm({
       coverageType: "",
       monthlyPremium: 0,
     }
-    updateData({ healthInsurance: [...data.healthInsurance, newInsurance] })
+    updateData({ healthInsurance: [...safeData.healthInsurance, newInsurance] })
   }
 
   const updateHealthInsurance = (index: number, updates: Partial<HealthInsuranceInfo>) => {
-    const updatedInsurance = [...data.healthInsurance]
+    const updatedInsurance = [...safeData.healthInsurance]
     updatedInsurance[index] = { ...updatedInsurance[index], ...updates }
     updateData({ healthInsurance: updatedInsurance })
   }
 
   const removeHealthInsurance = (index: number) => {
-    updateData({ healthInsurance: data.healthInsurance.filter((_, i) => i !== index) })
+    updateData({ healthInsurance: safeData.healthInsurance.filter((_, i) => i !== index) })
   }
 
   const updateDisabilities = (updates: Partial<DisabilityInfo>) => {
-    updateData({ disabilities: { ...data.disabilities, ...updates } })
+    updateData({ disabilities: { ...safeData.disabilities, ...updates } })
   }
 
   const updatePregnancy = (updates: Partial<HealthDisabilityData["pregnancyInfo"]>) => {
-    updateData({ pregnancyInfo: { ...data.pregnancyInfo, ...updates } })
+    updateData({ pregnancyInfo: { ...safeData.pregnancyInfo, ...updates } })
   }
 
   const updateMedicalConditions = (updates: Partial<HealthDisabilityData["medicalConditions"]>) => {
-    updateData({ medicalConditions: { ...data.medicalConditions, ...updates } })
+    updateData({ medicalConditions: { ...safeData.medicalConditions, ...updates } })
   }
 
   const handleConditionChange = (condition: string, checked: boolean) => {
@@ -167,7 +187,7 @@ export function HealthDisabilityForm({
   }
 
   const updateMedicalBills = (updates: Partial<HealthDisabilityData["medicalBills"]>) => {
-    updateData({ medicalBills: { ...(data?.medicalBills || { hasRecentBills: false }), ...updates } })
+    updateData({ medicalBills: { ...(safeData?.medicalBills || { hasRecentBills: false }), ...updates } })
   }
 
   const updateNursingServices = (value: string) => {
@@ -197,7 +217,7 @@ export function HealthDisabilityForm({
         </CardHeader>
         <CardContent className="space-y-6">
           {allMembers.map((member) => {
-            const memberInsurance = data.healthInsurance.find((ins) => ins.memberId === member.id)
+            const memberInsurance = safeData.healthInsurance.find((ins) => ins.memberId === member.id)
             const memberName = `${member.firstName} ${member.lastName}`.trim()
 
             return (
@@ -223,7 +243,7 @@ export function HealthDisabilityForm({
                           <RadioGroup
                             value={memberInsurance.hasInsurance ? "yes" : "no"}
                             onValueChange={(value) =>
-                              updateHealthInsurance(data.healthInsurance.indexOf(memberInsurance), {
+                              updateHealthInsurance(safeData.healthInsurance.indexOf(memberInsurance), {
                                 hasInsurance: value === "yes",
                               })
                             }
@@ -246,7 +266,7 @@ export function HealthDisabilityForm({
                               <Input
                                 value={memberInsurance.provider || ""}
                                 onChange={(e) =>
-                                  updateHealthInsurance(data.healthInsurance.indexOf(memberInsurance), {
+                                  updateHealthInsurance(safeData.healthInsurance.indexOf(memberInsurance), {
                                     provider: e.target.value,
                                   })
                                 }
@@ -258,7 +278,7 @@ export function HealthDisabilityForm({
                               <Select
                                 value={memberInsurance.coverageType || ""}
                                 onValueChange={(value) =>
-                                  updateHealthInsurance(data.healthInsurance.indexOf(memberInsurance), {
+                                  updateHealthInsurance(safeData.healthInsurance.indexOf(memberInsurance), {
                                     coverageType: value,
                                   })
                                 }
@@ -280,7 +300,7 @@ export function HealthDisabilityForm({
                               <Input
                                 value={memberInsurance.policyNumber || ""}
                                 onChange={(e) =>
-                                  updateHealthInsurance(data.healthInsurance.indexOf(memberInsurance), {
+                                  updateHealthInsurance(safeData.healthInsurance.indexOf(memberInsurance), {
                                     policyNumber: e.target.value,
                                   })
                                 }
@@ -292,7 +312,7 @@ export function HealthDisabilityForm({
                               <Input
                                 value={memberInsurance.groupNumber || ""}
                                 onChange={(e) =>
-                                  updateHealthInsurance(data.healthInsurance.indexOf(memberInsurance), {
+                                  updateHealthInsurance(safeData.healthInsurance.indexOf(memberInsurance), {
                                     groupNumber: e.target.value,
                                   })
                                 }
@@ -305,7 +325,7 @@ export function HealthDisabilityForm({
                                 type="number"
                                 value={memberInsurance.monthlyPremium || ""}
                                 onChange={(e) =>
-                                  updateHealthInsurance(data.healthInsurance.indexOf(memberInsurance), {
+                                  updateHealthInsurance(safeData.healthInsurance.indexOf(memberInsurance), {
                                     monthlyPremium: Number.parseFloat(e.target.value) || 0,
                                   })
                                 }
@@ -318,7 +338,7 @@ export function HealthDisabilityForm({
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => removeHealthInsurance(data.healthInsurance.indexOf(memberInsurance))}
+                        onClick={() => removeHealthInsurance(safeData.healthInsurance.indexOf(memberInsurance))}
                         className="ml-4 text-red-600 hover:text-red-700"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -348,7 +368,7 @@ export function HealthDisabilityForm({
             <div className="space-y-3">
               <Label className="text-base font-medium">Is anyone in the household disabled? *</Label>
               <RadioGroup
-                value={data.disabilities.hasDisabled ? "yes" : "no"}
+                value={safeData.disabilities.hasDisabled ? "yes" : "no"}
                 onValueChange={(value) => updateDisabilities({ hasDisabled: value === "yes" })}
               >
                 <div className="flex items-center space-x-2">
@@ -360,11 +380,11 @@ export function HealthDisabilityForm({
                   <Label htmlFor="disabled-no">No</Label>
                 </div>
               </RadioGroup>
-              {data.disabilities.hasDisabled && (
+              {safeData.disabilities.hasDisabled && (
                 <div className="space-y-2">
                   <Label>Please provide details about the disability</Label>
                   <Textarea
-                    value={data.disabilities.disabilityDetails || ""}
+                    value={safeData.disabilities.disabilityDetails || ""}
                     onChange={(e) => updateDisabilities({ disabilityDetails: e.target.value })}
                     placeholder="Describe the disability and how it affects daily activities..."
                     rows={3}
@@ -378,7 +398,7 @@ export function HealthDisabilityForm({
             <div className="space-y-3">
               <Label className="text-base font-medium">Is anyone in the household in need of long-term care? *</Label>
               <RadioGroup
-                value={data.disabilities.needsLongTermCare ? "yes" : "no"}
+                value={safeData.disabilities.needsLongTermCare ? "yes" : "no"}
                 onValueChange={(value) => updateDisabilities({ needsLongTermCare: value === "yes" })}
               >
                 <div className="flex items-center space-x-2">
@@ -390,11 +410,11 @@ export function HealthDisabilityForm({
                   <Label htmlFor="longterm-no">No</Label>
                 </div>
               </RadioGroup>
-              {data.disabilities.needsLongTermCare && (
+              {safeData.disabilities.needsLongTermCare && (
                 <div className="space-y-2">
                   <Label>Please provide details about long-term care needs</Label>
                   <Textarea
-                    value={data.disabilities.longTermCareDetails || ""}
+                    value={safeData.disabilities.longTermCareDetails || ""}
                     onChange={(e) => updateDisabilities({ longTermCareDetails: e.target.value })}
                     placeholder="Describe the long-term care needs..."
                     rows={3}
@@ -408,7 +428,7 @@ export function HealthDisabilityForm({
             <div className="space-y-3">
               <Label className="text-base font-medium">Is anyone in the household incarcerated? *</Label>
               <RadioGroup
-                value={data.disabilities.hasIncarcerated ? "yes" : "no"}
+                value={safeData.disabilities.hasIncarcerated ? "yes" : "no"}
                 onValueChange={(value) => updateDisabilities({ hasIncarcerated: value === "yes" })}
               >
                 <div className="flex items-center space-x-2">
@@ -420,11 +440,11 @@ export function HealthDisabilityForm({
                   <Label htmlFor="incarcerated-no">No</Label>
                 </div>
               </RadioGroup>
-              {data.disabilities.hasIncarcerated && (
+              {safeData.disabilities.hasIncarcerated && (
                 <div className="space-y-2">
                   <Label>Please provide details about incarceration</Label>
                   <Textarea
-                    value={data.disabilities.incarcerationDetails || ""}
+                    value={safeData.disabilities.incarcerationDetails || ""}
                     onChange={(e) => updateDisabilities({ incarcerationDetails: e.target.value })}
                     placeholder="Provide details about the incarceration status..."
                     rows={3}
@@ -446,7 +466,7 @@ export function HealthDisabilityForm({
           <div className="space-y-3">
             <Label className="text-base font-medium">Is anyone in the household pregnant?</Label>
             <RadioGroup
-              value={data.pregnancyInfo.isPregnant ? "yes" : "no"}
+              value={safeData.pregnancyInfo.isPregnant ? "yes" : "no"}
               onValueChange={(value) => updatePregnancy({ isPregnant: value === "yes" })}
             >
               <div className="flex items-center space-x-2">
@@ -458,12 +478,12 @@ export function HealthDisabilityForm({
                 <Label htmlFor="pregnant-no">No</Label>
               </div>
             </RadioGroup>
-            {data.pregnancyInfo.isPregnant && (
+            {safeData.pregnancyInfo.isPregnant && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Who is pregnant?</Label>
                   <Select
-                    value={data.pregnancyInfo.memberName || ""}
+                    value={safeData.pregnancyInfo.memberName || ""}
                     onValueChange={(value) => updatePregnancy({ memberName: value })}
                   >
                     <SelectTrigger>
@@ -483,7 +503,7 @@ export function HealthDisabilityForm({
                   <Label>Expected Due Date</Label>
                   <Input
                     type="date"
-                    value={data.pregnancyInfo.dueDate || ""}
+                    value={safeData.pregnancyInfo.dueDate || ""}
                     onChange={(e) => updatePregnancy({ dueDate: e.target.value })}
                   />
                 </div>
@@ -503,7 +523,7 @@ export function HealthDisabilityForm({
           <div className="space-y-3">
             <Label className="text-base font-medium">Does anyone have chronic medical conditions?</Label>
             <RadioGroup
-              value={data.medicalConditions.hasChronicConditions ? "yes" : "no"}
+              value={safeData.medicalConditions.hasChronicConditions ? "yes" : "no"}
               onValueChange={(value) => updateMedicalConditions({ hasChronicConditions: value === "yes" })}
             >
               <div className="flex items-center space-x-2">
@@ -515,7 +535,7 @@ export function HealthDisabilityForm({
                 <Label htmlFor="conditions-no">No</Label>
               </div>
             </RadioGroup>
-            {data.medicalConditions.hasChronicConditions && (
+            {safeData.medicalConditions.hasChronicConditions && (
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label>Select all that apply:</Label>
@@ -537,7 +557,7 @@ export function HealthDisabilityForm({
                 <div className="space-y-2">
                   <Label>Additional details (optional)</Label>
                   <Textarea
-                    value={data.medicalConditions.details || ""}
+                    value={safeData.medicalConditions.details || ""}
                     onChange={(e) => updateMedicalConditions({ details: e.target.value })}
                     placeholder="Provide any additional details about medical conditions..."
                     rows={3}
@@ -562,7 +582,7 @@ export function HealthDisabilityForm({
               or within the past 3 months? *
             </Label>
             <RadioGroup
-              value={data?.medicalBills?.hasRecentBills ? "yes" : "no"}
+              value={safeData?.medicalBills?.hasRecentBills ? "yes" : "no"}
               onValueChange={(value) => updateMedicalBills({ hasRecentBills: value === "yes" })}
             >
               <div className="flex items-center space-x-2">
@@ -574,11 +594,11 @@ export function HealthDisabilityForm({
                 <Label htmlFor="bills-no">No</Label>
               </div>
             </RadioGroup>
-            {data?.medicalBills?.hasRecentBills && (
+            {safeData?.medicalBills?.hasRecentBills && (
               <div className="space-y-2">
                 <Label>Please provide details about the medical bills</Label>
                 <Textarea
-                  value={data?.medicalBills?.billDetails || ""}
+                  value={safeData?.medicalBills?.billDetails || ""}
                   onChange={(e) => updateMedicalBills({ billDetails: e.target.value })}
                   placeholder="Include details such as: provider name, approximate amount, date of service, whether paid or unpaid, and which household member the bill is for..."
                   rows={4}
@@ -608,7 +628,11 @@ export function HealthDisabilityForm({
               <Label className="text-base font-medium">
                 Are you applying for long-term nursing services from a nursing home or similar facility? *
               </Label>
-              <RadioGroup value={data.needsNursingServices} onValueChange={updateNursingServices} className="space-y-3">
+              <RadioGroup
+                value={safeData.needsNursingServices}
+                onValueChange={updateNursingServices}
+                className="space-y-3"
+              >
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="yes" id="nursing_yes" />
                   <Label htmlFor="nursing_yes" className="font-normal cursor-pointer">

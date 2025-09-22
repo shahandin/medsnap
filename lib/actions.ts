@@ -320,9 +320,9 @@ export async function loadApplicationProgress(applicationId?: string) {
         },
         healthDisability: {
           healthInsurance: [],
-          disabilities: { hasDisabled: "" },
-          pregnancyInfo: { isPregnant: "" },
-          medicalConditions: { hasChronicConditions: "" },
+          disabilities: { hasDisabled: false },
+          pregnancyInfo: { isPregnant: false },
+          medicalConditions: { hasChronicConditions: false },
           medicalBills: { hasRecentBills: false },
           needsNursingServices: "",
         },
