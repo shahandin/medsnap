@@ -21,19 +21,43 @@ const translations: Record<Language, TranslationData> = {
   es,
 }
 
+console.log("[v0] Translation data loaded:", {
+  enKeys: Object.keys(en),
+  esKeys: Object.keys(es),
+  enBenefitSelection: en.benefitSelection ? Object.keys(en.benefitSelection) : "NOT FOUND",
+  esBenefitSelection: es.benefitSelection ? Object.keys(es.benefitSelection) : "NOT FOUND",
+})
+
 const DEFAULT_LANGUAGE: Language = "en"
 
 function getTranslation(data: TranslationData, key: string, returnObjects = false): any {
+  console.log("[v0] getTranslation called with:", { key, returnObjects, dataKeys: Object.keys(data) })
+
   const keys = key.split(".")
   let current: any = data
 
-  for (const k of keys) {
+  console.log("[v0] Traversing keys:", keys)
+
+  for (let i = 0; i < keys.length; i++) {
+    const k = keys[i]
+    console.log(
+      `[v0] Step ${i}: Looking for key '${k}' in:`,
+      typeof current === "object" ? Object.keys(current) : current,
+    )
+
     if (current && typeof current === "object" && k in current) {
       current = current[k]
+      console.log(
+        `[v0] Step ${i}: Found '${k}', current value:`,
+        typeof current === "object" ? Object.keys(current) : current,
+      )
     } else {
+      console.log(`[v0] Step ${i}: Key '${k}' not found, returning original key:`, key)
       return key // Return key if translation not found
     }
   }
+
+  console.log("[v0] Final result:", typeof current === "object" ? Object.keys(current) : current)
 
   if (returnObjects) {
     return current !== undefined ? current : key
