@@ -102,6 +102,11 @@ export function HealthDisabilityForm({
   benefitType,
   onUpdate,
 }: HealthDisabilityFormProps) {
+  console.log("[v0] HealthDisabilityForm - Raw data received:", data)
+  console.log("[v0] HealthDisabilityForm - data.healthInsurance type:", typeof data?.healthInsurance)
+  console.log("[v0] HealthDisabilityForm - data.healthInsurance value:", data?.healthInsurance)
+  console.log("[v0] HealthDisabilityForm - Array.isArray(data?.healthInsurance):", Array.isArray(data?.healthInsurance))
+
   const [selectedConditions, setSelectedConditions] = useState<string[]>(data?.medicalConditions?.conditions || [])
 
   const safeData = {
@@ -124,7 +129,13 @@ export function HealthDisabilityForm({
     needsNursingServices: data?.needsNursingServices || "",
   }
 
-  // Create list of all household members including applicant
+  console.log("[v0] HealthDisabilityForm - safeData created:", safeData)
+  console.log("[v0] HealthDisabilityForm - safeData.healthInsurance type:", typeof safeData.healthInsurance)
+  console.log(
+    "[v0] HealthDisabilityForm - Array.isArray(safeData.healthInsurance):",
+    Array.isArray(safeData.healthInsurance),
+  )
+
   const allMembers = [
     {
       id: "applicant",
@@ -217,6 +228,9 @@ export function HealthDisabilityForm({
         </CardHeader>
         <CardContent className="space-y-6">
           {allMembers.map((member) => {
+            console.log("[v0] HealthDisabilityForm - About to call .find() on:", safeData.healthInsurance)
+            console.log("[v0] HealthDisabilityForm - Looking for member.id:", member.id)
+
             const memberInsurance = safeData.healthInsurance.find((ins) => ins.memberId === member.id)
             const memberName = `${member.firstName} ${member.lastName}`.trim()
 

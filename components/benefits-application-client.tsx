@@ -634,6 +634,20 @@ export default function BenefitsApplicationClient({
           />
         )
       case 7:
+        console.log("[v0] BenefitsApplicationClient - About to render HealthDisabilityForm")
+        console.log(
+          "[v0] BenefitsApplicationClient - applicationData.healthDisability:",
+          applicationData.healthDisability,
+        )
+        console.log(
+          "[v0] BenefitsApplicationClient - typeof applicationData.healthDisability.healthInsurance:",
+          typeof applicationData.healthDisability.healthInsurance,
+        )
+        console.log(
+          "[v0] BenefitsApplicationClient - Array.isArray(applicationData.healthDisability.healthInsurance):",
+          Array.isArray(applicationData.healthDisability.healthInsurance),
+        )
+
         return (
           <HealthDisabilityForm
             data={applicationData.healthDisability}
@@ -642,7 +656,21 @@ export default function BenefitsApplicationClient({
               `${applicationData.personalInfo.firstName} ${applicationData.personalInfo.lastName}`.trim() || "Applicant"
             }
             benefitType={applicationData.benefitType}
-            onUpdate={(healthDisability) => handleFormChange({ ...applicationData, healthDisability })}
+            onUpdate={(healthDisability) => {
+              console.log(
+                "[v0] BenefitsApplicationClient - HealthDisabilityForm onUpdate called with:",
+                healthDisability,
+              )
+              console.log(
+                "[v0] BenefitsApplicationClient - healthDisability.healthInsurance type:",
+                typeof healthDisability.healthInsurance,
+              )
+              console.log(
+                "[v0] BenefitsApplicationClient - Array.isArray(healthDisability.healthInsurance):",
+                Array.isArray(healthDisability.healthInsurance),
+              )
+              handleFormChange({ ...applicationData, healthDisability })
+            }}
           />
         )
       case 8:
