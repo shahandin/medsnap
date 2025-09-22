@@ -927,7 +927,7 @@ export function IncomeEmploymentForm({ data, onUpdate, householdMembers, applica
           ))}
         </div>
         <div className="text-sm text-gray-600">
-          {t("stepNavigation.stepOf", { current: currentSubStep + 1, total: subSteps.length })}:{" "}
+          {t("stepNavigation.stepOf", { variables: { current: currentSubStep + 1, total: subSteps.length } })}:{" "}
           {subSteps[currentSubStep].title}
         </div>
       </div>
