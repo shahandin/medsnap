@@ -22,6 +22,28 @@ export function BenefitSelection({
   const router = useRouter()
   const { t } = useTranslation()
 
+  console.log("[v0] BenefitSelection component rendering")
+  console.log("[v0] Translation function available:", typeof t)
+
+  // Debug individual translation calls
+  console.log("[v0] Testing basic translation:", t("benefitSelection.title"))
+  console.log("[v0] Testing nextStepsList translation:", t("benefitSelection.nextStepsList", { returnObjects: true }))
+  console.log("[v0] nextStepsList type:", typeof t("benefitSelection.nextStepsList", { returnObjects: true }))
+  console.log(
+    "[v0] nextStepsList isArray:",
+    Array.isArray(t("benefitSelection.nextStepsList", { returnObjects: true })),
+  )
+
+  console.log(
+    "[v0] Testing importantInfoList translation:",
+    t("benefitSelection.importantInfoList", { returnObjects: true }),
+  )
+  console.log("[v0] importantInfoList type:", typeof t("benefitSelection.importantInfoList", { returnObjects: true }))
+  console.log(
+    "[v0] importantInfoList isArray:",
+    Array.isArray(t("benefitSelection.importantInfoList", { returnObjects: true })),
+  )
+
   const BENEFIT_OPTIONS = [
     {
       id: "medicaid",
@@ -42,6 +64,8 @@ export function BenefitSelection({
       details: t("benefitSelection.bothDetails"),
     },
   ]
+
+  console.log("[v0] BENEFIT_OPTIONS created:", BENEFIT_OPTIONS)
 
   const isOptionDisabled = (optionId: string) => {
     if (submittedApplications.includes("both")) {
@@ -78,7 +102,14 @@ export function BenefitSelection({
     router.push("/account?tab=applications")
   }
 
+  const nextStepsList = t("benefitSelection.nextStepsList", { returnObjects: true }) as string[]
+  const importantInfoList = t("benefitSelection.importantInfoList", { returnObjects: true }) as string[]
+
+  console.log("[v0] nextStepsList direct access:", nextStepsList)
+  console.log("[v0] importantInfoList direct access:", importantInfoList)
+
   if (allOptionsDisabled) {
+    console.log("[v0] Rendering allOptionsDisabled view")
     return (
       <div className="space-y-6">
         <div className="text-center mb-8">
@@ -107,15 +138,15 @@ export function BenefitSelection({
         <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
           <h3 className="font-medium text-gray-900 mb-2">{t("benefitSelection.whatHappensNext")}</h3>
           <ul className="text-sm text-gray-700 space-y-1">
-            {t("benefitSelection.nextStepsList", { returnObjects: true }).map((step: string, index: number) => (
-              <li key={index}>• {step}</li>
-            ))}
+            {Array.isArray(nextStepsList) &&
+              nextStepsList.map((step: string, index: number) => <li key={index}>• {step}</li>)}
           </ul>
         </div>
       </div>
     )
   }
 
+  console.log("[v0] Rendering main benefit selection view")
   return (
     <div className="space-y-6">
       <div className="text-center mb-8">
@@ -182,9 +213,8 @@ export function BenefitSelection({
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-6">
         <h3 className="font-medium text-blue-900 mb-2">{t("benefitSelection.importantInformation")}</h3>
         <ul className="text-sm text-blue-800 space-y-1">
-          {t("benefitSelection.importantInfoList", { returnObjects: true }).map((info: string, index: number) => (
-            <li key={index}>• {info}</li>
-          ))}
+          {Array.isArray(importantInfoList) &&
+            importantInfoList.map((info: string, index: number) => <li key={index}>• {info}</li>)}
         </ul>
       </div>
     </div>
