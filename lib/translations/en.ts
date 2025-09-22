@@ -98,6 +98,52 @@ export const en: TranslationData = {
     subtitle:
       "Answer a few quick questions to see if you might qualify for Medicaid and SNAP benefits. This will help you decide which applications to complete.",
     processingMessage: "Processing your responses...",
+    questionProgress: "Question {{current}} of {{total}}",
+    complete: "Complete",
+    questions: {
+      income: {
+        text: "Is your household's monthly income less than $2,500?",
+        help: "Include all income from jobs, benefits, and other sources for everyone in your household.",
+      },
+      assets: {
+        text: "Do you have less than $2,000 in savings and assets?",
+        help: "Include bank accounts, investments, and valuable items (excluding your home and one car).",
+      },
+      citizenship: {
+        text: "Are you a U.S. citizen or qualified non-citizen?",
+        help: "Qualified non-citizens include permanent residents and certain other immigration statuses.",
+      },
+      ageDisability: {
+        text: "Are you 65 or older, pregnant, or have a disability?",
+        help: "This helps determine eligibility for certain Medicaid programs.",
+      },
+      householdSize: {
+        text: "Do you have 4 or fewer people in your household?",
+        help: "Count yourself, your spouse (if married), and any dependents you claim on taxes.",
+      },
+      workRequirements: {
+        text: "Are you working at least 20 hours per week, or do you qualify for an exemption?",
+        help: "Exemptions include being under 18, over 50, pregnant, disabled, or caring for young children.",
+      },
+    },
+    results: {
+      title: "Your Eligibility Results",
+      subtitle: "Based on your responses, here's your potential eligibility for benefits",
+      mayQualify: "May Qualify",
+      mayNotQualify: "May Not Qualify",
+      medicaidEligible:
+        "You may qualify for Medicaid health coverage. Complete the full application to verify your eligibility.",
+      medicaidNotEligible:
+        "Based on your responses, you may not qualify for Medicaid. However, eligibility rules are complex - consider applying anyway.",
+      snapEligible:
+        "You may qualify for SNAP food assistance. Complete the full application to verify your eligibility.",
+      snapNotEligible:
+        "Based on your responses, you may not qualify for SNAP. However, eligibility rules are complex - consider applying anyway.",
+      importantNote: "Important Note",
+      disclaimer:
+        "This is a preliminary assessment only. Final eligibility is determined by your state agency after reviewing your complete application and verifying your information. We encourage you to apply even if the prescreening suggests you may not qualify.",
+      continueToApplications: "Continue to Applications",
+    },
   },
 
   // Application Choice
@@ -408,5 +454,110 @@ export const en: TranslationData = {
     pleaseSelect: "Please select",
     tryAgain: "Try Again",
     retry: "Retry",
+    previous: "Previous",
+    complete: "Complete",
+  },
+
+  // AI Chat Widget translations
+  aiChat: {
+    title: "Benefits Assistant",
+    welcomeMessage:
+      "Hi! I'm your benefits assistant. I can help you navigate the application, answer questions about required documents, and guide you through the process. What can I help you with?",
+    errorMessage: "I'm sorry, I couldn't process that request. Please try again.",
+    technicalError: "I'm experiencing some technical difficulties. Please try again in a moment.",
+    placeholder: "Ask me anything about benefits...",
+    askAbout: "Ask about",
+    helpWith: "Help with",
+  },
+
+  // Benefits translations
+  benefits: {
+    medicaid: "Medicaid",
+    snap: "SNAP",
+  },
+
+  // Application success page translations
+  success: {
+    title: "Application Submitted Successfully!",
+    subtitle: "Your benefits application has been submitted and is now being processed.",
+    signInWarning:
+      "Your application was submitted successfully, but you may need to sign in again to access your account dashboard.",
+    applicationDetails: "Application Details",
+    referenceNumber: "Reference Number",
+    submissionDate: "Submission Date",
+    saveReferenceNote:
+      "Please save your reference number for your records. You'll need it to check your application status.",
+    whatHappensNext: {
+      title: "What Happens Next?",
+      subtitle: "Here's what you can expect during the application process",
+      step1: {
+        title: "Confirmation Email (Within 24 hours)",
+        description: "You'll receive a confirmation email with your reference number and next steps.",
+      },
+      step2: {
+        title: "Application Review (7-30 days)",
+        description: "Your state agency will review your application and may request additional documentation.",
+      },
+      step3: {
+        title: "Decision Notification",
+        description:
+          "You'll be notified of the decision by mail and email, along with information about your benefits.",
+      },
+    },
+    importantInfo: {
+      title: "Important Information",
+      checkEmail: {
+        title: "Check Your Email",
+        description:
+          "Make sure to check your email regularly, including spam folders, for updates about your application.",
+      },
+      keepContactUpdated: {
+        title: "Keep Your Contact Information Updated",
+        description: "Notify your state agency immediately if your address, phone number, or email changes.",
+      },
+      prepareDocuments: {
+        title: "Prepare Additional Documents",
+        description:
+          "You may be asked to provide additional documentation such as pay stubs, bank statements, or medical records.",
+      },
+    },
+    quickActions: {
+      title: "Quick Actions",
+      subtitle: "Things you can do while waiting for your application to be processed",
+      viewStatus: {
+        title: "View Application Status",
+        description: "Check your account dashboard",
+        signInRequired: "Sign in to access dashboard",
+      },
+      downloadCopy: {
+        title: "Download Application Copy",
+        comingSoon: "Coming soon",
+      },
+      uploadDocuments: {
+        title: "Upload Documents",
+        comingSoon: "Coming soon",
+      },
+      learnBenefits: {
+        title: "Learn About Benefits",
+        description: "Get more information",
+        signInRequired: "Sign in to access more features",
+      },
+    },
+    needHelp: {
+      title: "Need Help?",
+      subtitle: "If you have questions about your application or need assistance, here are your options:",
+      generalSupport: {
+        title: "General Support",
+        description: "For questions about the application process",
+        button: "Contact Support",
+      },
+      stateAgency: {
+        title: "State Agency",
+        description: "For specific questions about your benefits",
+        button: "Find State Contact",
+      },
+    },
+    goToDashboard: "Go to Account Dashboard",
+    signInToDashboard: "Sign In to Access Dashboard",
   },
 }

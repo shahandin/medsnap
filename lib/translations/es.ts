@@ -99,6 +99,52 @@ export const es: TranslationData = {
     subtitle:
       "Responde algunas preguntas rápidas para ver si podrías calificar para beneficios de Medicaid y SNAP. Esto te ayudará a decidir qué solicitudes completar.",
     processingMessage: "Procesando tus respuestas...",
+    questionProgress: "Pregunta {{current}} de {{total}}",
+    complete: "Completo",
+    questions: {
+      income: {
+        text: "¿Los ingresos mensuales de tu hogar son menos de $2,500?",
+        help: "Incluye todos los ingresos de trabajos, beneficios y otras fuentes para todos en tu hogar.",
+      },
+      assets: {
+        text: "¿Tienes menos de $2,000 en ahorros y activos?",
+        help: "Incluye cuentas bancarias, inversiones y artículos valiosos (excluyendo tu hogar y un auto).",
+      },
+      citizenship: {
+        text: "¿Eres ciudadano estadounidense o no ciudadano calificado?",
+        help: "Los no ciudadanos calificados incluyen residentes permanentes y ciertos otros estatus migratorios.",
+      },
+      ageDisability: {
+        text: "¿Tienes 65 años o más, estás embarazada o tienes una discapacidad?",
+        help: "Esto ayuda a determinar la elegibilidad para ciertos programas de Medicaid.",
+      },
+      householdSize: {
+        text: "¿Tienes 4 o menos personas en tu hogar?",
+        help: "Cuenta a ti mismo, tu cónyuge (si estás casado) y cualquier dependiente que declares en impuestos.",
+      },
+      workRequirements: {
+        text: "¿Trabajas al menos 20 horas por semana, o calificas para una exención?",
+        help: "Las exenciones incluyen ser menor de 18, mayor de 50, embarazada, discapacitada o cuidar niños pequeños.",
+      },
+    },
+    results: {
+      title: "Tus Resultados de Elegibilidad",
+      subtitle: "Basado en tus respuestas, aquí está tu elegibilidad potencial para beneficios",
+      mayQualify: "Puede Calificar",
+      mayNotQualify: "Puede No Calificar",
+      medicaidEligible:
+        "Puedes calificar para cobertura de salud Medicaid. Completa la solicitud completa para verificar tu elegibilidad.",
+      medicaidNotEligible:
+        "Basado en tus respuestas, puede que no califiques para Medicaid. Sin embargo, las reglas de elegibilidad son complejas - considera aplicar de todos modos.",
+      snapEligible:
+        "Puedes calificar para asistencia alimentaria SNAP. Completa la solicitud completa para verificar tu elegibilidad.",
+      snapNotEligible:
+        "Basado en tus respuestas, puede que no califiques para SNAP. Sin embargo, las reglas de elegibilidad son complejas - considera aplicar de todos modos.",
+      importantNote: "Nota Importante",
+      disclaimer:
+        "Esta es solo una evaluación preliminar. La elegibilidad final es determinada por tu agencia estatal después de revisar tu solicitud completa y verificar tu información. Te animamos a aplicar incluso si la evaluación preliminar sugiere que puede que no califiques.",
+      continueToApplications: "Continuar a las Solicitudes",
+    },
   },
 
   // Application Choice
@@ -411,5 +457,107 @@ export const es: TranslationData = {
     pleaseSelect: "Por favor selecciona",
     tryAgain: "Intentar de Nuevo",
     retry: "Reintentar",
+    previous: "Anterior",
+    complete: "Completar",
+  },
+
+  aiChat: {
+    title: "Asistente de Beneficios",
+    welcomeMessage:
+      "¡Hola! Soy tu asistente de beneficios. Puedo ayudarte a navegar la solicitud, responder preguntas sobre documentos requeridos y guiarte a través del proceso. ¿En qué puedo ayudarte?",
+    errorMessage: "Lo siento, no pude procesar esa solicitud. Por favor intenta de nuevo.",
+    technicalError: "Estoy experimentando algunas dificultades técnicas. Por favor intenta de nuevo en un momento.",
+    placeholder: "Pregúntame cualquier cosa sobre beneficios...",
+    askAbout: "Preguntar sobre",
+    helpWith: "Ayuda con",
+  },
+
+  benefits: {
+    medicaid: "Medicaid",
+    snap: "SNAP",
+  },
+
+  success: {
+    title: "¡Solicitud Enviada Exitosamente!",
+    subtitle: "Tu solicitud de beneficios ha sido enviada y ahora está siendo procesada.",
+    signInWarning:
+      "Tu solicitud fue enviada exitosamente, pero puede que necesites iniciar sesión de nuevo para acceder al panel de tu cuenta.",
+    applicationDetails: "Detalles de la Solicitud",
+    referenceNumber: "Número de Referencia",
+    submissionDate: "Fecha de Envío",
+    saveReferenceNote:
+      "Por favor guarda tu número de referencia para tus registros. Lo necesitarás para verificar el estado de tu solicitud.",
+    whatHappensNext: {
+      title: "¿Qué Sigue?",
+      subtitle: "Esto es lo que puedes esperar durante el proceso de solicitud",
+      step1: {
+        title: "Correo de Confirmación (Dentro de 24 horas)",
+        description: "Recibirás un correo de confirmación con tu número de referencia y próximos pasos.",
+      },
+      step2: {
+        title: "Revisión de Solicitud (7-30 días)",
+        description: "Tu agencia estatal revisará tu solicitud y puede solicitar documentación adicional.",
+      },
+      step3: {
+        title: "Notificación de Decisión",
+        description: "Serás notificado de la decisión por correo y email, junto con información sobre tus beneficios.",
+      },
+    },
+    importantInfo: {
+      title: "Información Importante",
+      checkEmail: {
+        title: "Revisa Tu Correo",
+        description:
+          "Asegúrate de revisar tu correo regularmente, incluyendo carpetas de spam, para actualizaciones sobre tu solicitud.",
+      },
+      keepContactUpdated: {
+        title: "Mantén Tu Información de Contacto Actualizada",
+        description:
+          "Notifica a tu agencia estatal inmediatamente si tu dirección, número de teléfono o correo cambia.",
+      },
+      prepareDocuments: {
+        title: "Prepara Documentos Adicionales",
+        description:
+          "Puede que te pidan proporcionar documentación adicional como talones de pago, estados de cuenta bancarios o registros médicos.",
+      },
+    },
+    quickActions: {
+      title: "Acciones Rápidas",
+      subtitle: "Cosas que puedes hacer mientras esperas que tu solicitud sea procesada",
+      viewStatus: {
+        title: "Ver Estado de Solicitud",
+        description: "Revisa el panel de tu cuenta",
+        signInRequired: "Inicia sesión para acceder al panel",
+      },
+      downloadCopy: {
+        title: "Descargar Copia de Solicitud",
+        comingSoon: "Próximamente",
+      },
+      uploadDocuments: {
+        title: "Subir Documentos",
+        comingSoon: "Próximamente",
+      },
+      learnBenefits: {
+        title: "Aprender Sobre Beneficios",
+        description: "Obtener más información",
+        signInRequired: "Inicia sesión para acceder a más funciones",
+      },
+    },
+    needHelp: {
+      title: "¿Necesitas Ayuda?",
+      subtitle: "Si tienes preguntas sobre tu solicitud o necesitas asistencia, aquí están tus opciones:",
+      generalSupport: {
+        title: "Soporte General",
+        description: "Para preguntas sobre el proceso de solicitud",
+        button: "Contactar Soporte",
+      },
+      stateAgency: {
+        title: "Agencia Estatal",
+        description: "Para preguntas específicas sobre tus beneficios",
+        button: "Encontrar Contacto Estatal",
+      },
+    },
+    goToDashboard: "Ir al Panel de Cuenta",
+    signInToDashboard: "Iniciar Sesión para Acceder al Panel",
   },
 }

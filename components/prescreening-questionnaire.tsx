@@ -7,6 +7,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
 import { Progress } from "@/components/ui/progress"
 import { ArrowRight, ArrowLeft } from "lucide-react"
+import { useTranslation } from "@/contexts/translation-context"
 
 interface Question {
   id: string
@@ -18,42 +19,43 @@ interface PrescreeningQuestionnaireProps {
   onComplete: (responses: Record<string, string>) => void
 }
 
-const questions: Question[] = [
-  {
-    id: "income",
-    text: "Is your household's monthly income less than $2,500?",
-    helpText: "Include all income from jobs, benefits, and other sources for everyone in your household.",
-  },
-  {
-    id: "assets",
-    text: "Do you have less than $2,000 in savings and assets?",
-    helpText: "Include bank accounts, investments, and valuable items (excluding your home and one car).",
-  },
-  {
-    id: "citizenship",
-    text: "Are you a U.S. citizen or qualified non-citizen?",
-    helpText: "Qualified non-citizens include permanent residents and certain other immigration statuses.",
-  },
-  {
-    id: "age_disability",
-    text: "Are you 65 or older, pregnant, or have a disability?",
-    helpText: "This helps determine eligibility for certain Medicaid programs.",
-  },
-  {
-    id: "household_size",
-    text: "Do you have 4 or fewer people in your household?",
-    helpText: "Count yourself, your spouse (if married), and any dependents you claim on taxes.",
-  },
-  {
-    id: "work_requirements",
-    text: "Are you working at least 20 hours per week, or do you qualify for an exemption?",
-    helpText: "Exemptions include being under 18, over 50, pregnant, disabled, or caring for young children.",
-  },
-]
-
 export function PrescreeningQuestionnaire({ onComplete }: PrescreeningQuestionnaireProps) {
   const [currentQuestion, setCurrentQuestion] = useState(0)
   const [responses, setResponses] = useState<Record<string, string>>({})
+  const { t } = useTranslation()
+
+  const questions: Question[] = [
+    {
+      id: "income",
+      text: t("prescreening.questions.income.text"),
+      helpText: t("prescreening.questions.income.help"),
+    },
+    {
+      id: "assets",
+      text: t("prescreening.questions.assets.text"),
+      helpText: t("prescreening.questions.assets.help"),
+    },
+    {
+      id: "citizenship",
+      text: t("prescreening.questions.citizenship.text"),
+      helpText: t("prescreening.questions.citizenship.help"),
+    },
+    {
+      id: "age_disability",
+      text: t("prescreening.questions.ageDisability.text"),
+      helpText: t("prescreening.questions.ageDisability.help"),
+    },
+    {
+      id: "household_size",
+      text: t("prescreening.questions.householdSize.text"),
+      helpText: t("prescreening.questions.householdSize.help"),
+    },
+    {
+      id: "work_requirements",
+      text: t("prescreening.questions.workRequirements.text"),
+      helpText: t("prescreening.questions.workRequirements.help"),
+    },
+  ]
 
   const handleAnswer = (value: string) => {
     const newResponses = {
@@ -85,9 +87,11 @@ export function PrescreeningQuestionnaire({ onComplete }: PrescreeningQuestionna
       <div className="mb-8">
         <div className="flex justify-between items-center mb-4">
           <span className="text-sm font-medium text-muted-foreground">
-            Question {currentQuestion + 1} of {questions.length}
+            {t("prescreening.questionProgress", { current: currentQuestion + 1, total: questions.length })}
           </span>
-          <span className="text-sm font-medium text-muted-foreground">{Math.round(progress)}% Complete</span>
+          <span className="text-sm font-medium text-muted-foreground">
+            {Math.round(progress)}% {t("prescreening.complete")}
+          </span>
         </div>
         <Progress value={progress} className="h-2" />
       </div>
@@ -104,13 +108,13 @@ export function PrescreeningQuestionnaire({ onComplete }: PrescreeningQuestionna
             <div className="flex items-center space-x-3 p-4 rounded-lg border hover:bg-muted/50 transition-colors">
               <RadioGroupItem value="yes" id="yes" />
               <Label htmlFor="yes" className="text-base font-medium cursor-pointer flex-1">
-                Yes
+                {t("common.yes")}
               </Label>
             </div>
             <div className="flex items-center space-x-3 p-4 rounded-lg border hover:bg-muted/50 transition-colors">
               <RadioGroupItem value="no" id="no" />
               <Label htmlFor="no" className="text-base font-medium cursor-pointer flex-1">
-                No
+                {t("common.no")}
               </Label>
             </div>
           </RadioGroup>
@@ -123,11 +127,11 @@ export function PrescreeningQuestionnaire({ onComplete }: PrescreeningQuestionna
               className="flex items-center space-x-2 bg-transparent"
             >
               <ArrowLeft className="w-4 h-4" />
-              <span>Previous</span>
+              <span>{t("common.previous")}</span>
             </Button>
 
             <Button onClick={handleNext} disabled={!currentAnswer} className="flex items-center space-x-2">
-              <span>{currentQuestion === questions.length - 1 ? "Complete" : "Next"}</span>
+              <span>{currentQuestion === questions.length - 1 ? t("common.complete") : t("common.next")}</span>
               <ArrowRight className="w-4 h-4" />
             </Button>
           </div>

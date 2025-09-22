@@ -8,10 +8,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import Link from "next/link"
+import { useTranslation } from "@/contexts/translation-context"
 
 export default function ApplicationSuccessPage() {
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  const { t } = useTranslation()
 
   useEffect(() => {
     const getUser = async () => {
@@ -46,44 +48,37 @@ export default function ApplicationSuccessPage() {
           {!user && (
             <Alert className="mb-6 border-orange-300 bg-orange-50">
               <span className="text-orange-600">⚠️</span>
-              <AlertDescription className="text-orange-800">
-                Your application was submitted successfully, but you may need to sign in again to access your account
-                dashboard.
-              </AlertDescription>
+              <AlertDescription className="text-orange-800">{t("success.signInWarning")}</AlertDescription>
             </Alert>
           )}
 
           <div className="text-center mb-8">
             <div className="text-8xl mb-6">✅</div>
-            <h1 className="text-4xl font-bold text-green-800 mb-4">Application Submitted Successfully!</h1>
-            <p className="text-xl text-gray-600">
-              Your benefits application has been submitted and is now being processed.
-            </p>
+            <h1 className="text-4xl font-bold text-green-800 mb-4">{t("success.title")}</h1>
+            <p className="text-xl text-gray-600">{t("success.subtitle")}</p>
           </div>
 
           <Card className="mb-8 border-green-200 bg-green-50">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-green-800">
                 <span className="text-xl">📄</span>
-                Application Details
+                {t("success.applicationDetails")}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <p className="font-medium text-gray-700">Reference Number</p>
+                  <p className="font-medium text-gray-700">{t("success.referenceNumber")}</p>
                   <p className="text-lg font-mono bg-white px-3 py-1 rounded border">{referenceNumber}</p>
                 </div>
                 <div>
-                  <p className="font-medium text-gray-700">Submission Date</p>
+                  <p className="font-medium text-gray-700">{t("success.submissionDate")}</p>
                   <p className="text-lg">{submissionDate}</p>
                 </div>
               </div>
               <Alert className="bg-green-100 border-green-300">
                 <span className="text-green-600">⚠️</span>
-                <AlertDescription className="text-green-800">
-                  Please save your reference number for your records. You'll need it to check your application status.
-                </AlertDescription>
+                <AlertDescription className="text-green-800">{t("success.saveReferenceNote")}</AlertDescription>
               </Alert>
             </CardContent>
           </Card>
@@ -92,9 +87,9 @@ export default function ApplicationSuccessPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <span className="text-xl">📅</span>
-                What Happens Next?
+                {t("success.whatHappensNext.title")}
               </CardTitle>
-              <CardDescription>Here's what you can expect during the application process</CardDescription>
+              <CardDescription>{t("success.whatHappensNext.subtitle")}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
@@ -103,10 +98,8 @@ export default function ApplicationSuccessPage() {
                     <span className="text-blue-600 font-bold text-sm">1</span>
                   </div>
                   <div>
-                    <h3 className="font-semibold mb-1">Confirmation Email (Within 24 hours)</h3>
-                    <p className="text-gray-600 text-sm">
-                      You'll receive a confirmation email with your reference number and next steps.
-                    </p>
+                    <h3 className="font-semibold mb-1">{t("success.whatHappensNext.step1.title")}</h3>
+                    <p className="text-gray-600 text-sm">{t("success.whatHappensNext.step1.description")}</p>
                   </div>
                 </div>
 
@@ -115,10 +108,8 @@ export default function ApplicationSuccessPage() {
                     <span className="text-blue-600 font-bold text-sm">2</span>
                   </div>
                   <div>
-                    <h3 className="font-semibold mb-1">Application Review (7-30 days)</h3>
-                    <p className="text-gray-600 text-sm">
-                      Your state agency will review your application and may request additional documentation.
-                    </p>
+                    <h3 className="font-semibold mb-1">{t("success.whatHappensNext.step2.title")}</h3>
+                    <p className="text-gray-600 text-sm">{t("success.whatHappensNext.step2.description")}</p>
                   </div>
                 </div>
 
@@ -127,10 +118,8 @@ export default function ApplicationSuccessPage() {
                     <span className="text-blue-600 font-bold text-sm">3</span>
                   </div>
                   <div>
-                    <h3 className="font-semibold mb-1">Decision Notification</h3>
-                    <p className="text-gray-600 text-sm">
-                      You'll be notified of the decision by mail and email, along with information about your benefits.
-                    </p>
+                    <h3 className="font-semibold mb-1">{t("success.whatHappensNext.step3.title")}</h3>
+                    <p className="text-gray-600 text-sm">{t("success.whatHappensNext.step3.description")}</p>
                   </div>
                 </div>
               </div>
@@ -141,7 +130,7 @@ export default function ApplicationSuccessPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-orange-800">
                 <span className="text-xl">⚠️</span>
-                Important Information
+                {t("success.importantInfo.title")}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -149,32 +138,24 @@ export default function ApplicationSuccessPage() {
                 <div className="flex items-start gap-3">
                   <span className="text-xl mt-0.5">📧</span>
                   <div>
-                    <p className="font-medium">Check Your Email</p>
-                    <p className="text-sm text-gray-600">
-                      Make sure to check your email regularly, including spam folders, for updates about your
-                      application.
-                    </p>
+                    <p className="font-medium">{t("success.importantInfo.checkEmail.title")}</p>
+                    <p className="text-sm text-gray-600">{t("success.importantInfo.checkEmail.description")}</p>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-3">
                   <span className="text-xl mt-0.5">📞</span>
                   <div>
-                    <p className="font-medium">Keep Your Contact Information Updated</p>
-                    <p className="text-sm text-gray-600">
-                      Notify your state agency immediately if your address, phone number, or email changes.
-                    </p>
+                    <p className="font-medium">{t("success.importantInfo.keepContactUpdated.title")}</p>
+                    <p className="text-sm text-gray-600">{t("success.importantInfo.keepContactUpdated.description")}</p>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-3">
                   <span className="text-xl mt-0.5">📄</span>
                   <div>
-                    <p className="font-medium">Prepare Additional Documents</p>
-                    <p className="text-sm text-gray-600">
-                      You may be asked to provide additional documentation such as pay stubs, bank statements, or
-                      medical records.
-                    </p>
+                    <p className="font-medium">{t("success.importantInfo.prepareDocuments.title")}</p>
+                    <p className="text-sm text-gray-600">{t("success.importantInfo.prepareDocuments.description")}</p>
                   </div>
                 </div>
               </div>
@@ -183,8 +164,8 @@ export default function ApplicationSuccessPage() {
 
           <Card className="mb-8">
             <CardHeader>
-              <CardTitle>Quick Actions</CardTitle>
-              <CardDescription>Things you can do while waiting for your application to be processed</CardDescription>
+              <CardTitle>{t("success.quickActions.title")}</CardTitle>
+              <CardDescription>{t("success.quickActions.subtitle")}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid md:grid-cols-2 gap-4">
@@ -199,8 +180,8 @@ export default function ApplicationSuccessPage() {
                       <div className="flex items-center gap-3">
                         <span className="text-xl">📄</span>
                         <div className="text-left">
-                          <p className="font-medium">View Application Status</p>
-                          <p className="text-sm text-gray-600">Check your account dashboard</p>
+                          <p className="font-medium">{t("success.quickActions.viewStatus.title")}</p>
+                          <p className="text-sm text-gray-600">{t("success.quickActions.viewStatus.description")}</p>
                         </div>
                       </div>
                     </Link>
@@ -208,8 +189,8 @@ export default function ApplicationSuccessPage() {
                     <div className="flex items-center gap-3">
                       <span className="text-xl">📄</span>
                       <div className="text-left">
-                        <p className="font-medium">View Application Status</p>
-                        <p className="text-sm text-gray-600">Sign in to access dashboard</p>
+                        <p className="font-medium">{t("success.quickActions.viewStatus.title")}</p>
+                        <p className="text-sm text-gray-600">{t("success.quickActions.viewStatus.signInRequired")}</p>
                       </div>
                     </div>
                   )}
@@ -219,8 +200,8 @@ export default function ApplicationSuccessPage() {
                   <div className="flex items-center gap-3">
                     <span className="text-xl">⬇️</span>
                     <div className="text-left">
-                      <p className="font-medium">Download Application Copy</p>
-                      <p className="text-sm text-gray-600">Coming soon</p>
+                      <p className="font-medium">{t("success.quickActions.downloadCopy.title")}</p>
+                      <p className="text-sm text-gray-600">{t("success.quickActions.downloadCopy.comingSoon")}</p>
                     </div>
                   </div>
                 </Button>
@@ -229,8 +210,8 @@ export default function ApplicationSuccessPage() {
                   <div className="flex items-center gap-3">
                     <span className="text-xl">📄</span>
                     <div className="text-left">
-                      <p className="font-medium">Upload Documents</p>
-                      <p className="text-sm text-gray-600">Coming soon</p>
+                      <p className="font-medium">{t("success.quickActions.uploadDocuments.title")}</p>
+                      <p className="text-sm text-gray-600">{t("success.quickActions.uploadDocuments.comingSoon")}</p>
                     </div>
                   </div>
                 </Button>
@@ -246,8 +227,8 @@ export default function ApplicationSuccessPage() {
                       <div className="flex items-center gap-3">
                         <span className="text-xl">🔗</span>
                         <div className="text-left">
-                          <p className="font-medium">Learn About Benefits</p>
-                          <p className="text-sm text-gray-600">Get more information</p>
+                          <p className="font-medium">{t("success.quickActions.learnBenefits.title")}</p>
+                          <p className="text-sm text-gray-600">{t("success.quickActions.learnBenefits.description")}</p>
                         </div>
                       </div>
                     </Link>
@@ -255,8 +236,10 @@ export default function ApplicationSuccessPage() {
                     <div className="flex items-center gap-3">
                       <span className="text-xl">🔗</span>
                       <div className="text-left">
-                        <p className="font-medium">Learn About Benefits</p>
-                        <p className="text-sm text-gray-600">Sign in to access more features</p>
+                        <p className="font-medium">{t("success.quickActions.learnBenefits.title")}</p>
+                        <p className="text-sm text-gray-600">
+                          {t("success.quickActions.learnBenefits.signInRequired")}
+                        </p>
                       </div>
                     </div>
                   )}
@@ -269,27 +252,25 @@ export default function ApplicationSuccessPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <span className="text-xl">📞</span>
-                Need Help?
+                {t("success.needHelp.title")}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <p className="text-gray-600">
-                  If you have questions about your application or need assistance, here are your options:
-                </p>
+                <p className="text-gray-600">{t("success.needHelp.subtitle")}</p>
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="p-4 bg-gray-50 rounded-lg">
-                    <h4 className="font-medium mb-2">General Support</h4>
-                    <p className="text-sm text-gray-600 mb-2">For questions about the application process</p>
+                    <h4 className="font-medium mb-2">{t("success.needHelp.generalSupport.title")}</h4>
+                    <p className="text-sm text-gray-600 mb-2">{t("success.needHelp.generalSupport.description")}</p>
                     <Button variant="outline" size="sm" disabled>
-                      Contact Support
+                      {t("success.needHelp.generalSupport.button")}
                     </Button>
                   </div>
                   <div className="p-4 bg-gray-50 rounded-lg">
-                    <h4 className="font-medium mb-2">State Agency</h4>
-                    <p className="text-sm text-gray-600 mb-2">For specific questions about your benefits</p>
+                    <h4 className="font-medium mb-2">{t("success.needHelp.stateAgency.title")}</h4>
+                    <p className="text-sm text-gray-600 mb-2">{t("success.needHelp.stateAgency.description")}</p>
                     <Button variant="outline" size="sm" disabled>
-                      Find State Contact
+                      {t("success.needHelp.stateAgency.button")}
                     </Button>
                   </div>
                 </div>
@@ -300,11 +281,11 @@ export default function ApplicationSuccessPage() {
           <div className="text-center mt-8">
             {user ? (
               <Button asChild size="lg">
-                <Link href="/account">Go to Account Dashboard</Link>
+                <Link href="/account">{t("success.goToDashboard")}</Link>
               </Button>
             ) : (
               <Button asChild size="lg">
-                <Link href="/signin">Sign In to Access Dashboard</Link>
+                <Link href="/signin">{t("success.signInToDashboard")}</Link>
               </Button>
             )}
           </div>
