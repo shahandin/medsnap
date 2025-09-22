@@ -1168,11 +1168,6 @@ export default function AccountDashboardClient({ user }: AccountDashboardClientP
                         onChange={(e) => setUploadedFile(e.target.files?.[0] || null)}
                         className="border-gray-300 rounded-xl file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-primary file:text-white hover:file:bg-primary/90"
                       />
-                      {!uploadedFile && (
-                        <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 pointer-events-none">
-                          {t("dashboard.documents.noFileChosen")}
-                        </span>
-                      )}
                     </div>
                     <p className="text-xs text-gray-500">{t("dashboard.documents.acceptedFormats")}</p>
                   </div>
