@@ -10,7 +10,7 @@ export type Language = "en" | "es"
 interface TranslationContextType {
   language: Language
   setLanguage: (lang: Language) => void
-  t: (key: string, variables?: Record<string, string | number>) => string
+  t: (key: string, options?: { returnObjects?: boolean; variables?: Record<string, string | number> }) => any
   isLoading: boolean
 }
 
@@ -23,7 +23,7 @@ const translations: Record<Language, TranslationData> = {
 
 const DEFAULT_LANGUAGE: Language = "en"
 
-function getTranslation(data: TranslationData, key: string): string {
+function getTranslation(data: TranslationData, key: string, returnObjects = false): any {
   const keys = key.split(".")
   let current: any = data
 
@@ -33,6 +33,10 @@ function getTranslation(data: TranslationData, key: string): string {
     } else {
       return key // Return key if translation not found
     }
+  }
+
+  if (returnObjects) {
+    return current !== undefined ? current : key
   }
 
   return typeof current === "string" ? current : key
@@ -111,9 +115,12 @@ export function TranslationProvider({ children }: TranslationProviderProps) {
     }, 100)
   }
 
-  const t = (key: string, variables?: Record<string, string | number>): string => {
+  const t = (key: string, options?: { returnObjects?: boolean; variables?: Record<string, string | number> }): any => {
     const currentLang = isHydrated ? language : DEFAULT_LANGUAGE
-    let result = getTranslation(translations[currentLang], key)
+    const returnObjects = options?.returnObjects || false
+    const variables = options?.variables
+
+    let result = getTranslation(translations[currentLang], key, returnObjects)
 
     // Only log if translation key is not found (to avoid spam)
     if (result === key) {
