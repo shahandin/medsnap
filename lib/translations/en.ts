@@ -236,6 +236,16 @@ export const en: TranslationData = {
 
   // Forms
   forms: {
+    review: {
+      title: "Review & Submit",
+      sections: {
+        personalInfo: "Personal Information",
+        household: "Household Information",
+        income: "Income & Employment",
+        assets: "Assets",
+        health: "Health & Disability",
+      },
+    },
     personalInfo: {
       title: "Personal Information",
       subtitle: "Please provide your basic personal information",
