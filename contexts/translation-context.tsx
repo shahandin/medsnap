@@ -74,6 +74,16 @@ export function TranslationProvider({ children }: TranslationProviderProps) {
     console.log("[v0] Current language state:", language)
     console.log("[v0] isHydrated:", isHydrated)
 
+    if (typeof window !== "undefined" && (window as any).applicationContext) {
+      console.log("[v0] Application context before language change:", {
+        healthInsuranceType: typeof (window as any).applicationContext.applicationData?.hasHealthInsurance,
+        healthInsuranceValue: (window as any).applicationContext.applicationData?.hasHealthInsurance,
+        healthDisabilityStructure: (window as any).applicationContext.applicationData?.healthDisability
+          ? Object.keys((window as any).applicationContext.applicationData.healthDisability)
+          : "undefined",
+      })
+    }
+
     setLanguageState(lang)
     console.log("[v0] Language state updated to:", lang)
 
@@ -87,6 +97,18 @@ export function TranslationProvider({ children }: TranslationProviderProps) {
     } else {
       console.log("[v0] Window not available, skipping localStorage save")
     }
+
+    setTimeout(() => {
+      if (typeof window !== "undefined" && (window as any).applicationContext) {
+        console.log("[v0] Application context after language change:", {
+          healthInsuranceType: typeof (window as any).applicationContext.applicationData?.hasHealthInsurance,
+          healthInsuranceValue: (window as any).applicationContext.applicationData?.hasHealthInsurance,
+          healthDisabilityStructure: (window as any).applicationContext.applicationData?.healthDisability
+            ? Object.keys((window as any).applicationContext.applicationData.healthDisability)
+            : "undefined",
+        })
+      }
+    }, 100)
   }
 
   const t = (key: string, variables?: Record<string, string | number>): string => {

@@ -270,10 +270,6 @@ export async function loadApplicationProgress(applicationId?: string) {
         hasState: !!applicationData?.state,
       })
 
-      const benefitTypeFromData = applicationData?.benefitType
-      const benefitTypeFromDB = data[0].application_type
-      const finalBenefitType = benefitTypeFromData || benefitTypeFromDB || ""
-
       const defaultApplicationData = {
         benefitType: "",
         state: "",
@@ -320,10 +316,20 @@ export async function loadApplicationProgress(applicationId?: string) {
         },
         healthDisability: {
           healthInsurance: [],
-          disabilities: { hasDisabled: false },
-          pregnancyInfo: { isPregnant: false },
-          medicalConditions: { hasChronicConditions: false },
-          medicalBills: { hasRecentBills: false },
+          hasDisabled: "",
+          disabilityDetails: "",
+          needsLongTermCare: "",
+          longTermCareDetails: "",
+          hasIncarcerated: "",
+          incarcerationDetails: "",
+          isPregnant: "",
+          pregnantMemberName: "",
+          dueDate: "",
+          hasChronicConditions: "",
+          chronicConditions: [],
+          conditionDetails: "",
+          hasRecentBills: "",
+          billDetails: "",
           needsNursingServices: "",
         },
         additionalInfo: {
@@ -334,7 +340,7 @@ export async function loadApplicationProgress(applicationId?: string) {
       const safeApplicationData = {
         ...defaultApplicationData,
         ...applicationData,
-        benefitType: finalBenefitType,
+        benefitType: applicationData?.benefitType || "",
         personalInfo: {
           ...defaultApplicationData.personalInfo,
           ...applicationData?.personalInfo,
@@ -358,6 +364,14 @@ export async function loadApplicationProgress(applicationId?: string) {
         healthDisability: {
           ...defaultApplicationData.healthDisability,
           ...applicationData?.healthDisability,
+          // Ensure healthInsurance is always an array
+          healthInsurance: Array.isArray(applicationData?.healthDisability?.healthInsurance)
+            ? applicationData.healthDisability.healthInsurance
+            : [],
+          // Ensure chronicConditions is always an array
+          chronicConditions: Array.isArray(applicationData?.healthDisability?.chronicConditions)
+            ? applicationData.healthDisability.chronicConditions
+            : [],
         },
         additionalInfo: {
           ...defaultApplicationData.additionalInfo,
@@ -602,16 +616,121 @@ export async function loadAllUserApplications() {
         continue
       }
 
-      const benefitTypeFromData = applicationData?.benefitType
-      const benefitTypeFromDB = app.application_type
-      const finalBenefitType = benefitTypeFromData || benefitTypeFromDB || ""
+      const defaultApplicationData = {
+        benefitType: "",
+        state: "",
+        personalInfo: {
+          applyingFor: "",
+          firstName: "",
+          lastName: "",
+          dateOfBirth: "",
+          languagePreference: "",
+          address: {
+            street: "",
+            city: "",
+            state: "",
+            zipCode: "",
+          },
+          phone: "",
+          email: "",
+          citizenshipStatus: "",
+          socialSecurityNumber: "",
+        },
+        householdMembers: [],
+        householdQuestions: {
+          appliedWithDifferentInfo: "",
+          appliedWithDifferentInfoMembers: [],
+          appliedInOtherState: "",
+          appliedInOtherStateMembers: [],
+          receivedBenefitsBefore: "",
+          receivedBenefitsBeforeMembers: [],
+          receivingSNAPThisMonth: "",
+          receivingSNAPThisMonthMembers: [],
+          disqualifiedFromBenefits: "",
+          disqualifiedFromBenefitsMembers: [],
+          wantSomeoneElseToReceiveSNAP: "",
+          wantSomeoneElseToReceiveSNAPMembers: [],
+        },
+        incomeEmployment: {
+          employment: [],
+          income: [],
+          expenses: [],
+          taxFilingStatus: "",
+        },
+        assets: {
+          assets: [],
+        },
+        healthDisability: {
+          healthInsurance: [],
+          hasDisabled: "",
+          disabilityDetails: "",
+          needsLongTermCare: "",
+          longTermCareDetails: "",
+          hasIncarcerated: "",
+          incarcerationDetails: "",
+          isPregnant: "",
+          pregnantMemberName: "",
+          dueDate: "",
+          hasChronicConditions: "",
+          chronicConditions: [],
+          conditionDetails: "",
+          hasRecentBills: "",
+          billDetails: "",
+          needsNursingServices: "",
+        },
+        additionalInfo: {
+          additionalInfo: "",
+        },
+      }
+
+      const safeApplicationData = {
+        ...defaultApplicationData,
+        ...applicationData,
+        benefitType: applicationData?.benefitType || "",
+        personalInfo: {
+          ...defaultApplicationData.personalInfo,
+          ...applicationData?.personalInfo,
+          address: {
+            ...defaultApplicationData.personalInfo.address,
+            ...applicationData?.personalInfo?.address,
+          },
+        },
+        householdQuestions: {
+          ...defaultApplicationData.householdQuestions,
+          ...applicationData?.householdQuestions,
+        },
+        incomeEmployment: {
+          ...defaultApplicationData.incomeEmployment,
+          ...applicationData?.incomeEmployment,
+        },
+        assets: {
+          ...defaultApplicationData.assets,
+          ...applicationData?.assets,
+        },
+        healthDisability: {
+          ...defaultApplicationData.healthDisability,
+          ...applicationData?.healthDisability,
+          // Ensure healthInsurance is always an array
+          healthInsurance: Array.isArray(applicationData?.healthDisability?.healthInsurance)
+            ? applicationData.healthDisability.healthInsurance
+            : [],
+          // Ensure chronicConditions is always an array
+          chronicConditions: Array.isArray(applicationData?.healthDisability?.chronicConditions)
+            ? applicationData.healthDisability.chronicConditions
+            : [],
+        },
+        additionalInfo: {
+          ...defaultApplicationData.additionalInfo,
+          ...applicationData?.additionalInfo,
+        },
+      }
 
       processedApplications.push({
         id: app.id,
-        application_data: applicationData,
+        application_data: safeApplicationData,
         current_step: app.current_step,
         application_type: app.application_type,
-        benefit_type: finalBenefitType,
+        benefit_type: safeApplicationData.benefitType,
         created_at: app.created_at,
         updated_at: app.updated_at,
       })
