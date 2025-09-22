@@ -240,11 +240,34 @@ export const es: TranslationData = {
     personalInfo: {
       title: "Información Personal",
       subtitle: "Por favor proporciona tu información personal básica",
+      allFieldsRequired: "Todos los campos son requeridos.",
+
+      sections: {
+        applicationContext: "Contexto de la Solicitud",
+        applicationContextDesc: "Dinos para quién estás solicitando e información básica sobre tu solicitud",
+        basicInfo: "Información Básica",
+        basicInfoDesc: "Tus detalles personales e información de contacto",
+        addressInfo: "Información de Dirección",
+        addressInfoDesc: "Tu dirección residencial actual",
+        contactInfo: "Información de Contacto",
+        contactInfoDesc: "Cómo podemos contactarte sobre tu solicitud",
+        legalInfo: "Información Legal",
+        legalInfoDesc: "Estado de ciudadanía e información del Seguro Social",
+      },
+
+      applyingFor: "¿Para quién estás solicitando?",
+      applyingForMyself: "Para mí mismo",
+      applyingForSomeoneElse: "Para otra persona (como su representante autorizado)",
+      applyingForHelp:
+        "Si estás solicitando para otra persona, necesitarás proporcionar su información y documentación que muestre que estás autorizado para solicitar en su nombre.",
+
       firstName: "Nombre",
       lastName: "Apellido",
       middleName: "Segundo Nombre",
       dateOfBirth: "Fecha de Nacimiento",
       ssn: "Número de Seguro Social",
+      ssnHelp:
+        "Tu Número de Seguro Social es requerido para la verificación de elegibilidad de beneficios y se mantiene seguro y confidencial.",
       phone: "Número de Teléfono",
       email: "Dirección de Correo Electrónico",
       address: "Dirección",
@@ -254,17 +277,18 @@ export const es: TranslationData = {
       county: "Condado",
       required: "Requerido",
       optional: "Opcional",
-      allFieldsRequired: "Todos los campos son requeridos.",
       firstNamePlaceholder: "Ingresa tu nombre",
       lastNamePlaceholder: "Ingresa tu apellido",
       preferredLanguage: "Idioma Preferido",
       selectPreferredLanguage: "Selecciona tu idioma preferido",
+      languageHelp: "Esto nos ayuda a proporcionar materiales y asistencia en tu idioma preferido.",
       streetAddress: "Dirección de la Calle",
       streetAddressPlaceholder: "Ingresa tu dirección de la calle",
       cityPlaceholder: "Ingresa tu ciudad",
       statePlaceholder: "Estado",
       citizenshipStatus: "Estado de Ciudadanía",
       selectCitizenshipStatus: "Selecciona tu estado de ciudadanía",
+
       languages: {
         english: "Inglés",
         spanish: "Español",

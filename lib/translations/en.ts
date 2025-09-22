@@ -239,11 +239,34 @@ export const en: TranslationData = {
     personalInfo: {
       title: "Personal Information",
       subtitle: "Please provide your basic personal information",
+      allFieldsRequired: "All fields are required",
+
+      sections: {
+        applicationContext: "Application Context",
+        applicationContextDesc: "Tell us who you're applying for and basic information about your application",
+        basicInfo: "Basic Information",
+        basicInfoDesc: "Your personal details and contact information",
+        addressInfo: "Address Information",
+        addressInfoDesc: "Your current residential address",
+        contactInfo: "Contact Information",
+        contactInfoDesc: "How we can reach you about your application",
+        legalInfo: "Legal Information",
+        legalInfoDesc: "Citizenship status and Social Security information",
+      },
+
+      applyingFor: "Who are you applying for?",
+      applyingForMyself: "Myself",
+      applyingForSomeoneElse: "Someone else (as their authorized representative)",
+      applyingForHelp:
+        "If you're applying for someone else, you'll need to provide their information and documentation showing you're authorized to apply on their behalf.",
+
       firstName: "First Name",
       lastName: "Last Name",
       middleName: "Middle Name",
       dateOfBirth: "Date of Birth",
       ssn: "Social Security Number",
+      ssnHelp:
+        "Your Social Security Number is required for benefit eligibility verification and is kept secure and confidential.",
       phone: "Phone Number",
       email: "Email Address",
       address: "Address",
@@ -253,17 +276,18 @@ export const en: TranslationData = {
       county: "County",
       required: "Required",
       optional: "Optional",
-      allFieldsRequired: "All fields are required.",
       firstNamePlaceholder: "Enter your first name",
       lastNamePlaceholder: "Enter your last name",
       preferredLanguage: "Preferred Language",
       selectPreferredLanguage: "Select your preferred language",
+      languageHelp: "This helps us provide materials and assistance in your preferred language.",
       streetAddress: "Street Address",
       streetAddressPlaceholder: "Enter your street address",
       cityPlaceholder: "Enter your city",
       statePlaceholder: "State",
       citizenshipStatus: "Citizenship Status",
       selectCitizenshipStatus: "Select your citizenship status",
+
       languages: {
         english: "English",
         spanish: "Spanish (Español)",
