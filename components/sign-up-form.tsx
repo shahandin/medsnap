@@ -8,11 +8,8 @@ import { Input } from "@/components/ui/input"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
-import { useTranslation } from "@/contexts/translation-context"
 
 function SubmitButton({ isFormValid, isLoading }: { isFormValid: boolean; isLoading: boolean }) {
-  const { t } = useTranslation()
-
   return (
     <Button
       type="submit"
@@ -22,11 +19,11 @@ function SubmitButton({ isFormValid, isLoading }: { isFormValid: boolean; isLoad
       {isLoading ? (
         <>
           <span className="mr-2 inline-block animate-spin">⏳</span>
-          {t("auth.signUp.creatingAccount")}
+          Creating Account...
         </>
       ) : (
         <>
-          {t("auth.signUp.createAccountButton")}
+          Create Account
           <span className="ml-2 group-hover:translate-x-1 transition-transform duration-200">→</span>
         </>
       )}
@@ -36,7 +33,6 @@ function SubmitButton({ isFormValid, isLoading }: { isFormValid: boolean; isLoad
 
 function SignUpForm() {
   const router = useRouter()
-  const { t } = useTranslation()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
@@ -85,7 +81,7 @@ function SignUpForm() {
         return
       }
 
-      setSuccess(t("auth.signUp.successMessage"))
+      setSuccess("Account created successfully! Please check your email to verify your account.")
       // Optionally redirect to a success page
       // router.push("/auth/sign-up-success")
     } catch (error: unknown) {
@@ -98,7 +94,7 @@ function SignUpForm() {
   return (
     <div className="w-full max-w-md space-y-8 bg-white/95 backdrop-blur-sm p-8 rounded-2xl shadow-xl border border-border/50">
       <div className="space-y-2 text-center">
-        <h1 className="text-3xl font-heading font-bold text-foreground">{t("auth.signUp.title")}</h1>
+        <h1 className="text-3xl font-heading font-bold text-foreground">Create Account</h1>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -111,12 +107,12 @@ function SignUpForm() {
         <div className="space-y-4">
           <div className="space-y-2">
             <label htmlFor="email" className="block text-sm font-medium text-foreground">
-              {t("auth.signUp.email")}
+              Email Address
             </label>
             <Input
               id="email"
               type="email"
-              placeholder={t("auth.signUp.emailPlaceholder")}
+              placeholder="Enter your email address"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -125,7 +121,7 @@ function SignUpForm() {
           </div>
           <div className="space-y-2">
             <label htmlFor="password" className="block text-sm font-medium text-foreground">
-              {t("auth.signUp.password")}
+              Password
             </label>
             <div className="relative">
               <Input
@@ -141,7 +137,7 @@ function SignUpForm() {
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute inset-y-0 right-0 pr-4 flex items-center text-muted-foreground hover:text-foreground transition-colors duration-200"
-                title={showPassword ? t("auth.signUp.hidePassword") : t("auth.signUp.showPassword")}
+                title={showPassword ? "Hide Password" : "Show Password"}
               >
                 {showPassword ? "🙈" : "👁️"}
               </button>
@@ -151,25 +147,25 @@ function SignUpForm() {
                 className={`flex items-center gap-2 ${passwordValidation.minLength ? "text-green-600" : "text-muted-foreground"}`}
               >
                 {passwordValidation.minLength ? "✓" : "✗"}
-                {t("auth.signUp.passwordRequirements.minLength")}
+                At least 8 characters
               </div>
               <div
                 className={`flex items-center gap-2 ${passwordValidation.hasNumber ? "text-green-600" : "text-muted-foreground"}`}
               >
                 {passwordValidation.hasNumber ? "✓" : "✗"}
-                {t("auth.signUp.passwordRequirements.hasNumber")}
+                At least one number
               </div>
               <div
                 className={`flex items-center gap-2 ${passwordValidation.hasSpecialChar ? "text-green-600" : "text-muted-foreground"}`}
               >
                 {passwordValidation.hasSpecialChar ? "✓" : "✗"}
-                {t("auth.signUp.passwordRequirements.hasSpecialChar")}
+                At least one special character
               </div>
             </div>
           </div>
           <div className="space-y-2">
             <label htmlFor="confirmPassword" className="block text-sm font-medium text-foreground">
-              {t("auth.signUp.confirmPassword")}
+              Confirm Password
             </label>
             <div className="relative">
               <Input
@@ -184,7 +180,7 @@ function SignUpForm() {
                 type="button"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                 className="absolute inset-y-0 right-0 pr-4 flex items-center text-muted-foreground hover:text-foreground transition-colors duration-200"
-                title={showConfirmPassword ? t("auth.signUp.hidePassword") : t("auth.signUp.showPassword")}
+                title={showConfirmPassword ? "Hide Password" : "Show Password"}
               >
                 {showConfirmPassword ? "🙈" : "👁️"}
               </button>
@@ -192,7 +188,7 @@ function SignUpForm() {
             {confirmPassword.length > 0 && (
               <div className={`flex items-center gap-2 text-xs ${passwordsMatch ? "text-green-600" : "text-red-600"}`}>
                 {passwordsMatch ? "✓" : "✗"}
-                {t("auth.signUp.passwordRequirements.passwordsMatch")}
+                Passwords match
               </div>
             )}
           </div>
@@ -201,12 +197,12 @@ function SignUpForm() {
         <SubmitButton isFormValid={isFormValid} isLoading={isLoading} />
 
         <div className="text-center text-muted-foreground">
-          {t("auth.signUp.hasAccount")}{" "}
+          Already have an account?{" "}
           <Link
             href="/signin"
             className="text-primary hover:text-primary/80 font-medium transition-colors duration-200"
           >
-            {t("auth.signUp.signInLink")}
+            Sign In
           </Link>
         </div>
       </form>
