@@ -19,7 +19,7 @@ import {
   ChevronDown,
   User,
 } from "lucide-react"
-import { useTranslation } from "@/lib/translations"
+import { useTranslation } from "@/contexts/translation-context"
 
 interface EmploymentInfo {
   memberId: string

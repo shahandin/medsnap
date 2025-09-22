@@ -9,7 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { FileText, User, Users, DollarSign, Heart, Send, AlertCircle } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { useTranslation } from "@/lib/translations"
+import { useTranslation } from "@/contexts/translation-context"
 
 interface ReviewSubmissionProps {
   applicationData: any

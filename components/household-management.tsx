@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Users, Plus, Trash2, User } from "lucide-react"
-import { useTranslation } from "@/lib/translations"
+import { useTranslation } from "@/contexts/translation-context"
 
 interface HouseholdMember {
   id: string

@@ -8,7 +8,7 @@ import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import BenefitsApplicationClient from "@/components/benefits-application-client"
 import { createClient } from "@/lib/supabase/client"
-import { useTranslation } from "@/lib/translations"
+import { useTranslation } from "@/contexts/translation-context"
 
 export function ApplicationPageClient() {
   const { t } = useTranslation()

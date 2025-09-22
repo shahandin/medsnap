@@ -1,3 +1,7 @@
+"use client"
+
+import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
+
 // Translation system core functionality
 export type Language = "en" | "es" | "fr" | "zh" | "ar" | "ru" | "pt" | "de" | "it" | "ja"
 
@@ -783,10 +787,294 @@ export interface TranslationData {
       deleteFailed: string
     }
   }
+  common: {
+    loading: string
+    error: string
+    success: string
+    cancel: string
+    save: string
+    continue: string
+    back: string
+    next: string
+    submit: string
+    close: string
+    edit: string
+    delete: string
+    remove: string
+    add: string
+    yes: string
+    no: string
+    optional: string
+    required: string
+    selectOption: string
+    pleaseSelect: string
+    tryAgain: string
+    retry: string
+  }
+  benefitSelection: {
+    medicaidOnly: string
+    medicaidDescription: string
+    medicaidDetails: string
+    snapOnly: string
+    snapDescription: string
+    snapDetails: string
+    bothBenefits: string
+    bothDescription: string
+    bothDetails: string
+    medicaid: string
+    snap: string
+    alreadySubmittedBoth: string
+    cannotApplyBothAfterIndividual: string
+    alreadySubmittedSingle: string
+    applicationStatus: string
+    allApplicationsSubmitted: string
+    applicationsSubmittedTitle: string
+    applicationsUnderReview: string
+    reviewNotification: string
+    viewApplications: string
+    whatHappensNext: string
+    reviewWithin30Days: string
+    mayContactForDocs: string
+    checkAccountRegularly: string
+    receiveNotification: string
+    whatBenefitsApplying: string
+    selectAssistanceType: string
+    importantInformation: string
+    canApplyBoth: string
+    differentRequirements: string
+    increasesChances: string
+  }
+  stateSelection: {
+    title: string
+    description: string
+    stateOfResidence: string
+    searchPlaceholder: string
+    selected: string
+  }
+  householdManagement: {
+    title: string
+    description: string
+    currentMembers: string
+    peopleIncluded: string
+    born: string
+    addMemberTitle: string
+    addMemberDescription: string
+    firstName: string
+    lastName: string
+    dateOfBirth: string
+    relationshipToYou: string
+    socialSecurityNumber: string
+    firstNamePlaceholder: string
+    lastNamePlaceholder: string
+    selectRelationship: string
+    ssnPlaceholder: string
+    ssnNote: string
+    addMember: string
+    noMembersAdded: string
+    membersAdded: string
+    whoToIncludeTitle: string
+    whoToIncludeDescription: string
+    relationships: {
+      grandparent: string
+      grandchild: string
+      otherRelative: string
+      unrelated: string
+    }
+  }
+  householdQuestions: {
+    title: string
+    subtitle: string
+    appliedWithDifferentInfo: string
+    appliedWithDifferentInfoDescription: string
+    appliedInOtherState: string
+    appliedInOtherStateDescription: string
+    receivedBenefitsBefore: string
+    receivedBenefitsBeforeDescription: string
+    receivingSNAPThisMonth: string
+    receivingSNAPThisMonthDescription: string
+    disqualifiedFromBenefits: string
+    disqualifiedFromBenefitsDescription: string
+    wantSomeoneElseToReceiveSNAP: string
+    wantSomeoneElseToReceiveSNAPDescription: string
+    selectHouseholdMembers: string
+    applicant: string
+    snapSpecificQuestions: string
+    snapSpecificQuestionsDescription: string
+  }
+  progressSteps: {
+    benefitSelection: string
+    benefitSelectionDesc: string
+    stateSelection: string
+    stateSelectionDesc: string
+    personalInformation: string
+    personalInformationDesc: string
+    householdMembers: string
+    householdMembersDesc: string
+    householdQuestions: string
+    householdQuestionsDesc: string
+    incomeExpenses: string
+    incomeExpensesDesc: string
+    assets: string
+    assetsDesc: string
+    healthDisability: string
+    healthDisabilityDesc: string
+    reviewSubmit: string
+    reviewSubmitDesc: string
+    loadingApplication: string
+    benefitsApplication: string
+    completeMedicaidSNAP: string
+    applicationStatus: string
+    reviewSubmittedApplications: string
+    allApplicationsSubmitted: string
+    congratulationsMessage: string
+    whatsNext: string
+    applicationsBeingProcessed: string
+    viewApplicationStatus: string
+    swipeNavigation: string
+  }
+  forms: {
+    healthDisability: {
+      title: string
+      subtitle: string
+      healthInsuranceSection: string
+      healthInsuranceDescription: string
+      addInsurance: string
+      hasInsurance: string
+      insuranceProvider: string
+      insuranceProviderPlaceholder: string
+      coverageType: string
+      policyNumber: string
+      policyNumberPlaceholder: string
+      groupNumber: string
+      groupNumberPlaceholder: string
+      monthlyPremium: string
+      monthlyPremiumPlaceholder: string
+      disabilitySection: string
+      disabilityDescription: string
+      hasDisability: string
+      disabilityDetails: string
+      disabilityDetailsPlaceholder: string
+      needsAssistance: string
+      assistanceDetails: string
+      assistanceDetailsPlaceholder: string
+      isIncarcerated: string
+      incarcerationDetails: string
+      incarcerationDetailsPlaceholder: string
+      pregnancySection: string
+      pregnancyDescription: string
+      isPregnant: string
+      whoIsPregnant: string
+      selectHouseholdMember: string
+      dueDate: string
+      dueDatePlaceholder: string
+      medicalConditionsTitle: string
+      medicalConditionsDescription: string
+      hasChronicConditions: string
+      additionalDetails: string
+      additionalDetailsPlaceholder: string
+      medicalBillsTitle: string
+      medicalBillsDescription: string
+      hasRecentBills: string
+      billDetails: string
+      billDetailsPlaceholder: string
+      billDetailsNote: string
+      longTermCareTitle: string
+      longTermCareDescription: string
+      needsNursingServices: string
+      yesNursingServices: string
+      noNursingServices: string
+      nursingServicesNote: string
+    }
+  }
 }
 
 export interface Translations {
   [key: string]: TranslationData
+}
+
+import { en } from "./en"
+import { es } from "./es"
+
+interface TranslationContextType {
+  language: "en" | "es"
+  setLanguage: (lang: "en" | "es") => void
+  t: (key: string) => string
+  isLoading: boolean
+}
+
+const TranslationContext = createContext<TranslationContextType | undefined>(undefined)
+
+const translations: Record<"en" | "es", TranslationData> = {
+  en,
+  es,
+}
+
+const DEFAULT_LANGUAGE: "en" | "es" = "en"
+
+function getTranslationValue(data: TranslationData, key: string): string {
+  const keys = key.split(".")
+  let current: any = data
+
+  for (const k of keys) {
+    if (current && typeof current === "object" && k in current) {
+      current = current[k]
+    } else {
+      return key // Return key if translation not found
+    }
+  }
+
+  return typeof current === "string" ? current : key
+}
+
+export function TranslationProvider({ children }: { children: ReactNode }) {
+  const [language, setLanguageState] = useState<"en" | "es">(DEFAULT_LANGUAGE)
+  const [isLoading, setIsLoading] = useState(true)
+  const [isHydrated, setIsHydrated] = useState(false)
+
+  useEffect(() => {
+    setIsHydrated(true)
+
+    try {
+      const savedLanguage = localStorage.getItem("preferred-language") as "en" | "es"
+      if (savedLanguage && (savedLanguage === "en" || savedLanguage === "es")) {
+        setLanguageState(savedLanguage)
+      }
+    } catch (error) {
+      console.error("Error accessing localStorage:", error)
+    }
+
+    setIsLoading(false)
+  }, [])
+
+  const setLanguage = (lang: "en" | "es") => {
+    setLanguageState(lang)
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem("preferred-language", lang)
+      } catch (error) {
+        console.error("Error saving to localStorage:", error)
+      }
+    }
+  }
+
+  const t = (key: string): string => {
+    const currentLang = isHydrated ? language : DEFAULT_LANGUAGE
+    return getTranslationValue(translations[currentLang], key)
+  }
+
+  return (
+    <TranslationContext.Provider value={{ language, setLanguage, t, isLoading }}>
+      {children}
+    </TranslationContext.Provider>
+  )
+}
+
+export function useTranslation() {
+  const context = useContext(TranslationContext)
+  if (context === undefined) {
+    throw new Error("useTranslation must be used within a TranslationProvider")
+  }
+  return context
 }
 
 // Utility function to get nested translation value
@@ -819,6 +1107,4 @@ export const LANGUAGES: Record<Language, { name: string; nativeName: string; fla
   ja: { name: "Japanese", nativeName: "日本語", flag: "🇯🇵" },
 }
 
-export const DEFAULT_LANGUAGE: Language = "en"
-
-// All components should import directly from @/contexts/translation-context
+export const DEFAULT_LANGUAGE_CONST: Language = "en"

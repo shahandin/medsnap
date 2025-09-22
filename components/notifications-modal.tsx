@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Bell, AlertCircle, CheckCircle } from "lucide-react"
 import Link from "next/link"
-import { useTranslation } from "@/lib/translations"
+import { useTranslation } from "@/contexts/translation-context"
 
 interface NotificationsModalProps {
   onClose: () => void

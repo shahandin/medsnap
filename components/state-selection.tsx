@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { MapPin, Search, Check } from "lucide-react"
-import { useTranslation } from "@/lib/translations"
+import { useTranslation } from "@/contexts/translation-context"
 
 const US_STATES = [
   { code: "AL", name: "Alabama" },
