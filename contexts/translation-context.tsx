@@ -3,9 +3,12 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import { en } from "@/lib/translations/en"
 import { es } from "@/lib/translations/es"
+import { fr } from "@/lib/translations/fr"
+import { ar } from "@/lib/translations/ar"
+import { zh } from "@/lib/translations/zh"
 import type { TranslationData } from "@/lib/translations/index"
 
-export type Language = "en" | "es"
+export type Language = "en" | "es" | "fr" | "ar" | "zh"
 
 interface TranslationContextType {
   language: Language
@@ -19,6 +22,9 @@ const TranslationContext = createContext<TranslationContextType | undefined>(und
 const translations: Record<Language, TranslationData> = {
   en,
   es,
+  fr,
+  ar,
+  zh,
 }
 
 console.log("[v0] IMMEDIATE IMPORT TEST:")
@@ -28,12 +34,27 @@ console.log("[v0] en.benefitSelection keys:", en.benefitSelection ? Object.keys(
 console.log("[v0] es object keys:", Object.keys(es))
 console.log("[v0] es.benefitSelection exists:", !!es.benefitSelection)
 console.log("[v0] es.benefitSelection keys:", es.benefitSelection ? Object.keys(es.benefitSelection) : "NOT FOUND")
+console.log("[v0] fr object keys:", Object.keys(fr))
+console.log("[v0] fr.benefitSelection exists:", !!fr.benefitSelection)
+console.log("[v0] fr.benefitSelection keys:", fr.benefitSelection ? Object.keys(fr.benefitSelection) : "NOT FOUND")
+console.log("[v0] ar object keys:", Object.keys(ar))
+console.log("[v0] ar.benefitSelection exists:", !!ar.benefitSelection)
+console.log("[v0] ar.benefitSelection keys:", ar.benefitSelection ? Object.keys(ar.benefitSelection) : "NOT FOUND")
+console.log("[v0] zh object keys:", Object.keys(zh))
+console.log("[v0] zh.benefitSelection exists:", !!zh.benefitSelection)
+console.log("[v0] zh.benefitSelection keys:", zh.benefitSelection ? Object.keys(zh.benefitSelection) : "NOT FOUND")
 
 console.log("[v0] Translation data loaded:", {
   enKeys: Object.keys(en),
   esKeys: Object.keys(es),
+  frKeys: Object.keys(fr),
+  arKeys: Object.keys(ar),
+  zhKeys: Object.keys(zh),
   enBenefitSelection: en.benefitSelection ? Object.keys(en.benefitSelection) : "NOT FOUND",
   esBenefitSelection: es.benefitSelection ? Object.keys(es.benefitSelection) : "NOT FOUND",
+  frBenefitSelection: fr.benefitSelection ? Object.keys(fr.benefitSelection) : "NOT FOUND",
+  arBenefitSelection: ar.benefitSelection ? Object.keys(ar.benefitSelection) : "NOT FOUND",
+  zhBenefitSelection: zh.benefitSelection ? Object.keys(zh.benefitSelection) : "NOT FOUND",
 })
 
 const DEFAULT_LANGUAGE: Language = "en"
@@ -91,7 +112,7 @@ export function TranslationProvider({ children }: TranslationProviderProps) {
       const savedLanguage = localStorage.getItem("preferred-language") as Language
       console.log("[v0] Saved language from localStorage:", savedLanguage)
 
-      if (savedLanguage && (savedLanguage === "en" || savedLanguage === "es")) {
+      if (savedLanguage && ["en", "es", "fr", "ar", "zh"].includes(savedLanguage)) {
         console.log("[v0] Setting language from localStorage:", savedLanguage)
         setLanguageState(savedLanguage)
       } else {
