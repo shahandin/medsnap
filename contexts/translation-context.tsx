@@ -3,15 +3,9 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import { en } from "@/lib/translations/en"
 import { es } from "@/lib/translations/es"
-import { fr } from "@/lib/translations/fr"
-import { zh } from "@/lib/translations/zh"
-import { ar } from "@/lib/translations/ar"
-import { ru } from "@/lib/translations/ru"
-import { pt } from "@/lib/translations/pt"
-import { de } from "@/lib/translations/de"
-import { it } from "@/lib/translations/it"
-import { ja } from "@/lib/translations/ja"
-import type { TranslationData, Language } from "@/lib/translations/index"
+import type { TranslationData } from "@/lib/translations/index"
+
+export type Language = "en" | "es"
 
 interface TranslationContextType {
   language: Language
@@ -25,14 +19,6 @@ const TranslationContext = createContext<TranslationContextType | undefined>(und
 const translations: Record<Language, TranslationData> = {
   en,
   es,
-  fr,
-  zh,
-  ar,
-  ru,
-  pt,
-  de,
-  it,
-  ja,
 }
 
 console.log("[v0] IMMEDIATE IMPORT TEST:")
@@ -105,7 +91,7 @@ export function TranslationProvider({ children }: TranslationProviderProps) {
       const savedLanguage = localStorage.getItem("preferred-language") as Language
       console.log("[v0] Saved language from localStorage:", savedLanguage)
 
-      if (savedLanguage && Object.keys(translations).includes(savedLanguage)) {
+      if (savedLanguage && (savedLanguage === "en" || savedLanguage === "es")) {
         console.log("[v0] Setting language from localStorage:", savedLanguage)
         setLanguageState(savedLanguage)
       } else {

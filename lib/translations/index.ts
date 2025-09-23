@@ -40,14 +40,3 @@ export const LANGUAGES: Record<Language, { name: string; nativeName: string; fla
 }
 
 export const DEFAULT_LANGUAGE: Language = "en"
-
-export { en } from "./en"
-export { es } from "./es"
-export { fr } from "./fr"
-export { zh } from "./zh"
-export { ar } from "./ar"
-export { ru } from "./ru"
-export { pt } from "./pt"
-export { de } from "./de"
-export { it } from "./it"
-export { ja } from "./ja"
