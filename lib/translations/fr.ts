@@ -14,10 +14,10 @@ export const fr: TranslationData = {
   // Homepage
   home: {
     trustedBy: "Approuvé par des milliers de personnes à travers le pays",
-    heroTitle: "Accédez à vos prestations avec",
+    heroTitle: "Accédez à vos prestations en toute",
     heroTitleHighlight: "Confiance",
     heroDescription:
-      "Demandes simplifiées pour les prestations Medicaid et SNAP. Obtenez le soutien dont vous avez besoin avec notre plateforme sécurisée et facile à utiliser conçue pour votre succès.",
+      "Demandes simplifiées pour les prestations Medicaid et SNAP. Obtenez le soutien dont vous avez besoin avec notre plateforme sécurisée et facile à utiliser, conçue pour votre réussite.",
     applyForBenefits: "Demander des prestations",
     learnMore: "En savoir plus",
     whyChooseTitle: "Pourquoi choisir Benefit Bridge ?",
@@ -104,11 +104,11 @@ export const fr: TranslationData = {
     questions: {
       income: {
         text: "Le revenu mensuel de votre ménage est-il inférieur à 2 500 $ ?",
-        help: "Incluez tous les revenus des emplois, prestations et autres sources pour tous les membres de votre ménage.",
+        help: "Incluez tous les revenus d'emplois, de prestations et d'autres sources pour tous les membres de votre ménage.",
       },
       assets: {
-        text: "Avez-vous moins de 2 000 $ en épargne et actifs ?",
-        help: "Incluez les comptes bancaires, investissements et objets de valeur (excluant votre maison et une voiture).",
+        text: "Avez-vous moins de 2 000 $ en épargne et en actifs ?",
+        help: "Incluez les comptes bancaires, les investissements et les objets de valeur (excluant votre maison et une voiture).",
       },
       citizenship: {
         text: "Êtes-vous citoyen américain ou non-citoyen qualifié ?",
@@ -120,7 +120,7 @@ export const fr: TranslationData = {
       },
       householdSize: {
         text: "Avez-vous 4 personnes ou moins dans votre ménage ?",
-        help: "Comptez-vous, votre conjoint (si marié) et tous les personnes à charge que vous déclarez aux impôts.",
+        help: "Comptez-vous, votre conjoint (si marié) et toute personne à charge que vous déclarez sur vos impôts.",
       },
       workRequirements: {
         text: "Travaillez-vous au moins 20 heures par semaine, ou êtes-vous admissible à une exemption ?",
@@ -142,7 +142,7 @@ export const fr: TranslationData = {
         "Basé sur vos réponses, vous pourriez ne pas être admissible à SNAP. Cependant, les règles d'éligibilité sont complexes - considérez postuler quand même.",
       importantNote: "Note importante",
       disclaimer:
-        "Ceci est une évaluation préliminaire seulement. L'éligibilité finale est déterminée par votre agence d'état après examen de votre demande complète et vérification de vos informations. Nous vous encourageons à postuler même si le pré-screening suggère que vous pourriez ne pas être admissible.",
+        "Ceci n'est qu'une évaluation préliminaire. L'éligibilité finale est déterminée par votre agence d'État après examen de votre demande complète et vérification de vos informations. Nous vous encourageons à postuler même si le pré-screening suggère que vous pourriez ne pas être admissible.",
       continueToApplications: "Continuer vers les demandes",
     },
   },
@@ -191,7 +191,7 @@ export const fr: TranslationData = {
     },
     applications: {
       title: "Mes demandes",
-      description: "Visualisez et gérez toutes vos demandes de prestations en un seul endroit.",
+      description: "Voir et gérer toutes vos demandes de prestations en un seul endroit.",
       inProgressApplications: "Demandes en cours",
       submittedApplications: "Demandes soumises",
       noApplicationsTitle: "Aucune demande encore",
@@ -251,7 +251,7 @@ export const fr: TranslationData = {
         incomeAssets: {
           title: "Revenus et actifs",
           description:
-            "Signaler les changements d'emploi, de revenus ou d'actifs comme les comptes bancaires et les biens.",
+            "Signaler les changements d'emploi, de revenus ou d'actifs comme les comptes bancaires et les propriétés.",
         },
         household: {
           title: "Changements de ménage",
@@ -264,7 +264,7 @@ export const fr: TranslationData = {
         insurance: {
           title: "Assurance santé",
           description:
-            "Signaler les changements de couverture d'assurance santé, d'éligibilité Medicare ou d'assurance liée à l'emploi.",
+            "Signaler les changements de couverture d'assurance santé, d'éligibilité Medicare ou d'assurance d'emploi.",
         },
       },
       form: {
@@ -284,7 +284,7 @@ export const fr: TranslationData = {
     },
     profile: {
       title: "Informations du profil",
-      description: "Gérez les informations de votre compte et vos préférences.",
+      description: "Gérez les informations et préférences de votre compte.",
       accountDetails: "Détails du compte",
       emailAddress: "Adresse email",
       accountCreated: "Compte créé",
@@ -294,7 +294,7 @@ export const fr: TranslationData = {
         "Choisissez comment vous souhaitez recevoir les mises à jour importantes et les notifications.",
       preferredContactMethod: "Méthode de contact préférée",
       mailingAddress: "Adresse postale",
-      languagePreferences: "Préférences de langue",
+      languagePreferences: "Préférences linguistiques",
       languageDescription: "Sélectionnez votre langue préférée pour les documents et communications.",
       preferredLanguage: "Langue préférée",
       personalInfo: "Informations personnelles",
@@ -305,7 +305,7 @@ export const fr: TranslationData = {
     },
     settings: {
       title: "Paramètres du compte",
-      language: "Préférence de langue",
+      language: "Préférence linguistique",
       notifications: "Préférences de notification",
       privacy: "Paramètres de confidentialité",
       security: "Paramètres de sécurité",
@@ -332,7 +332,7 @@ export const fr: TranslationData = {
 
       sections: {
         applicationContext: "Contexte de la demande",
-        applicationContextDesc: "Dites-nous pour qui vous postulez et des informations de base sur votre demande",
+        applicationContextDesc: "Dites-nous pour qui vous postulez et les informations de base sur votre demande",
         basicInfo: "Informations de base",
         basicInfoDesc: "Vos détails personnels et informations de contact",
         addressInfo: "Informations d'adresse",
@@ -417,7 +417,7 @@ export const fr: TranslationData = {
       lastNamePlaceholder: "Entrez le nom de famille",
       selectRelationship: "Sélectionner la relation",
       ssnRequired: "Requis pour la vérification d'éligibilité aux prestations",
-      whoShouldIInclude: "Qui devrais-je inclure ?",
+      whoShouldIInclude: "Qui dois-je inclure ?",
       householdInclusionInfo:
         "Incluez toute personne qui vit avec vous régulièrement, partage les repas ou contribue aux dépenses du ménage. Cela inclut les conjoints, enfants, parents et autres parents ou personnes non apparentées vivant dans votre maison.",
       noAdditionalMembers: "Aucun membre supplémentaire du ménage ajouté encore",
@@ -449,7 +449,7 @@ export const fr: TranslationData = {
       removeIncomeSource: "Supprimer la source de revenus",
       taxFilingStatus: "Statut de déclaration fiscale",
       selectTaxFilingStatus: "Sélectionnez votre statut de déclaration fiscale",
-      employmentInformation: "Informations sur l'emploi",
+      employmentInformation: "Informations d'emploi",
       currentJobs: "Emplois actuels",
       addJob: "Ajouter un emploi",
       addEmployment: "Ajouter un emploi",
@@ -463,7 +463,7 @@ export const fr: TranslationData = {
       selectType: "Sélectionner le type",
       additionalIncomeDetails: "Détails supplémentaires sur cette source de revenus",
       clickAddIncomeToStart: 'Cliquez sur "Ajouter un revenu" pour commencer',
-      noEmploymentInformation: "Aucune information sur l'emploi",
+      noEmploymentInformation: "Aucune information d'emploi",
       clickAddEmploymentToStart: 'Cliquez sur "Ajouter un emploi" pour commencer',
       noAdditionalIncomeSources: "Aucune source de revenus supplémentaire",
       noAdditionalIncomeSourcesAdded: "Aucune source de revenus supplémentaire ajoutée encore",
@@ -486,7 +486,7 @@ export const fr: TranslationData = {
         unemployed: "Chômeur",
         retired: "Retraité",
         disabled: "Handicapé/Incapable de travailler",
-        homemaker: "Au foyer",
+        homemaker: "Femme/Homme au foyer",
         student: "Étudiant",
       },
       incomeTypes: {
@@ -514,7 +514,7 @@ export const fr: TranslationData = {
         dependentCare: "Soins aux personnes à charge",
         alimonyPaid: "Pension alimentaire payée",
         businessExpenses: "Dépenses d'entreprise",
-        otherTaxDeductible: "Autres déductibles fiscalement",
+        otherTaxDeductible: "Autres déductibles d'impôts",
         mortgagePayment: "Paiement hypothécaire",
         propertyTax: "Taxe foncière",
         electricBill: "Facture d'électricité",
@@ -534,7 +534,7 @@ export const fr: TranslationData = {
     assets: {
       title: "Informations sur les actifs",
       subtitle:
-        "Veuillez fournir des informations sur les actifs possédés par vous ou les membres de votre ménage. Cela inclut les comptes financiers, véhicules et polices d'assurance-vie.",
+        "Veuillez fournir des informations sur les actifs possédés par vous ou les membres de votre ménage. Cela inclut les comptes financiers, les véhicules et les polices d'assurance-vie.",
       currentAssets: "Actifs actuels",
       addNewAsset: "Ajouter un nouvel actif",
       addFinancialAsset: "Ajouter un actif financier",
@@ -560,7 +560,7 @@ export const fr: TranslationData = {
       lifeInsurancePolicy: "Police d'assurance-vie",
       selectAssetOwner: "Sélectionnez qui possède cet actif",
       selectAccountType: "Sélectionner le type de compte",
-      enterBankName: "Entrez le nom de la banque ou institution",
+      enterBankName: "Entrez le nom de la banque ou de l'institution",
       selectVehicleType: "Sélectionner le type de véhicule",
       enterCurrentMarketValue: "Entrez la valeur marchande actuelle du véhicule",
       selectPolicyType: "Sélectionner le type de police",
@@ -631,11 +631,11 @@ export const fr: TranslationData = {
       longTermCareServicesDescription:
         "Informations sur les services de maison de retraite ou de soins de longue durée",
       needsNursingServices:
-        "Postulez-vous pour des services de soins infirmiers de longue durée d'une maison de retraite ou d'un établissement similaire ?",
+        "Postulez-vous pour des services de soins infirmiers de longue durée d'une maison de retraite ou d'une installation similaire ?",
       needsNursingServicesYes: "Oui, j'ai besoin de services de soins infirmiers de longue durée",
       needsNursingServicesNo: "Non, je n'ai pas besoin de services de soins infirmiers de longue durée",
       nursingServicesHelp:
-        "Les services de soins infirmiers de longue durée incluent les soins dans les maisons de retraite, établissements de vie assistée ou établissements similaires de soins de longue durée.",
+        "Les services de soins infirmiers de longue durée incluent les soins dans les maisons de retraite, les installations de vie assistée ou des installations similaires de soins de longue durée.",
       healthInsuranceInformation: "Informations sur l'assurance santé",
       healthInsuranceDescription: "Couverture d'assurance santé actuelle pour tous les membres du ménage",
       hasHealthInsurance: "Avez-vous une assurance santé ?",
@@ -686,7 +686,7 @@ export const fr: TranslationData = {
       stateSelection: "Sélection d'état",
       personalInformation: "Informations personnelles",
       householdMembers: "Membres du ménage",
-      householdQuestions: "Questions sur le ménage",
+      householdQuestions: "Questions du ménage",
       incomeEmployment: "Revenus et emploi",
       assets: "Actifs",
       healthDisability: "Santé et handicap",
@@ -716,7 +716,7 @@ export const fr: TranslationData = {
       conditions: "Conditions",
       certificationAndAgreement: "Certification et accord",
       certificationWarning:
-        "En soumettant cette demande, vous postulez pour les prestations Medicaid et/ou SNAP. De fausses informations peuvent entraîner le refus des prestations ou des conséquences légales.",
+        "En soumettant cette demande, vous postulez pour les prestations Medicaid et/ou SNAP. Les fausses informations peuvent entraîner le refus des prestations ou des conséquences légales.",
       agreeToTerms:
         "J'accepte les termes et conditions et comprends que cette demande sera traitée selon les directives d'état et fédérales. Je consens à la vérification des informations fournies.",
       certifyTruth:
@@ -734,7 +734,7 @@ export const fr: TranslationData = {
       both: "Medicaid et SNAP",
       medicaidDescription: "Couverture d'assurance santé pour les individus et familles éligibles",
       snapDescription: "Programme d'assistance nutritionnelle supplémentaire (bons alimentaires)",
-      bothDescription: "Postulez pour l'assurance santé et l'assistance alimentaire",
+      bothDescription: "Postuler pour l'assurance santé et l'assistance alimentaire",
       medicaidDetails:
         "Couvre les dépenses médicales incluant les visites chez le médecin, séjours à l'hôpital, prescriptions et soins préventifs",
       snapDetails: "Prestations mensuelles pour aider à acheter de la nourriture nutritive pour vous et votre famille",
@@ -761,7 +761,7 @@ export const fr: TranslationData = {
       ],
       alreadySubmittedError: "Vous avez déjà soumis une demande pour les prestations {{benefit}}.",
       cannotApplyBothError:
-        "Vous avez déjà soumis une demande pour une de ces prestations. Vous ne pouvez pas postuler pour les deux après avoir soumis des demandes individuelles.",
+        "Vous avez déjà soumis une demande pour l'une de ces prestations. Vous ne pouvez pas postuler pour les deux après avoir soumis des demandes individuelles.",
     },
     stateSelection: {
       title: "Sélectionnez votre état",
@@ -772,7 +772,7 @@ export const fr: TranslationData = {
       selected: "Sélectionné",
     },
     householdQuestions: {
-      title: "Questions sur le ménage",
+      title: "Questions du ménage",
       subtitle: "Veuillez répondre à ces questions sur l'historique des prestations de votre ménage",
       appliedWithDifferentInfo:
         "Quelqu'un dans votre ménage a-t-il déjà postulé pour des prestations en utilisant un nom différent ou un numéro de sécurité sociale ?",
@@ -785,8 +785,8 @@ export const fr: TranslationData = {
         "Quelqu'un dans votre ménage a-t-il été disqualifié ou a accepté d'être disqualifié de recevoir des prestations SNAP ou une assistance en espèces dans un autre état ?",
       wantSomeoneElseToReceiveSNAP: "Aimeriez-vous laisser quelqu'un d'autre recevoir vos prestations SNAP pour vous ?",
       authorizedRepresentativeInfo:
-        'Cela s\'appelle un "représentant autorisé" et ils peuvent vous aider à postuler et gérer vos prestations.',
-      selectHouseholdMembers: "Sélectionnez les membres du ménage auxquels cela s'applique :",
+        'Ceci s\'appelle un "représentant autorisé" et ils peuvent vous aider à postuler et gérer vos prestations.',
+      selectHouseholdMembers: "Sélectionnez quels membres du ménage ceci s'applique à :",
       snapSpecificQuestions: "Questions spécifiques à SNAP",
       yes: "Oui",
       no: "Non",
@@ -809,12 +809,12 @@ export const fr: TranslationData = {
         description1:
           "Les demandes traditionnelles de prestations gouvernementales peuvent être complexes, chronophages et difficiles à naviguer. Nous avons repensé l'expérience de fond en comble, en nous concentrant sur la clarté, l'accessibilité et l'autonomisation des utilisateurs.",
         description2:
-          "Notre plateforme guide les utilisateurs à travers chaque étape du processus de demande avec des instructions claires, des ressources utiles et une sauvegarde automatique des progrès, garantissant que personne ne soit laissé pour compte.",
+          "Notre plateforme guide les utilisateurs à travers chaque étape du processus de demande avec des instructions claires, des ressources utiles et une sauvegarde automatique des progrès, s'assurant que personne ne soit laissé pour compte.",
       },
       peopleFirst: {
         title: "Approche axée sur les personnes",
         description:
-          "Chaque décision de conception est prise en pensant aux vraies personnes et à leurs besoins, garantissant dignité et respect tout au long du processus.",
+          "Chaque décision de conception est prise en pensant aux vraies personnes et à leurs besoins, assurant dignité et respect tout au long du processus.",
       },
     },
     services: {
@@ -829,7 +829,7 @@ export const fr: TranslationData = {
       snap: {
         title: "Prestations SNAP",
         description:
-          "Demandes faciles à compléter pour les prestations SNAP (assistance alimentaire) avec gestion du ménage et soutien de vérification des revenus.",
+          "Demandes faciles à compléter pour les prestations SNAP (assistance alimentaire) avec soutien de gestion du ménage et vérification des revenus.",
       },
       secure: {
         title: "Traitement sécurisé",
@@ -849,7 +849,7 @@ export const fr: TranslationData = {
       management: {
         title: "Gestion des demandes",
         description:
-          "Suivez le statut de votre demande, téléchargez des documents supplémentaires et gérez vos prestations tout en un seul endroit.",
+          "Suivez le statut de votre demande, téléchargez des documents supplémentaires et gérez vos prestations tout en un endroit.",
       },
     },
     howItWorks: {
@@ -917,7 +917,7 @@ export const fr: TranslationData = {
   aiChat: {
     title: "Assistant aux prestations",
     welcomeMessage:
-      "Salut ! Je suis votre assistant aux prestations. Je peux vous aider à naviguer dans la demande, répondre aux questions sur les documents requis et vous guider dans le processus. Comment puis-je vous aider ?",
+      "Salut ! Je suis votre assistant aux prestations. Je peux vous aider à naviguer dans la demande, répondre aux questions sur les documents requis et vous guider à travers le processus. Comment puis-je vous aider ?",
     errorMessage: "Je suis désolé, je n'ai pas pu traiter cette demande. Veuillez réessayer.",
     technicalError: "Je rencontre des difficultés techniques. Veuillez réessayer dans un moment.",
     placeholder: "Demandez-moi n'importe quoi sur les prestations...",
@@ -926,7 +926,7 @@ export const fr: TranslationData = {
     sendMessage: "Envoyer le message",
     typing: "Frappe...",
     minimizeChat: "Minimiser le chat",
-    expandChat: "Développer le chat",
+    expandChat: "Agrandir le chat",
     closeChat: "Fermer le chat",
     newConversation: "Nouvelle conversation",
     clearChat: "Effacer le chat",
@@ -947,7 +947,7 @@ export const fr: TranslationData = {
     both: "Medicaid et SNAP",
     medicaidDescription: "Couverture d'assurance santé pour les individus et familles éligibles",
     snapDescription: "Programme d'assistance nutritionnelle supplémentaire (bons alimentaires)",
-    bothDescription: "Postulez pour l'assurance santé et l'assistance alimentaire",
+    bothDescription: "Postuler pour l'assurance santé et l'assistance alimentaire",
     medicaidDetails:
       "Couvre les dépenses médicales incluant les visites chez le médecin, séjours à l'hôpital, prescriptions et soins préventifs",
     snapDetails: "Prestations mensuelles pour aider à acheter de la nourriture nutritive pour vous et votre famille",
@@ -1057,11 +1057,11 @@ export const fr: TranslationData = {
     steps: [
       {
         title: "Sélection des prestations",
-        description: "Choisissez pour quelles prestations postuler",
+        description: "Choisir pour quelles prestations postuler",
       },
       {
         title: "Sélection d'état",
-        description: "Sélectionnez votre état de résidence",
+        description: "Sélectionner votre état de résidence",
       },
       {
         title: "Informations personnelles",
@@ -1072,12 +1072,12 @@ export const fr: TranslationData = {
         description: "Ajouter les membres du ménage",
       },
       {
-        title: "Questions sur le ménage",
+        title: "Questions du ménage",
         description: "Questions sur l'historique des prestations du ménage",
       },
       {
         title: "Revenus et dépenses",
-        description: "Emploi, sources de revenus, coûts de logement et dépenses déductibles fiscalement",
+        description: "Emploi, sources de revenus, coûts de logement et dépenses déductibles d'impôts",
       },
       {
         title: "Actifs",
@@ -1089,7 +1089,7 @@ export const fr: TranslationData = {
       },
       {
         title: "Réviser et soumettre",
-        description: "Révisez votre demande",
+        description: "Réviser votre demande",
       },
     ],
     navigation: {
@@ -1107,7 +1107,7 @@ export const fr: TranslationData = {
     stepOf: "Étape {{current}} sur {{total}}",
     taxFilingStatus: "Statut de déclaration fiscale",
     additionalIncome: "Revenus supplémentaires",
-    employmentInformation: "Informations sur l'emploi",
+    employmentInformation: "Informations d'emploi",
     expenses: "Dépenses",
     healthAndDisability: "Informations sur la santé et le handicap",
   },
@@ -1159,7 +1159,7 @@ export const fr: TranslationData = {
     addHousingExpense: "Ajouter une dépense de logement",
     noHousingExpensesAdded: "Aucune dépense de logement ajoutée encore",
     clickAddHousingExpense: 'Cliquez sur "Ajouter une dépense de logement" pour commencer',
-    taxDeductibleExpenses: "Dépenses déductibles fiscalement",
+    taxDeductibleExpenses: "Dépenses déductibles d'impôts",
     expensesThatReduce: "Dépenses qui peuvent réduire votre revenu imposable",
     addExpense: "Ajouter une dépense",
     oneEmploymentEntry: "1 entrée d'emploi",

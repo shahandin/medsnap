@@ -14,7 +14,7 @@ export const ar: TranslationData = {
   // Homepage
   home: {
     trustedBy: "موثوق به من قبل الآلاف في جميع أنحاء البلاد",
-    heroTitle: "احصل على مزاياك بـ",
+    heroTitle: "احصل على مزاياك بكل",
     heroTitleHighlight: "ثقة",
     heroDescription:
       "طلبات مبسطة لمزايا Medicaid و SNAP. احصل على الدعم الذي تحتاجه من خلال منصتنا الآمنة وسهلة الاستخدام المصممة لنجاحك.",
@@ -33,4 +33,4 @@ export const ar: TranslationData = {
       },
       easyApplication: {
         title: "طلب سهل",
-        description: "إرشاد خطوة بخطوة خلال عملية التقديم بأكملها مع تعليمات واضحة\
+        description: "\

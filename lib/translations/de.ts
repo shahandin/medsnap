@@ -3,142 +3,214 @@ import type { TranslationData } from "./index"
 export const de: TranslationData = {
   // Navigation
   nav: {
-    about: "Über uns",
-    applyForBenefits: "Leistungen beantragen",
-    dashboard: "Dashboard",
-    signIn: "Anmelden",
-    getStarted: "Loslegen",
+    home: "Startseite",
+    apply: "Beantragen",
+    benefits: "Leistungen",
+    help: "Hilfe",
     language: "Sprache",
+    login: "Anmelden",
+    logout: "Abmelden",
+    profile: "Profil",
+    dashboard: "Dashboard",
   },
 
-  // Homepage
-  home: {
-    trustedBy: "Vertraut von Tausenden landesweit",
-    heroTitle: "Erhalten Sie Ihre Leistungen mit",
-    heroTitleHighlight: "Vertrauen",
-    heroDescription:
-      "Vereinfachte Anträge für Medicaid- und SNAP-Leistungen. Erhalten Sie die Unterstützung, die Sie benötigen, mit unserer sicheren, benutzerfreundlichen Plattform, die für Ihren Erfolg entwickelt wurde.",
-    applyForBenefits: "Leistungen beantragen",
-    learnMore: "Mehr erfahren",
-    whyChooseTitle: "Warum Benefit Bridge wählen?",
-    whyChooseDescription:
-      "Wir haben unsere Plattform so gestaltet, dass die Beantragung von Leistungen so einfach, sicher und stressfrei wie möglich ist.",
+  // Common
+  common: {
+    next: "Weiter",
+    previous: "Zurück",
+    save: "Speichern",
+    cancel: "Abbrechen",
+    submit: "Senden",
+    edit: "Bearbeiten",
+    delete: "Löschen",
+    confirm: "Bestätigen",
+    close: "Schließen",
+    loading: "Laden...",
+    error: "Fehler",
+    success: "Erfolgreich",
+    warning: "Warnung",
+    info: "Information",
+    yes: "Ja",
+    no: "Nein",
+    optional: "Optional",
+    required: "Erforderlich",
+    select: "Auswählen",
+    upload: "Hochladen",
+    download: "Herunterladen",
+    print: "Drucken",
+    search: "Suchen",
+    filter: "Filtern",
+    clear: "Löschen",
+    apply: "Anwenden",
+    reset: "Zurücksetzen",
+  },
 
-    // Feature cards
+  // Home Page
+  home: {
+    title: "Medicaid und SNAP Leistungsantrag",
+    subtitle: "Vereinfachen Sie Ihren Antragsprozess mit unserer sicheren Online-Plattform",
+    getStarted: "Loslegen",
+    learnMore: "Mehr erfahren",
     features: {
-      comprehensive: {
-        title: "Umfassende Plattform",
-        description:
-          "Eine Plattform für alles: Anträge einreichen, Dokumentation hochladen, Lebensveränderungen melden, auf Benachrichtigungen antworten, Leistungen erneuern und mehr.",
-      },
+      title: "Warum unsere Plattform wählen",
       easyApplication: {
         title: "Einfache Antragstellung",
-        description: "Schritt-für-Schritt-Anleitung durch den gesamten Antragsprozess mit klaren, intuitiven Anweisungen.",
+        description: "Schritt-für-Schritt-Prozess, der Sie durch jeden Abschnitt führt",
       },
       securePrivate: {
-        title: "Sicher und privat",
-        description:
-          "Ihre persönlichen Informationen sind mit bankähnlicher Sicherheit, Verschlüsselung und Datenschutzkontrollen geschützt.",
+        title: "Sicher und Privat",
+        description: "Ihre persönlichen Daten sind mit militärischer Verschlüsselung geschützt",
+      },
+      fastProcessing: {
+        title: "Schnelle Bearbeitung",
+        description: "Erhalten Sie Ergebnisse schneller mit unserem optimierten System",
       },
       aiEnabled: {
         title: "KI-unterstützt",
-        description: "KI-unterstützter Assistent, der Sie durch Ihren Antrag führt und alle Ihre Fragen beantwortet.",
+        description: "Erhalten Sie personalisierte Unterstützung und Anleitung",
       },
     },
-
-    // CTA section
-    cta: {
-      title: "Bereit anzufangen?",
-      description:
-        "Schließen Sie sich Tausenden von Menschen an, die erfolgreich Leistungen über unsere sichere, benutzerfreundliche Plattform beantragt haben. Ihre Reise zum Zugang zu Leistungen beginnt hier.",
-      startApplication: "Ihren Antrag starten",
+    benefits: {
+      title: "Verfügbare Leistungen",
+      medicaid: {
+        title: "Medicaid",
+        description: "Krankenversicherung für Personen und Familien mit niedrigem Einkommen",
+      },
+      snap: {
+        title: "SNAP",
+        description: "Ergänzendes Ernährungshilfeprogramm",
+      },
     },
   },
 
-  // Authentication
-  auth: {
-    signIn: {
-      title: "Willkommen zurück",
-      subtitle: "Melden Sie sich in Ihrem Konto an",
-      email: "E-Mail",
-      password: "Passwort",
-      emailPlaceholder: "sie@beispiel.com",
-      showPassword: "Passwort anzeigen",
-      hidePassword: "Passwort verbergen",
-      signingIn: "Anmeldung...",
-      signInButton: "Anmelden",
-      noAccount: "Haben Sie kein Konto?",
-      signUpLink: "Registrieren",
-    },
-    signUp: {
-      title: "Erstellen Sie Ihr Konto",
+  // Application Form
+  application: {
+    title: "Leistungsantrag",
+    progress: "Fortschritt",
+    step: "Schritt",
+    of: "von",
+    personalInfo: "Persönliche Informationen",
+    household: "Haushalt",
+    income: "Einkommen",
+    assets: "Vermögen",
+    expenses: "Ausgaben",
+    review: "Überprüfung",
+    submit: "Senden",
+
+    personalInformation: {
+      title: "Persönliche Informationen",
+      firstName: "Vorname",
+      lastName: "Nachname",
+      middleName: "Zweiter Vorname",
+      dateOfBirth: "Geburtsdatum",
+      ssn: "Sozialversicherungsnummer",
+      phone: "Telefonnummer",
       email: "E-Mail-Adresse",
-      password: "Passwort",
-      confirmPassword: "Passwort bestätigen",
-      emailPlaceholder: "sie@beispiel.com",
-      showPassword: "Passwort anzeigen",
-      hidePassword: "Passwort verbergen",
-      creatingAccount: "Konto wird erstellt...",
-      createAccountButton: "Konto erstellen",
-      hasAccount: "Haben Sie bereits ein Konto?",
-      signInLink: "Anmelden",
-      passwordRequirements: {
-        minLength: "Mindestens 8 Zeichen lang",
-        hasNumber: "Enthält mindestens eine Zahl",
-        hasSpecialChar: 'Enthält mindestens ein Sonderzeichen (!@#$%^&*(),.?":{}|<>)',
-        passwordsMatch: "Passwörter stimmen überein",
-      },
-      successMessage: "Konto erfolgreich erstellt! Bitte überprüfen Sie Ihre E-Mail, um Ihr Konto zu bestätigen.",
+      address: "Adresse",
+      city: "Stadt",
+      state: "Bundesstaat",
+      zipCode: "Postleitzahl",
+      county: "Landkreis",
+    },
+
+    household: {
+      title: "Haushaltsinformationen",
+      size: "Haushaltsgröße",
+      members: "Haushaltsmitglieder",
+      addMember: "Mitglied hinzufügen",
+      relationship: "Beziehung",
+      age: "Alter",
+      income: "Einkommen",
+    },
+
+    income: {
+      title: "Einkommensinformationen",
+      employment: "Beschäftigung",
+      wages: "Löhne",
+      selfEmployment: "Selbstständigkeit",
+      unemployment: "Arbeitslosengeld",
+      socialSecurity: "Sozialversicherung",
+      pension: "Rente",
+      other: "Andere",
+    },
+
+    assets: {
+      title: "Vermögen",
+      checking: "Girokonto",
+      savings: "Sparkonto",
+      cash: "Bargeld",
+      vehicles: "Fahrzeuge",
+      property: "Eigentum",
+      investments: "Investitionen",
+    },
+
+    expenses: {
+      title: "Ausgaben",
+      rent: "Miete/Hypothek",
+      utilities: "Nebenkosten",
+      childcare: "Kinderbetreuung",
+      medical: "Medizinische Ausgaben",
+      other: "Andere Ausgaben",
     },
   },
 
-  // Prescreening
-  prescreening: {
-    title: "Leistungsberechtigung prüfen",
-    subtitle:
-      "Beantworten Sie ein paar schnelle Fragen, um zu sehen, ob Sie sich für Medicaid- und SNAP-Leistungen qualifizieren könnten. Dies hilft Ihnen zu entscheiden, welche Anträge Sie ausfüllen sollten.",
-    processingMessage: "Ihre Antworten werden verarbeitet...",
-    questionProgress: "Frage {{current}} von {{total}}",
-    complete: "Abschließen",
-    questions: {
-      income: {
-        text: "Ist das monatliche Einkommen Ihres Haushalts weniger als $2.500?",
-        help: "Schließen Sie alle Einkommen aus Jobs, Leistungen und anderen Quellen für alle in Ihrem Haushalt ein.",
-      },
-      assets: {
-        text: "Haben Sie weniger als $2.000 an Ersparnissen und Vermögenswerten?",
-        help: "Schließen Sie Bankkonten, Investitionen und wertvolle Gegenstände ein (ausgenommen Ihr Zuhause und ein Auto).",
-      },
-      citizenship: {
-        text: "Sind Sie US-Bürger oder qualifizierter Nicht-Bürger?",
-        help: "Qualifizierte Nicht-Bürger umfassen Daueraufenthaltsberechtigte und bestimmte andere Einwanderungsstatus.",
-      },
-      ageDisability: {
-        text: "Sind Sie 65 Jahre oder älter, schwanger oder haben eine Behinderung?",
-        help: "Dies hilft bei der Bestimmung der Berechtigung für bestimmte Medicaid-Programme.",
-      },
-      householdSize: {
-        text: "Haben Sie 4 oder weniger Personen in Ihrem Haushalt?",
-        help: "Zählen Sie sich selbst, Ihren Ehepartner (falls verheiratet) und alle Angehörigen, die Sie in der Steuererklärung angeben.",
-      },
-      workRequirements: {
-        text: "Arbeiten Sie mindestens 20 Stunden pro Woche oder qualifizieren Sie sich für eine Befreiung?",
-        help: "Befreiungen umfassen unter 18 Jahre alt sein, über 50, schwanger, behindert oder die Betreuung kleiner Kinder.",
-      },
-    },
-    results: {
-      title: "Ihre Berechtigungsergebnisse",
-      subtitle: "Basierend auf Ihren Antworten ist hier Ihre potenzielle Berechtigung für Leistungen",
-      mayQualify: "Könnte sich qualifizieren",
-      mayNotQualify: "Könnte sich nicht qualifizieren",
-      medicaidEligible:
-        "Sie könnten sich für Medicaid-Krankenversicherung qualifizieren. Füllen Sie den vollständigen Antrag aus, um Ihre Berechtigung zu überprüfen.",
-      medicaidNotEligible:
-        "Basierend auf Ihren Antworten qualifizieren Sie sich möglicherweise nicht für Medicaid. Die Berechtigungsregeln sind jedoch komplex - erwägen Sie trotzdem eine Bewerbung.",
-      snapEligible:
-        "Sie könnten sich für SNAP-Lebensmittelhilfe qualifizieren. Füllen Sie den vollständigen Antrag aus, um Ihre Berechtigung zu überprüfen.",
-      snapNotEligible:
-        "Basierend auf Ihren Antworten qualifizieren Sie sich möglicherweise nicht für SNAP. Die Berechtigungsregeln sind jedoch komplex - erwägen Sie trotzdem eine Bewerbung.",
-      importantNote: "Wichtiger Hinweis",
-      disclaimer:
-        \"Dies ist nur eine vorläufige Bewertung. Die endgültige Berechtigung wird von Ihrer staatlichen Behörde nach Über
+  // Validation Messages
+  validation: {
+    required: "Dieses Feld ist erforderlich",
+    email: "Bitte geben Sie eine gültige E-Mail-Adresse ein",
+    phone: "Bitte geben Sie eine gültige Telefonnummer ein",
+    ssn: "Bitte geben Sie eine gültige Sozialversicherungsnummer ein",
+    date: "Bitte geben Sie ein gültiges Datum ein",
+    number: "Bitte geben Sie eine gültige Zahl ein",
+    minLength: "Mindestlänge: {min} Zeichen",
+    maxLength: "Maximale Länge: {max} Zeichen",
+  },
+
+  // Help & Support
+  help: {
+    title: "Hilfe und Support",
+    faq: "Häufig gestellte Fragen",
+    contact: "Kontakt",
+    documentation: "Dokumentation",
+    tutorials: "Anleitungen",
+
+    whatIsMedicaid: "Was ist Medicaid?",
+    medicaidAnswer:
+      "Medicaid ist ein gemeinsames Bundes- und Landesprogramm, das bei der Deckung medizinischer Kosten für Menschen mit begrenztem Einkommen und Ressourcen hilft.",
+
+    whatIsSNAP: "Was ist SNAP?",
+    snapAnswer:
+      "SNAP (Ergänzendes Ernährungshilfeprogramm) hilft Familien mit niedrigem Einkommen beim Kauf nahrhafter Lebensmittel.",
+
+    howToApply: "Wie beantrage ich?",
+    applyAnswer:
+      "Füllen Sie den Online-Antrag aus und geben Sie Informationen über Ihren Haushalt, Ihr Einkommen und Ihre Ausgaben an.",
+
+    whatDocuments: "Welche Dokumente benötige ich?",
+    documentsAnswer: "Sie benötigen Dokumente, die Identität, Einkommen, Vermögen und Ausgaben belegen.",
+
+    howLong: "Wie lange dauert die Bearbeitung?",
+    processingAnswer: "Die Bearbeitung dauert normalerweise 30 Tage für Medicaid und 30 Tage für SNAP.",
+  },
+
+  // Status Messages
+  status: {
+    submitted: "Antrag eingereicht",
+    pending: "Ausstehend",
+    approved: "Genehmigt",
+    denied: "Abgelehnt",
+    incomplete: "Unvollständig",
+    underReview: "In Bearbeitung",
+  },
+
+  // Error Messages
+  errors: {
+    generic: "Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.",
+    network: "Netzwerkfehler. Überprüfen Sie Ihre Internetverbindung.",
+    timeout: "Die Anfrage ist abgelaufen. Bitte versuchen Sie es erneut.",
+    unauthorized: "Sie haben keine Berechtigung für diese Aktion.",
+    notFound: "Die angeforderte Ressource wurde nicht gefunden.",
+    validation: "Bitte korrigieren Sie die Fehler im Formular.",
+    upload: "Fehler beim Hochladen der Datei. Bitte versuchen Sie es erneut.",
+  },
+}

@@ -11,9 +11,7 @@ import { pt } from "@/lib/translations/pt"
 import { de } from "@/lib/translations/de"
 import { it } from "@/lib/translations/it"
 import { ja } from "@/lib/translations/ja"
-import type { TranslationData } from "@/lib/translations/index"
-
-export type Language = "en" | "es" | "fr" | "zh" | "ar" | "ru" | "pt" | "de" | "it" | "ja"
+import type { TranslationData, Language } from "@/lib/translations/index"
 
 interface TranslationContextType {
   language: Language
@@ -107,7 +105,7 @@ export function TranslationProvider({ children }: TranslationProviderProps) {
       const savedLanguage = localStorage.getItem("preferred-language") as Language
       console.log("[v0] Saved language from localStorage:", savedLanguage)
 
-      if (savedLanguage && ["en", "es", "fr", "zh", "ar", "ru", "pt", "de", "it", "ja"].includes(savedLanguage)) {
+      if (savedLanguage && Object.keys(translations).includes(savedLanguage)) {
         console.log("[v0] Setting language from localStorage:", savedLanguage)
         setLanguageState(savedLanguage)
       } else {
