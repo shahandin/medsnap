@@ -50,6 +50,11 @@ export function LoginForm() {
       const { data, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
+        options: {
+          emailRedirectTo: process.env.NEXT_PUBLIC_SITE_URL
+            ? `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`
+            : `${window.location.origin}/auth/callback`,
+        },
       })
 
       if (signInError) {
