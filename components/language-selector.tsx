@@ -21,10 +21,32 @@ export function LanguageSelector() {
     console.log("[v0] Current language:", language)
     console.log("[v0] Environment:", process.env.NODE_ENV)
     console.log("[v0] Window available:", typeof window !== "undefined")
+    console.log("[v0] Document available:", typeof document !== "undefined")
 
     if (typeof window !== "undefined") {
       console.log("[v0] Window size:", `${window.innerWidth}x${window.innerHeight}`)
       console.log("[v0] User agent:", window.navigator.userAgent)
+      console.log("[v0] Location:", window.location.href)
+      console.log("[v0] Is production build:", process.env.NODE_ENV === "production")
+
+      // Check if we're in v0 preview vs production
+      const isV0Preview = window.location.hostname.includes("v0.app") || window.location.hostname.includes("localhost")
+      console.log("[v0] Is v0 preview:", isV0Preview)
+
+      // Check for any global click handlers that might interfere
+      const clickHandlers = []
+      document.addEventListener(
+        "click",
+        (e) => {
+          console.log("[v0] GLOBAL CLICK DETECTED:", {
+            target: e.target,
+            currentTarget: e.currentTarget,
+            timestamp: Date.now(),
+            coordinates: { x: e.clientX, y: e.clientY },
+          })
+        },
+        true,
+      )
     }
   }, [])
 
@@ -32,44 +54,88 @@ export function LanguageSelector() {
     if (!isMounted) return
 
     console.log("[v0] isOpen state changed to:", isOpen)
-    if (isOpen && dropdownRef.current) {
-      const rect = dropdownRef.current.getBoundingClientRect()
-      console.log("[v0] Dropdown container position:", {
-        top: rect.top,
-        left: rect.left,
-        width: rect.width,
-        height: rect.height,
-        visible: rect.width > 0 && rect.height > 0,
-      })
+    console.log("[v0] Component refs:", {
+      dropdownRef: !!dropdownRef.current,
+      buttonRef: !!buttonRef.current,
+    })
 
-      // Check if dropdown menu is actually rendered
-      const dropdownMenu = dropdownRef.current.querySelector('div[class*="dropdown-menu"]')
-      if (dropdownMenu) {
-        const menuRect = dropdownMenu.getBoundingClientRect()
-        const computedStyle = window.getComputedStyle(dropdownMenu)
-        console.log("[v0] Dropdown menu details:", {
-          position: menuRect,
-          styles: {
-            zIndex: computedStyle.zIndex,
-            display: computedStyle.display,
-            visibility: computedStyle.visibility,
-            opacity: computedStyle.opacity,
-            position: computedStyle.position,
-            transform: computedStyle.transform,
-          },
-          inViewport:
-            menuRect.top >= 0 &&
-            menuRect.left >= 0 &&
-            menuRect.bottom <= window.innerHeight &&
-            menuRect.right <= window.innerWidth,
+    if (isOpen && dropdownRef.current) {
+      setTimeout(() => {
+        const container = dropdownRef.current
+        if (!container) {
+          console.log("[v0] ERROR: Container ref lost!")
+          return
+        }
+
+        const rect = container.getBoundingClientRect()
+        console.log("[v0] Dropdown container position:", {
+          top: rect.top,
+          left: rect.left,
+          width: rect.width,
+          height: rect.height,
+          visible: rect.width > 0 && rect.height > 0,
         })
-      } else {
-        console.log("[v0] ERROR: Dropdown menu element not found in DOM!")
-      }
+
+        // Check if dropdown menu is actually rendered
+        const dropdownMenu = container.querySelector('div[class*="dropdown-menu"]')
+        console.log("[v0] Dropdown menu element found:", !!dropdownMenu)
+
+        if (dropdownMenu) {
+          const menuRect = dropdownMenu.getBoundingClientRect()
+          const computedStyle = window.getComputedStyle(dropdownMenu)
+          console.log("[v0] Dropdown menu details:", {
+            position: menuRect,
+            styles: {
+              zIndex: computedStyle.zIndex,
+              display: computedStyle.display,
+              visibility: computedStyle.visibility,
+              opacity: computedStyle.opacity,
+              position: computedStyle.position,
+              transform: computedStyle.transform,
+              backgroundColor: computedStyle.backgroundColor,
+              border: computedStyle.border,
+            },
+            inViewport:
+              menuRect.top >= 0 &&
+              menuRect.left >= 0 &&
+              menuRect.bottom <= window.innerHeight &&
+              menuRect.right <= window.innerWidth,
+            actuallyVisible:
+              menuRect.width > 0 &&
+              menuRect.height > 0 &&
+              computedStyle.display !== "none" &&
+              computedStyle.visibility !== "hidden",
+          })
+
+          // Check all child elements
+          const buttons = dropdownMenu.querySelectorAll("button")
+          console.log("[v0] Language buttons found:", buttons.length)
+          buttons.forEach((btn, i) => {
+            const btnRect = btn.getBoundingClientRect()
+            console.log(`[v0] Button ${i}:`, {
+              text: btn.textContent?.trim(),
+              visible: btnRect.width > 0 && btnRect.height > 0,
+              position: btnRect,
+            })
+          })
+        } else {
+          console.log("[v0] ERROR: Dropdown menu element not found in DOM!")
+          console.log("[v0] Container innerHTML:", container.innerHTML)
+        }
+      }, 10)
     }
   }, [isOpen, isMounted])
 
   const handleToggle = (event: React.MouseEvent) => {
+    console.log("[v0] Toggle clicked - ENTRY")
+    console.log("[v0] Event details:", {
+      type: event.type,
+      target: event.target,
+      currentTarget: event.currentTarget,
+      timestamp: Date.now(),
+      isTrusted: event.isTrusted,
+    })
+
     event.stopPropagation()
     event.preventDefault()
 
@@ -81,8 +147,13 @@ export function LanguageSelector() {
       return
     }
 
-    setIsOpen(!isOpen)
-    console.log("[v0] Setting isOpen to:", !isOpen)
+    const newState = !isOpen
+    console.log("[v0] Setting isOpen to:", newState)
+    setIsOpen(newState)
+
+    setTimeout(() => {
+      console.log("[v0] State change verification - isOpen is now:", isOpen)
+    }, 10)
   }
 
   const handleLanguageChange = (code: Language) => {
@@ -92,7 +163,25 @@ export function LanguageSelector() {
   }
 
   const currentLanguage = LANGUAGES[language]
-  console.log("[v0] LanguageSelector rendering, isOpen:", isOpen)
+  console.log("[v0] LanguageSelector rendering, isOpen:", isOpen, "isMounted:", isMounted)
+
+  if (!isMounted) {
+    return (
+      <div className="relative">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="flex items-center gap-2 text-muted-foreground opacity-50 rounded-lg px-3 py-2 font-medium text-sm"
+          disabled
+        >
+          <Globe className="h-4 w-4" />
+          <span className="hidden sm:inline">Loading...</span>
+          <span className="sm:hidden">🌐</span>
+          <ChevronDown className="h-3 w-3" />
+        </Button>
+      </div>
+    )
+  }
 
   return (
     <div className="relative" ref={dropdownRef}>
