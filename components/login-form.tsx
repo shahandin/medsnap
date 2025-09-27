@@ -45,8 +45,11 @@ export function LoginForm() {
     try {
       const supabase = createClient()
 
-      const redirectUrl =
-        typeof window !== "undefined" ? `${window.location.origin}/dashboard` : "https://benefitbridge.info/dashboard"
+      const redirectUrl = process.env.NEXT_PUBLIC_SITE_URL
+        ? `${process.env.NEXT_PUBLIC_SITE_URL}/dashboard`
+        : typeof window !== "undefined"
+          ? `${window.location.origin}/dashboard`
+          : "/dashboard"
 
       const { error: signInError } = await supabase.auth.signInWithPassword({
         email,
@@ -61,7 +64,7 @@ export function LoginForm() {
         return
       }
 
-      window.location.href = "/dashboard"
+      router.push("/dashboard")
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "An error occurred")
     } finally {
