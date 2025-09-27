@@ -10,6 +10,7 @@ export function LanguageSelector() {
   const { language, setLanguage, t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const buttonRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
     console.log("[v0] LanguageSelector mounted with custom dropdown")
@@ -46,6 +47,7 @@ export function LanguageSelector() {
   return (
     <div className="relative" ref={dropdownRef}>
       <Button
+        ref={buttonRef}
         variant="ghost"
         size="sm"
         onClick={handleToggle}
@@ -58,7 +60,7 @@ export function LanguageSelector() {
       </Button>
 
       {isOpen && (
-        <div className="absolute right-0 top-full mt-1 w-48 bg-background border border-border rounded-md shadow-lg z-50">
+        <div className="fixed right-4 top-16 sm:top-20 w-48 bg-background border border-border rounded-md shadow-lg z-[100] sm:absolute sm:right-0 sm:top-full sm:mt-1">
           {Object.entries(LANGUAGES).map(([code, lang]) => (
             <button
               key={code}
