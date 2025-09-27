@@ -1,5 +1,7 @@
 "use client"
 
+import type React from "react"
+
 import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { useTranslation } from "@/contexts/translation-context"
@@ -88,7 +90,10 @@ export function LanguageSelector() {
     }
   }, [isOpen, isMounted])
 
-  const handleToggle = () => {
+  const handleToggle = (event: React.MouseEvent) => {
+    event.stopPropagation()
+    event.preventDefault()
+
     console.log("[v0] Toggle clicked, current isOpen:", isOpen)
     console.log("[v0] isMounted:", isMounted)
 
