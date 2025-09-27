@@ -45,11 +45,12 @@ export function LoginForm() {
     try {
       const supabase = createClient()
 
-      await supabase.auth.signOut()
-
-      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+      const { error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
+        options: {
+          emailRedirectTo: process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL || `${window.location.origin}/dashboard`,
+        },
       })
 
       if (signInError) {
@@ -57,17 +58,18 @@ export function LoginForm() {
         return
       }
 
-      if (!data.user || !data.session) {
-        setError("Authentication failed - no user session created")
-        return
-      }
-
-      router.push("/auth/callback")
+      router.push("/dashboard")
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "An error occurred")
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const handlePasswordToggle = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setShowPassword(!showPassword)
   }
 
   return (
@@ -112,9 +114,10 @@ export function LoginForm() {
               />
               <button
                 type="button"
-                onClick={() => setShowPassword(!showPassword)}
+                onClick={handlePasswordToggle}
                 className="absolute inset-y-0 right-0 pr-3 flex items-center text-muted-foreground hover:text-foreground transition-colors duration-200 min-w-[44px] justify-center"
                 title={showPassword ? "Hide Password" : "Show Password"}
+                tabIndex={-1}
               >
                 {showPassword ? "🙈" : "👁️"}
               </button>

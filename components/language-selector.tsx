@@ -1,5 +1,7 @@
 "use client"
 
+import type React from "react"
+
 import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { useTranslation } from "@/contexts/translation-context"
@@ -10,6 +12,7 @@ export function LanguageSelector() {
   const { language, setLanguage, t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const buttonRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
     console.log("[v0] LanguageSelector mounted with custom dropdown")
@@ -18,20 +21,29 @@ export function LanguageSelector() {
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      const target = event.target as Node
+
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(target) &&
+        buttonRef.current &&
+        !buttonRef.current.contains(target)
+      ) {
         setIsOpen(false)
       }
     }
 
     if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside)
-      return () => document.removeEventListener("mousedown", handleClickOutside)
+      document.addEventListener("mousedown", handleClickOutside, true)
+      return () => document.removeEventListener("mousedown", handleClickOutside, true)
     }
   }, [isOpen])
 
   const currentLanguage = LANGUAGES[language]
 
-  const handleToggle = () => {
+  const handleToggle = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
     console.log("[v0] Toggle clicked, current isOpen:", isOpen)
     setIsOpen(!isOpen)
     console.log("[v0] Setting isOpen to:", !isOpen)
@@ -46,6 +58,7 @@ export function LanguageSelector() {
   return (
     <div className="relative" ref={dropdownRef}>
       <Button
+        ref={buttonRef}
         variant="ghost"
         size="sm"
         onClick={handleToggle}
@@ -58,7 +71,7 @@ export function LanguageSelector() {
       </Button>
 
       {isOpen && (
-        <div className="absolute right-0 top-full mt-1 w-48 bg-background border border-border rounded-md shadow-lg z-50">
+        <div className="absolute right-0 top-full mt-1 w-48 bg-background border border-border rounded-md shadow-lg z-[9999]">
           {Object.entries(LANGUAGES).map(([code, lang]) => (
             <button
               key={code}
