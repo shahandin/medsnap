@@ -39,17 +39,30 @@ export function LoginForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    const supabase = createClient()
     setIsLoading(true)
     setError(null)
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const supabase = createClient()
+
+      await supabase.auth.signOut()
+
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
-      if (error) throw error
-      router.push("/dashboard")
+
+      if (signInError) {
+        setError(signInError.message)
+        return
+      }
+
+      if (!data.user || !data.session) {
+        setError("Authentication failed - no user session created")
+        return
+      }
+
+      router.push("/auth/callback")
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "An error occurred")
     } finally {
@@ -64,7 +77,7 @@ export function LoginForm() {
         <p className="text-base sm:text-lg text-muted-foreground">Sign in to your account to continue</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6" autoComplete="on">
+      <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">{error}</div>
         )}
@@ -76,9 +89,7 @@ export function LoginForm() {
             </label>
             <Input
               id="email"
-              name="email"
               type="email"
-              autoComplete="email"
               placeholder="Enter your email address"
               required
               value={email}
@@ -93,9 +104,7 @@ export function LoginForm() {
             <div className="relative">
               <Input
                 id="password"
-                name="password"
                 type={showPassword ? "text" : "password"}
-                autoComplete="current-password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
