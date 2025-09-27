@@ -71,7 +71,14 @@ export function LanguageSelector() {
       </Button>
 
       {isOpen && (
-        <div className="absolute right-0 top-full mt-1 w-48 bg-background border border-border rounded-md shadow-lg z-[9999]">
+        <div
+          className="fixed inset-0 z-[99998]"
+          onClick={() => setIsOpen(false)}
+          style={{ backgroundColor: "transparent" }}
+        />
+      )}
+      {isOpen && (
+        <div className="absolute right-0 top-full mt-1 w-48 bg-background border border-border rounded-md shadow-lg z-[99999] max-h-64 overflow-y-auto">
           {Object.entries(LANGUAGES).map(([code, lang]) => (
             <button
               key={code}

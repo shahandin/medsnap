@@ -45,11 +45,14 @@ export function LoginForm() {
     try {
       const supabase = createClient()
 
+      const redirectUrl =
+        typeof window !== "undefined" ? `${window.location.origin}/dashboard` : "https://benefitbridge.info/dashboard"
+
       const { error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
         options: {
-          emailRedirectTo: process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL || `${window.location.origin}/dashboard`,
+          emailRedirectTo: redirectUrl,
         },
       })
 
@@ -58,7 +61,7 @@ export function LoginForm() {
         return
       }
 
-      router.push("/dashboard")
+      window.location.href = "/dashboard"
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "An error occurred")
     } finally {
@@ -115,7 +118,8 @@ export function LoginForm() {
               <button
                 type="button"
                 onClick={handlePasswordToggle}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-muted-foreground hover:text-foreground transition-colors duration-200 min-w-[44px] justify-center"
+                onMouseDown={(e) => e.preventDefault()}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-muted-foreground hover:text-foreground transition-colors duration-200 min-w-[44px] justify-center focus:outline-none"
                 title={showPassword ? "Hide Password" : "Show Password"}
                 tabIndex={-1}
               >
