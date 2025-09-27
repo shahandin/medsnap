@@ -103,15 +103,6 @@ export function LoginForm() {
     }
   }
 
-  const handleFormClick = () => {
-    console.log("[v0] Form clicked")
-  }
-
-  const handleButtonClick = (e: React.MouseEvent) => {
-    console.log("[v0] Submit button clicked")
-    // Don't prevent default here, let the form handle it
-  }
-
   return (
     <div className="w-full max-w-md space-y-6 sm:space-y-8 bg-white/95 backdrop-blur-sm p-6 sm:p-8 rounded-2xl shadow-xl border border-border/50">
       <div className="space-y-2 text-center">
@@ -119,7 +110,7 @@ export function LoginForm() {
         <p className="text-base sm:text-lg text-muted-foreground">Sign in to your account to continue</p>
       </div>
 
-      <form onSubmit={handleSubmit} onClick={handleFormClick} className="space-y-5 sm:space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6" autoComplete="on">
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">{error}</div>
         )}
@@ -131,7 +122,9 @@ export function LoginForm() {
             </label>
             <Input
               id="email"
+              name="email"
               type="email"
+              autoComplete="email"
               placeholder="Enter your email address"
               required
               value={email}
@@ -146,7 +139,9 @@ export function LoginForm() {
             <div className="relative">
               <Input
                 id="password"
+                name="password"
                 type={showPassword ? "text" : "password"}
+                autoComplete="current-password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -164,9 +159,7 @@ export function LoginForm() {
           </div>
         </div>
 
-        <div onClick={handleButtonClick}>
-          <SubmitButton isLoading={isLoading} />
-        </div>
+        <SubmitButton isLoading={isLoading} />
 
         <div className="text-center text-muted-foreground text-sm sm:text-base">
           Don't have an account?{" "}
