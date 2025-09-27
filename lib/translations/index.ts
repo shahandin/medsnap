@@ -1,5 +1,5 @@
 // Translation system core functionality
-export type Language = "en" | "es" | "fr" | "zh" | "ar" | "ru" | "pt" | "de" | "it" | "ja"
+export type Language = "en" | "es" | "fr" | "zh" | "ar"
 
 export interface TranslationData {
   [key: string]: string | TranslationData
@@ -32,11 +32,6 @@ export const LANGUAGES: Record<Language, { name: string; nativeName: string; fla
   fr: { name: "French", nativeName: "Français", flag: "🇫🇷" },
   zh: { name: "Chinese", nativeName: "中文", flag: "🇨🇳" },
   ar: { name: "Arabic", nativeName: "العربية", flag: "🇸🇦" },
-  ru: { name: "Russian", nativeName: "Русский", flag: "🇷🇺" },
-  pt: { name: "Portuguese", nativeName: "Português", flag: "🇵🇹" },
-  de: { name: "German", nativeName: "Deutsch", flag: "🇩🇪" },
-  it: { name: "Italian", nativeName: "Italiano", flag: "🇮🇹" },
-  ja: { name: "Japanese", nativeName: "日本語", flag: "🇯🇵" },
 }
 
 export const DEFAULT_LANGUAGE: Language = "en"
