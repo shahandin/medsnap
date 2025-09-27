@@ -82,9 +82,13 @@ export function LanguageSelector() {
 
     if (isOpen) {
       console.log("[v0] Adding click outside listener")
-      document.addEventListener("mousedown", handleClickOutside)
+      const timeoutId = setTimeout(() => {
+        document.addEventListener("mousedown", handleClickOutside)
+      }, 10)
+
       return () => {
         console.log("[v0] Removing click outside listener")
+        clearTimeout(timeoutId)
         document.removeEventListener("mousedown", handleClickOutside)
       }
     }
