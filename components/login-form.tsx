@@ -38,41 +38,78 @@ export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setError(null)
+    console.log("[v0] Form submission started")
 
     try {
+      e.preventDefault()
+      console.log("[v0] Default prevented, starting authentication process")
+
+      setIsLoading(true)
+      setError(null)
+
+      console.log("[v0] Login attempt starting for email:", email)
+      console.log("[v0] Form data:", { email: !!email, password: !!password })
+
+      if (!email || !password) {
+        console.log("[v0] Missing email or password")
+        setError("Please enter both email and password")
+        setIsLoading(false)
+        return
+      }
+
       const supabase = createClient()
+      console.log("[v0] Supabase client created")
 
+      // Clear any existing session
       await supabase.auth.signOut()
+      console.log("[v0] Previous session cleared")
 
+      console.log("[v0] Attempting signInWithPassword...")
       const { data, error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-        options: {
-          emailRedirectTo: process.env.NEXT_PUBLIC_SITE_URL
-            ? `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`
-            : `${window.location.origin}/auth/callback`,
-        },
+        email: email.trim(),
+        password: password,
+      })
+
+      console.log("[v0] Sign-in response received:", {
+        hasData: !!data,
+        hasUser: !!data?.user,
+        hasSession: !!data?.session,
+        errorMessage: signInError?.message,
       })
 
       if (signInError) {
+        console.log("[v0] Sign-in error details:", signInError)
         setError(signInError.message)
         return
       }
 
       if (!data.user || !data.session) {
+        console.log("[v0] No user or session in response")
         setError("Authentication failed - no user session created")
         return
       }
 
-      router.push("/auth/callback")
+      console.log("[v0] Sign-in successful, user ID:", data.user.id)
+      console.log("[v0] Redirecting to dashboard...")
+
+      // Use window.location for more reliable redirect
+      window.location.href = "/dashboard"
     } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : "An error occurred")
+      console.log("[v0] Unexpected error during sign-in:", error)
+      setError(error instanceof Error ? error.message : "An unexpected error occurred")
     } finally {
       setIsLoading(false)
+      console.log("[v0] Form submission completed")
     }
+  }
+
+  const handleFormClick = () => {
+    console.log("[v0] Form clicked")
+  }
+
+  const handleButtonClick = (e: React.MouseEvent) => {
+    console.log("[v0] Submit button clicked")
+    // Don't prevent default here, let the form handle it
   }
 
   return (
@@ -82,7 +119,7 @@ export function LoginForm() {
         <p className="text-base sm:text-lg text-muted-foreground">Sign in to your account to continue</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
+      <form onSubmit={handleSubmit} onClick={handleFormClick} className="space-y-5 sm:space-y-6">
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">{error}</div>
         )}
@@ -127,7 +164,9 @@ export function LoginForm() {
           </div>
         </div>
 
-        <SubmitButton isLoading={isLoading} />
+        <div onClick={handleButtonClick}>
+          <SubmitButton isLoading={isLoading} />
+        </div>
 
         <div className="text-center text-muted-foreground text-sm sm:text-base">
           Don't have an account?{" "}
