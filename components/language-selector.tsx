@@ -70,27 +70,39 @@ export function LanguageSelector() {
   }, [isOpen, isMounted])
 
   useEffect(() => {
-    if (!isMounted) return
+    if (!isMounted || !isOpen) return
 
     function handleClickOutside(event: MouseEvent) {
-      console.log("[v0] Click outside detected")
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        console.log("[v0] Closing dropdown due to outside click")
-        setIsOpen(false)
+      const target = event.target as Node
+      console.log("[v0] Click detected, checking if outside...")
+
+      // Check if click is on the button that toggles the dropdown
+      if (buttonRef.current && buttonRef.current.contains(target)) {
+        console.log("[v0] Click was on toggle button, ignoring")
+        return
       }
+
+      // Check if click is inside the dropdown container
+      if (dropdownRef.current && dropdownRef.current.contains(target)) {
+        console.log("[v0] Click was inside dropdown, ignoring")
+        return
+      }
+
+      console.log("[v0] Click was outside dropdown, closing")
+      setIsOpen(false)
     }
 
-    if (isOpen) {
-      console.log("[v0] Adding click outside listener")
-      const timeoutId = setTimeout(() => {
-        document.addEventListener("mousedown", handleClickOutside)
-      }, 10)
+    // Add listener immediately but with a small delay to avoid race conditions
+    console.log("[v0] Adding click outside listener with delay")
+    const timeoutId = setTimeout(() => {
+      document.addEventListener("mousedown", handleClickOutside, true)
+      console.log("[v0] Click outside listener added")
+    }, 50)
 
-      return () => {
-        console.log("[v0] Removing click outside listener")
-        clearTimeout(timeoutId)
-        document.removeEventListener("mousedown", handleClickOutside)
-      }
+    return () => {
+      console.log("[v0] Removing click outside listener")
+      clearTimeout(timeoutId)
+      document.removeEventListener("mousedown", handleClickOutside, true)
     }
   }, [isOpen, isMounted])
 
@@ -114,23 +126,6 @@ export function LanguageSelector() {
     console.log("[v0] Language selected:", code)
     setLanguage(code)
     setIsOpen(false)
-  }
-
-  if (!isMounted) {
-    return (
-      <div className="relative">
-        <Button
-          variant="ghost"
-          size="sm"
-          className="flex items-center gap-2 text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg px-3 py-2 font-medium transition-all duration-200 text-sm"
-        >
-          <Globe className="h-4 w-4" />
-          <span className="hidden sm:inline">English</span>
-          <span className="sm:hidden">🇺🇸</span>
-          <ChevronDown className="h-3 w-3" />
-        </Button>
-      </div>
-    )
   }
 
   const currentLanguage = LANGUAGES[language]
