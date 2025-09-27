@@ -14,6 +14,7 @@ export function LanguageSelector() {
   const [isMounted, setIsMounted] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
+  const openTimestampRef = useRef<number>(0)
 
   useEffect(() => {
     setIsMounted(true)
@@ -74,6 +75,13 @@ export function LanguageSelector() {
 
     function handleClickOutside(event: MouseEvent) {
       const target = event.target as Node
+      const now = Date.now()
+
+      if (now - openTimestampRef.current < 100) {
+        console.log("[v0] Ignoring click - too soon after opening (", now - openTimestampRef.current, "ms)")
+        return
+      }
+
       console.log("[v0] Click detected, checking if outside...")
 
       // Check if click is on the button that toggles the dropdown
@@ -88,20 +96,16 @@ export function LanguageSelector() {
         return
       }
 
-      console.log("[v0] Click was outside dropdown, closing")
+      console.log("[v0] Click outside detected")
+      console.log("[v0] Closing dropdown due to outside click")
       setIsOpen(false)
     }
 
-    // Add listener immediately but with a small delay to avoid race conditions
-    console.log("[v0] Adding click outside listener with delay")
-    const timeoutId = setTimeout(() => {
-      document.addEventListener("mousedown", handleClickOutside, true)
-      console.log("[v0] Click outside listener added")
-    }, 50)
+    console.log("[v0] Adding click outside listener")
+    document.addEventListener("mousedown", handleClickOutside, true)
 
     return () => {
       console.log("[v0] Removing click outside listener")
-      clearTimeout(timeoutId)
       document.removeEventListener("mousedown", handleClickOutside, true)
     }
   }, [isOpen, isMounted])
@@ -116,6 +120,11 @@ export function LanguageSelector() {
     if (!isMounted) {
       console.log("[v0] Component not mounted yet, ignoring click")
       return
+    }
+
+    if (!isOpen) {
+      openTimestampRef.current = Date.now()
+      console.log("[v0] Recording open timestamp:", openTimestampRef.current)
     }
 
     setIsOpen(!isOpen)
