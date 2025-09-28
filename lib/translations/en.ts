@@ -1027,7 +1027,7 @@ export const en: TranslationData = {
     },
     hipaaCompliant: "HIPAA Compliant",
     hipaaCompliantPlatform: "HIPAA Compliant Platform",
-    copyright: "© 2024 Benefit Bridge. All rights reserved.",
+    copyright: "© 2025 Benefit Bridge. All rights reserved.",
   },
 
   // Notifications translations
@@ -1166,5 +1166,92 @@ export const en: TranslationData = {
     stateSelection: "State Selection",
     personalInformation: "Personal Information",
     name: "Name:",
+  },
+
+  // Success page translations
+  success: {
+    title: "Application Submitted Successfully!",
+    subtitle: "Your benefits application has been submitted and is being processed.",
+    signInWarning: "Sign in to your account to track your application status and receive important updates.",
+    applicationDetails: "Application Details",
+    referenceNumber: "Reference Number",
+    submissionDate: "Submission Date",
+    saveReferenceNote:
+      "Please save your reference number for your records. You'll need it to check your application status.",
+
+    whatHappensNext: {
+      title: "What Happens Next?",
+      subtitle: "Here's what you can expect after submitting your application",
+      step1: {
+        title: "Application Review",
+        description:
+          "Your application will be reviewed by state officials within 30 days for Medicaid and 30 days for SNAP benefits.",
+      },
+      step2: {
+        title: "Verification Process",
+        description: "You may be contacted to provide additional documentation or clarification on your application.",
+      },
+      step3: {
+        title: "Decision Notification",
+        description: "You'll receive notification of approval or denial by mail and email, along with next steps.",
+      },
+    },
+
+    importantInfo: {
+      title: "Important Information",
+      checkEmail: {
+        title: "Check Your Email",
+        description: "We'll send updates about your application status to the email address you provided.",
+      },
+      keepContactUpdated: {
+        title: "Keep Contact Information Updated",
+        description: "Make sure we can reach you by keeping your phone number and address current.",
+      },
+      prepareDocuments: {
+        title: "Prepare Additional Documents",
+        description: "You may be asked to provide additional documentation to verify your eligibility.",
+      },
+    },
+
+    quickActions: {
+      title: "Quick Actions",
+      subtitle: "Manage your application and access helpful resources",
+      viewStatus: {
+        title: "View Application Status",
+        description: "Track the progress of your submitted applications",
+        signInRequired: "Sign in required to view status",
+      },
+      downloadCopy: {
+        title: "Download Application Copy",
+        comingSoon: "Coming soon - download a copy of your application",
+      },
+      uploadDocuments: {
+        title: "Upload Additional Documents",
+        comingSoon: "Coming soon - upload supporting documents",
+      },
+      learnBenefits: {
+        title: "Learn About Your Benefits",
+        description: "Understand what benefits you may be eligible for",
+        signInRequired: "Sign in to access benefit information",
+      },
+    },
+
+    needHelp: {
+      title: "Need Help?",
+      subtitle: "If you have questions about your application or need assistance, we're here to help.",
+      generalSupport: {
+        title: "General Support",
+        description: "Get help with technical issues or general questions about the application process.",
+        button: "Contact Support",
+      },
+      stateAgency: {
+        title: "State Agency Contact",
+        description: "Contact your state's benefits office directly for specific questions about your application.",
+        button: "Find State Office",
+      },
+    },
+
+    goToDashboard: "Go to Dashboard",
+    signInToDashboard: "Sign In to Dashboard",
   },
 }
