@@ -87,7 +87,17 @@ export function PrescreeningQuestionnaire({ onComplete }: PrescreeningQuestionna
       <div className="mb-8">
         <div className="flex justify-between items-center mb-4">
           <span className="text-sm font-medium text-muted-foreground">
-            {t("prescreening.questionProgress", { current: currentQuestion + 1, total: questions.length })}
+            {(() => {
+              console.log("[v0] Calling translation with:", {
+                key: "prescreening.questionProgress",
+                variables: { current: currentQuestion + 1, total: questions.length },
+              })
+              const result = t("prescreening.questionProgress", {
+                variables: { current: currentQuestion + 1, total: questions.length },
+              })
+              console.log("[v0] Translation result:", result)
+              return result
+            })()}
           </span>
           <span className="text-sm font-medium text-muted-foreground">
             {Math.round(progress)}% {t("prescreening.complete")}
