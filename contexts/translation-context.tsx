@@ -183,7 +183,7 @@ export function TranslationProvider({ children }: TranslationProviderProps) {
     if (variables && typeof result === "string") {
       Object.entries(variables).forEach(([variableKey, value]) => {
         const placeholder = `{{${variableKey}}}`
-        result = result.replace(new RegExp(placeholder, "g"), String(value))
+        result = result.replace(new RegExp(placeholder.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g"), String(value))
       })
     }
 
