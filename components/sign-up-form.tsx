@@ -65,6 +65,11 @@ function SignUpForm() {
     setError(null)
     setSuccess(null)
 
+    console.log("[v0] Current domain:", window.location.origin)
+    console.log("[v0] NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL:", process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL)
+    const redirectUrl = process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL || `${window.location.origin}/protected`
+    console.log("[v0] Final redirect URL:", redirectUrl)
+
     try {
       const supabase = createClient()
 
@@ -72,19 +77,22 @@ function SignUpForm() {
         email,
         password,
         options: {
-          emailRedirectTo: process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL || `${window.location.origin}/protected`,
+          emailRedirectTo: redirectUrl,
         },
       })
 
       if (signUpError) {
+        console.log("[v0] Supabase signup error:", signUpError)
         setError(signUpError.message)
         return
       }
 
+      console.log("[v0] Signup successful")
       setSuccess("Account created successfully! Please check your email to verify your account.")
       // Optionally redirect to a success page
       // router.push("/auth/sign-up-success")
     } catch (error: unknown) {
+      console.log("[v0] Signup error:", error)
       setError(error instanceof Error ? error.message : "An error occurred during sign up")
     } finally {
       setIsLoading(false)
