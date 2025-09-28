@@ -26,27 +26,17 @@ export default function Page() {
     setIsLoading(true)
     setError(null)
 
-    console.log("[v0] Current domain:", window.location.origin)
-    console.log("[v0] NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL:", process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL)
-    const redirectUrl = process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL || `${window.location.origin}/protected`
-    console.log("[v0] Final redirect URL:", redirectUrl)
-
     try {
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
         options: {
-          emailRedirectTo: redirectUrl,
+          emailRedirectTo: process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL || `${window.location.origin}/protected`,
         },
       })
-      if (error) {
-        console.log("[v0] Supabase auth error:", error)
-        throw error
-      }
-      console.log("[v0] Login successful, redirecting to /protected")
+      if (error) throw error
       router.push("/protected")
     } catch (error: unknown) {
-      console.log("[v0] Login error:", error)
       setError(error instanceof Error ? error.message : "An error occurred")
     } finally {
       setIsLoading(false)
