@@ -12,11 +12,6 @@ export function TranslatedHomePage() {
     <main className="flex-1">
       <section className="relative bg-white py-12 md:py-24 lg:py-32 overflow-hidden">
         <div className="container mx-auto px-4 md:px-6 text-center relative z-10">
-          <div className="inline-flex items-center gap-2 bg-white/90 backdrop-blur-sm border border-border/50 rounded-full px-3 md:px-4 py-2 mb-6 md:mb-8 shadow-sm">
-            <span className="text-primary">✨</span>
-            <span className="text-xs md:text-sm font-medium text-muted-foreground">{t("home.trustedBy")}</span>
-          </div>
-
           <h1 className="text-3xl md:text-5xl lg:text-7xl font-heading font-bold text-foreground mb-6 md:mb-8 leading-tight px-2">
             {t("home.heroTitle")}{" "}
             <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
